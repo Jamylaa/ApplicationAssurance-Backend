@@ -1,0 +1,8 @@
+# Ignorer le dossier frontend
+frontend/
+
+# Ignorer le fichier DIAGRAMMES_UML_GLOBAL.md
+DIAGRAMMES_UML_GLOBAL.md
+
+# Ignorer les fichiers de configuration IDE
+.idea/
