@@ -1,19 +1,16 @@
 package tn.vermeg.gestionuser.controllers;
-
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tn.vermeg.gestionuser.dto.ClientDTO;
-import tn.vermeg.gestionuser.dto.ClientResponseDTO;
+import tn.vermeg.gestionuser.entities.Client;
 import tn.vermeg.gestionuser.dto.ValidationResult;
 import tn.vermeg.gestionuser.services.ClientService;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/clients")
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "http://localhost:4200")
 public class ClientController {
 
     private final ClientService clientService;
@@ -23,15 +20,15 @@ public class ClientController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ClientResponseDTO>> getAllClients() {
-        List<ClientResponseDTO> clients = clientService.getAllClients();
+    public ResponseEntity<List<Client>> getAllClients() {
+        List<Client> clients = clientService.getAllClients();
         return ResponseEntity.ok(clients);
     }
 
     @GetMapping("/{idUser}")
-    public ResponseEntity<ClientResponseDTO> getClientById(@PathVariable String idUser) {
+    public ResponseEntity<Client> getClientById(@PathVariable String idUser) {
         try {
-            ClientResponseDTO client = clientService.getClientById(idUser);
+            Client client = clientService.getClientById(idUser);
             return ResponseEntity.ok(client);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
@@ -39,9 +36,9 @@ public class ClientController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createClient(@Valid @RequestBody ClientDTO clientDTO) {
+    public ResponseEntity<?> createClient(@RequestBody Client client) {
         try {
-            ClientResponseDTO createdClient = clientService.createClient(clientDTO);
+            Client createdClient = clientService.createClient(client);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdClient);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -51,9 +48,9 @@ public class ClientController {
     }
 
     @PutMapping("/{idUser}")
-    public ResponseEntity<?> updateClient(@PathVariable String idUser, @Valid @RequestBody ClientDTO clientDTO) {
+    public ResponseEntity<?> updateClient(@PathVariable String idUser, @RequestBody Client client) {
         try {
-            ClientResponseDTO updatedClient = clientService.updateClient(idUser, clientDTO);
+            Client updatedClient = clientService.updateClient(idUser, client);
             return ResponseEntity.ok(updatedClient);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -85,8 +82,8 @@ public class ClientController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ClientResponseDTO>> searchClients(@RequestParam String query) {
-        List<ClientResponseDTO> clients = clientService.searchClients(query);
+    public ResponseEntity<List<Client>> searchClients(@RequestParam String query) {
+        List<Client> clients = clientService.searchClients(query);
         return ResponseEntity.ok(clients);
     }
 }

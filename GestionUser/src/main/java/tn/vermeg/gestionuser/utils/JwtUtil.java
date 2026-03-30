@@ -5,7 +5,6 @@ import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Date;
 import java.nio.charset.StandardCharsets;
-
 public class JwtUtil {
 
     // Minimum 32 caractères pour HS256

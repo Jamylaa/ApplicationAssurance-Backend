@@ -1,13 +1,10 @@
 package tn.vermeg.gestionuser.security;
-
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 @Service
 public class PasswordService {
     
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
     /**
      * Hash un mot de passe avec BCrypt
      * @param plainPassword Le mot de passe en clair
@@ -16,7 +13,6 @@ public class PasswordService {
     public String hashPassword(String plainPassword) {
         return passwordEncoder.encode(plainPassword);
     }
-
     /**
      * Vérifie si un mot de passe correspond au hash
      * @param plainPassword Le mot de passe en clair
@@ -26,7 +22,6 @@ public class PasswordService {
     public boolean verifyPassword(String plainPassword, String hashedPassword) {
         return passwordEncoder.matches(plainPassword, hashedPassword);
     }
-
     /**
      * Génère un mot de passe temporaire
      * @return Un mot de passe temporaire de 8 caractères
@@ -39,7 +34,6 @@ public class PasswordService {
             int index = (int) (Math.random() * chars.length());
             password.append(chars.charAt(index));
         }
-        
         return password.toString();
     }
 }

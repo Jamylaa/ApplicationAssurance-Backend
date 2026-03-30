@@ -3,7 +3,6 @@
 ## ✅ Problème résolu
 
 **Erreur** : `Cannot resolve symbol 'validation'`
-
 **Cause** : Spring Boot 4.x utilise `jakarta.validation` au lieu de `javax.validation`
 
 ## 🔧 Corrections apportées

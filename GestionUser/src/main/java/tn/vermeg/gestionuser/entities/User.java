@@ -1,11 +1,13 @@
 package tn.vermeg.gestionuser.entities;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
 @Document(collection = "users")
+@TypeAlias("user")
     public abstract class User {
 
         @Id

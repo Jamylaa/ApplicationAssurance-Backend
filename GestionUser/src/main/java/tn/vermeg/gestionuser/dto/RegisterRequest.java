@@ -1,5 +1,4 @@
 package tn.vermeg.gestionuser.dto;
-
 import tn.vermeg.gestionuser.entities.Departement;
 
 public class RegisterRequest {

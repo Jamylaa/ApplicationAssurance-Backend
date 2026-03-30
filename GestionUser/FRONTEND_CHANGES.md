@@ -27,7 +27,6 @@ http://localhost:8080/api/clients
 ## 🔄 Modifications à apporter
 
 ### 1. **Mise à jour des URLs des appels API**
-
 #### ❌ Anciens endpoints (à supprimer)
 ```javascript
 // Anciens contrôleurs à ne plus utiliser
@@ -46,9 +45,7 @@ GET    /api/clients/search?query=
 POST   /api/clients/validate-username
 POST   /api/clients/validate-email
 ```
-
 ### 2. **Format des données Client**
-
 #### ✅ ClientDTO (pour création/mise à jour)
 ```json
 {
@@ -66,7 +63,6 @@ POST   /api/clients/validate-email
   "nombreBeneficiaires": 3
 }
 ```
-
 #### ✅ ClientResponseDTO (pour les réponses)
 ```json
 {
@@ -86,11 +82,8 @@ POST   /api/clients/validate-email
   "actif": true
 }
 ```
-
 ### 3. **Exemples d'implémentation**
-
 #### 📝 Service Angular/React
-
 ```javascript
 // clientService.js
 class ClientService {

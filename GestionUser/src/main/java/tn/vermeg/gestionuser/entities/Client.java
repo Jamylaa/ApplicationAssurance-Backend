@@ -1,17 +1,34 @@
 package tn.vermeg.gestionuser.entities;
 
+import jakarta.validation.constraints.*;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "clients")
+@TypeAlias("client")
 public class Client extends User {
+    
+    // Champs spécifiques à Client
+    @Min(value = 0, message = "L'âge ne peut pas être négatif")
+    @Max(value = 150, message = "L'âge ne peut pas dépasser 150 ans")
     private Integer age;
+    
+    @Pattern(regexp = "^(M|F|Homme|Femme)$", 
+             message = "Le sexe doit être M, F, Homme ou Femme")
     private String sexe;
+    
     private String profession;
+    
     private String situationFamiliale;
-    private Boolean maladieChronique;
-    private Boolean diabetique;
-    private Boolean tension;
-    private Integer nombreBeneficiaires;
+    
+    private Boolean maladieChronique = false;
+    
+    private Boolean diabetique = false;
+    
+    private Boolean tension = false;
+    
+    @Min(value = 1, message = "Le nombre de bénéficiaires doit être au moins 1")
+    private Integer nombreBeneficiaires = 1;
 
     public Client() {}
     public Client(String idUser, String userName, String email, String password, Integer phone, 

@@ -130,7 +130,7 @@ L'architecture de GestionUser a été complètement restructurée pour éliminer
    - Suppression en base
    - Envoi d'email de confirmation
 
-## 🚀 Avantages de la nouvelle architecture
+##  Avantages de la nouvelle architecture
 
 1. **Unicité**: Plus de duplication de code
 2. **Sécurité**: Protection complète des mots de passe
@@ -140,7 +140,7 @@ L'architecture de GestionUser a été complètement restructurée pour éliminer
 6. **Performance**: Requêtes optimisées
 7. **Extensibilité**: Facile à étendre
 
-## 📝 Notes importantes
+##  Notes importantes
 
 - Le mot de passe n'est jamais retourné dans les réponses API
 - Tous les emails sont envoyés automatiquement lors des opérations CRUD

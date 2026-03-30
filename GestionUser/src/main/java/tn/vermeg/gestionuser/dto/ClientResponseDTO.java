@@ -13,7 +13,7 @@ public class ClientResponseDTO {
     private Boolean diabetique;
     private Boolean tension;
     private Integer nombreBeneficiaires;
-    private String role;
+  //  private String role;
     private Boolean actif;
     // Constructeurs
     public ClientResponseDTO() {}
@@ -90,15 +90,15 @@ public class ClientResponseDTO {
     public void setNombreBeneficiaires(Integer nombreBeneficiaires) {
         this.nombreBeneficiaires = nombreBeneficiaires;
     }
-    public String getRole() {
-        return role;
-    }
-    public void setRole(String role) {
-        this.role = role;
-    }
-    public Boolean getActif() {
-        return actif;
-    }
+//    public String getRole() {
+//        return role;
+//    }
+//    public void setRole(String role) {
+//        this.role = role;
+//    }
+//    public Boolean getActif() {
+//        return actif;
+//    }
     public void setActif(Boolean actif) {
         this.actif = actif;
     }
