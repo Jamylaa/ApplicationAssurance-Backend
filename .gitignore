@@ -3,6 +3,10 @@ frontend/
 
 # Ignorer le fichier DIAGRAMMES_UML_GLOBAL.md
 DIAGRAMMES_UML_GLOBAL.md
-
+CORRECTION_VALIDATION_IMPORT.md
+FRONTEND_CHANGES.md
+README_VALIDATIONS.md
+README_ARCHITECTURE.md
+README.md
 # Ignorer les fichiers de configuration IDE
 .idea/
