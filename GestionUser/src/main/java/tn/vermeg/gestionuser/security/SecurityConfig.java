@@ -27,3 +27,17 @@ public class SecurityConfig {
         return http.build();
     }
 }
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        http
+//                .cors(Customizer.withDefaults()) //
+//                .csrf(csrf -> csrf.disable())
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+//                        .anyRequest().permitAll()
+//                )
+//                .httpBasic(httpBasic -> httpBasic.disable())
+//                .formLogin(form -> form.disable());
+//
+//        return http.build();
+//    }

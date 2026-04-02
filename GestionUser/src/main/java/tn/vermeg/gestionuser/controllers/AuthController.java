@@ -34,25 +34,6 @@ public class AuthController {
         this.adminRepository = adminRepository;
         this.clientRepository = clientRepository;
     }
-    //  REGISTER ADMIN (Public Signup)
-//    @PostMapping("/register/admin")
-//    public ResponseEntity<?> registerAdmin(@RequestBody RegisterRequest request) {
-//        if (adminRepository.findByUserName(request.getUserName()) != null) {
-//            return ResponseEntity.badRequest().body("Username already exists");
-//        }
-//        Admin admin = new Admin();
-//        admin.setUserName(request.getUserName());
-//        admin.setPassword(passwordEncoder.encode(request.getPassword())); // Encodage manquant corrigé
-//        admin.setEmail(request.getEmail());
-//        admin.setPhone(request.getPhone());
-//        admin.setDepartement(request.getDepartement());
-//        Admin savedAdmin = adminService.createAdmin(admin);
-//        String token = JwtUtil.generateToken(
-//                savedAdmin.getUserName(),
-//                "ROLE_ADMIN"
-//        );
-//        return ResponseEntity.ok(token);
-//    }
     @PostMapping("/register/admin")
     public ResponseEntity<?> registerAdmin(@RequestBody RegisterRequest request) {
         if (adminRepository.findByUserName(request.getUserName()) != null) {
@@ -68,7 +49,6 @@ public class AuthController {
         String token = JwtUtil.generateToken(savedAdmin.getUserName(), "ROLE_ADMIN");
         return ResponseEntity.ok(token);
     }
-
     //  LOGIN (Strict Admin verification for frontend if needed)
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
@@ -111,3 +91,22 @@ public class AuthController {
         }
     }
 }
+//  REGISTER ADMIN (Public Signup)
+//    @PostMapping("/register/admin")
+//    public ResponseEntity<?> registerAdmin(@RequestBody RegisterRequest request) {
+//        if (adminRepository.findByUserName(request.getUserName()) != null) {
+//            return ResponseEntity.badRequest().body("Username already exists");
+//        }
+//        Admin admin = new Admin();
+//        admin.setUserName(request.getUserName());
+//        admin.setPassword(passwordEncoder.encode(request.getPassword())); // Encodage manquant corrigé
+//        admin.setEmail(request.getEmail());
+//        admin.setPhone(request.getPhone());
+//        admin.setDepartement(request.getDepartement());
+//        Admin savedAdmin = adminService.createAdmin(admin);
+//        String token = JwtUtil.generateToken(
+//                savedAdmin.getUserName(),
+//                "ROLE_ADMIN"
+//        );
+//        return ResponseEntity.ok(token);
+//    }

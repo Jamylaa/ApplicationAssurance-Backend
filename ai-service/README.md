@@ -1,13 +1,12 @@
 # AI Service - Vermeg Insurance System
 
 Service d'intelligence artificielle pour le système d'assurance Vermeg avec chatbots séparés.
-
-## 🏗️ Architecture
+## 🏗 Architecture
 
 - **Chatbot de Recommandation** : Aide les clients à trouver le pack d'assurance adapté
 - **Chatbot d'Administration** : Permet aux admins de créer des garanties, produits et packs
 - **Moteur de Scoring** : Algorithmes ML pour les recommandations personnalisées
-## 🚀 Démarrage
+## Démarrage
 
 ### Prérequis
 ```bash

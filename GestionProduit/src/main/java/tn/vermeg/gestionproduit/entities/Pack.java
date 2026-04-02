@@ -13,6 +13,7 @@ public class Pack {
     private String idPack;
     private String nomPack;
     private String description;
+    private TypeProduit typeProduit;
     private List<String> produitsIds;
     private double prixMensuel;
     private int dureeMinContrat;
@@ -21,7 +22,6 @@ public class Pack {
     private boolean actif;
     @CreatedDate
     private Instant dateCreation;
-
     public Instant getDateCreation() {return dateCreation;}
     public void setDateCreation(Instant dateCreation) {this.dateCreation = dateCreation;}
     public boolean isActif() {return actif;}
@@ -66,14 +66,16 @@ public class Pack {
     public void setIdPack(String idPack) {
         this.idPack = idPack;
     }
-
+    public TypeProduit getTypeProduit() {return typeProduit;}
+    public void setTypeProduit(TypeProduit typeProduit) {this.typeProduit = typeProduit;}
     public Pack() {}
-    public Pack(String idPack, String nomPack, String description, List<String> produitsIds,
-                double prixMensuel, int dureeMinContrat, int dureeMaxContrat,
-                NiveauCouverture niveauCouverture, boolean actif, Instant dateCreation) {
+    public Pack(String idPack, String nomPack, String description, TypeProduit typeProduit,
+                List<String> produitsIds, double prixMensuel, int dureeMinContrat,
+                int dureeMaxContrat, NiveauCouverture niveauCouverture, boolean actif, Instant dateCreation) {
         this.idPack = idPack;
         this.nomPack = nomPack;
         this.description = description;
+        this.typeProduit = typeProduit;
         this.produitsIds = produitsIds;
         this.prixMensuel = prixMensuel;
         this.dureeMinContrat = dureeMinContrat;

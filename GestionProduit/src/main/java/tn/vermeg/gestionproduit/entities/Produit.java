@@ -15,6 +15,7 @@ public class Produit {
     private String description;
     private List<String> garantiesIds;
     private double prixBase;
+    private TypeProduit typeProduit;
     private int ageMin;
     private int ageMax;
     private boolean maladieChroniqueAutorisee;
@@ -22,6 +23,24 @@ public class Produit {
     private boolean actif;
     @CreatedDate
     private Instant dateCreation;
+
+    public Produit(String idProduit, String nomProduit, String description, List<String> garantiesIds,
+                   double prixBase, TypeProduit typeProduit, int ageMin, int ageMax,
+                   boolean maladieChroniqueAutorisee, boolean diabetiqueAutorise, boolean actif,
+                   Instant dateCreation) {
+        this.idProduit = idProduit;
+        this.nomProduit = nomProduit;
+        this.description = description;
+        this.garantiesIds = garantiesIds;
+        this.prixBase = prixBase;
+        this.typeProduit = typeProduit;
+        this.ageMin = ageMin;
+        this.ageMax = ageMax;
+        this.maladieChroniqueAutorisee = maladieChroniqueAutorisee;
+        this.diabetiqueAutorise = diabetiqueAutorise;
+        this.actif = actif;
+        this.dateCreation = dateCreation;
+    }
 
     public String getIdProduit() {return idProduit;}
     public void setIdProduit(String idProduit) {this.idProduit = idProduit;}
@@ -78,20 +97,6 @@ public class Produit {
         this.dateCreation = dateCreation;
     }
     public Produit() {}
-    public Produit(String idProduit, String nomProduit, String description, List<String> garantiesIds,
-                   double prixBase, int ageMin, int ageMax,
-                   boolean maladieChroniqueAutorisee, boolean diabetiqueAutorise,
-                   boolean actif, Instant dateCreation) {
-        this.idProduit = idProduit;
-        this.nomProduit = nomProduit;
-        this.description = description;
-        this.garantiesIds = garantiesIds;
-        this.prixBase = prixBase;
-        this.ageMin = ageMin;
-        this.ageMax = ageMax;
-        this.maladieChroniqueAutorisee = maladieChroniqueAutorisee;
-        this.diabetiqueAutorise = diabetiqueAutorise;
-        this.actif = actif;
-        this.dateCreation = dateCreation;
-    }
+    public TypeProduit getTypeProduit() {return typeProduit;}
+    public void setTypeProduit(TypeProduit typeProduit) {this.typeProduit = typeProduit;}
 }

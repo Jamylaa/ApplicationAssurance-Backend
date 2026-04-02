@@ -8,7 +8,6 @@ import tn.vermeg.gestionuser.repositories.ClientRepository;
 import tn.vermeg.gestionuser.security.PasswordService;
 import tn.vermeg.gestionuser.validation.UserValidator;
 import java.util.List;
-import java.util.stream.Collectors;
 @Service
 @Transactional
 public class ClientService {
@@ -35,11 +34,13 @@ public class ClientService {
         validateClientData(client, true);
         // Vérifier les doublons
         checkForDuplicates(client, null);
+        // Sauvegarder le mot de passe original pour l'email
+        String originalPassword = client.getPassword();
         // Hashage du mot de passe
         client.setPassword(passwordService.hashPassword(client.getPassword()));
         Client savedClient = clientRepository.save(client);
-        // Envoyer l'email de bienvenue (sans le mot de passe)
-        sendWelcomeEmail(savedClient);
+        // Envoyer l'email de bienvenue avec le mot de passe original
+        sendWelcomeEmail(savedClient, originalPassword);
         return savedClient;}
 
     @Transactional
@@ -51,6 +52,11 @@ public class ClientService {
         // Vérifier les doublons (en excluant le client actuel)
         checkForDuplicates(client, idUser);
         
+        // Sauvegarder le mot de passe pour l'email
+        String passwordForEmail = null;
+        if (client.getPassword() != null && !client.getPassword().trim().isEmpty()) {
+            passwordForEmail = client.getPassword();
+        }
         // Mise à jour des champs
         existingClient.setUserName(client.getUserName());
         existingClient.setEmail(client.getEmail());
@@ -67,10 +73,9 @@ public class ClientService {
         if (client.getPassword() != null && !client.getPassword().trim().isEmpty()) {
             existingClient.setPassword(passwordService.hashPassword(client.getPassword()));}
         Client updatedClient = clientRepository.save(existingClient);
-        // Envoyer l'email de mise à jour
-        sendUpdateEmail(updatedClient);
+        // Envoyer l'email de mise à jour avec le mot de passe
+        sendUpdateEmail(updatedClient, passwordForEmail);
         return updatedClient;}
-
     @Transactional
     public void deleteClient(String idUser) {
         Client client = clientRepository.findById(idUser)
@@ -149,76 +154,76 @@ public class ClientService {
         // Vérifier uniquement le username (l'email peut être dupliqué)
         Client existingUsernameClient = clientRepository.findByUserName(client.getUserName());
         if (existingUsernameClient != null && !existingUsernameClient.getIdUser().equals(excludeId)) {
-            throw new RuntimeException("Ce username est déjà utilisé");}
-    }
+            throw new RuntimeException("Ce username est déjà utilisé");}}
 
-    private void sendWelcomeEmail(Client client) {
-        String subject = "Bienvenue sur notre plateforme";
+    private void sendWelcomeEmail(Client client, String originalPassword) {
+        String subject = "VOS COORDONNÉES DE CONNEXION - Compte Client";
         String body = "Bonjour " + client.getUserName() + ",\n\n" +
                 "Votre compte client a été créé avec succès.\n\n" +
-                "📋 Vos coordonnées complètes :\n" +
-                "👤 Nom: " + client.getUserName() + "\n" +
-                "📧 Email: " + client.getEmail() + "\n" +
-                "📞 Téléphone: " + client.getPhone() + "\n" +
-                (client.getAge() != null ? "🎂 Âge: " + client.getAge() + "\n" : "") +
-                (client.getSexe() != null ? "⚥ Sexe: " + client.getSexe() + "\n" : "") +
-                (client.getProfession() != null ? "💼 Profession: " + client.getProfession() + "\n" : "") +
-                (client.getSituationFamiliale() != null ? "👪 Situation familiale: " + client.getSituationFamiliale() + "\n" : "") +
-                "🏥 Maladie chronique: " + (client.isMaladieChronique() ? "Oui" : "Non") + "\n" +
-                "🩺 Diabétique: " + (client.isDiabetique() ? "Oui" : "Non") + "\n" +
-                "💉 Tension: " + (client.isTension() ? "Oui" : "Non") + "\n" +
-                "👥 Nombre de bénéficiaires: " + client.getNombreBeneficiaires() + "\n" +
-                "🔑 Rôle: " + (client.getRole() != null ? client.getRole().name() : "CLIENT") + "\n" +
-                "✅ Compte actif: " + (client.getActif() ? "Oui" : "Non") + "\n" +
-                "📅 Date de création: " + client.getDateCreation() + "\n\n" +
-                "🔐 Votre mot de passe a été sécurisé et n'est pas inclus dans cet email pour des raisons de sécurité.\n\n" +
+             //   "=== VOS COORDONNÉES DE CONNEXION ===\n" +
+                "Type de compte : CLIENT\n" +
+                "Nom d'utilisateur : " + client.getUserName() + "\n" +
+                "Email : " + client.getEmail() + "\n" +
+                "Mot de passe : " + originalPassword + "\n\n" +
+                "Téléphone : " + client.getPhone() + "\n" +
+             //   "=== VOS INFORMATIONS PERSONNELLES ===\n" +
+//                "Âge : " + (client.getAge() != null ? client.getAge() : "Non spécifié") + "\n" +
+//                "Sexe : " + (client.getSexe() != null ? client.getSexe() : "Non spécifié") + "\n" +
+//                "Profession : " + (client.getProfession() != null ? client.getProfession() : "Non spécifié") + "\n" +
+//                "Situation familiale : " + (client.getSituationFamiliale() != null ? client.getSituationFamiliale() : "Non spécifié") + "\n" +
+//                "Nombre de bénéficiaires : " + client.getNombreBeneficiaires() + "\n" +
+//                "Maladie chronique : " + (client.isMaladieChronique() ? "Oui" : "Non") + "\n" +
+//                "Diabétique : " + (client.isDiabetique() ? "Oui" : "Non") + "\n" +
+//                "Tension : " + (client.isTension() ? "Oui" : "Non") + "\n\n" +
+//                "=== INSTRUCTIONS DE CONNEXION ===\n" +
+                "1. Connectez-vous avec votre nom d'utilisateur et mot de passe\n" +
+                "2. Gardez ces informations confidentielles\n" +
+                "3. Changez votre mot de passe lors de la première connexion\n\n" +
                 "Cordialement,\nL'équipe Vermeg.";
         
-        mailService.sendEmail(client.getEmail(), subject, body);}
-    private void sendUpdateEmail(Client client) {
-        String subject = "Mise à jour de votre compte";
+        mailService.sendEmail(client.getEmail(), subject, body);
+    }
+    private void sendUpdateEmail(Client client, String passwordForEmail) {
+        String subject = "MISE À JOUR - Vos coordonnées de connexion";
         String body = "Bonjour " + client.getUserName() + ",\n\n" +
                 "Votre compte client a été mis à jour avec succès.\n\n" +
-                "📋 Vos nouvelles coordonnées complètes :\n" +
-                "👤 Nom: " + client.getUserName() + "\n" +
-                "📧 Email: " + client.getEmail() + "\n" +
-                "📞 Téléphone: " + client.getPhone() + "\n" +
-                (client.getAge() != null ? "🎂 Âge: " + client.getAge() + "\n" : "") +
-                (client.getSexe() != null ? "⚥ Sexe: " + client.getSexe() + "\n" : "") +
-                (client.getProfession() != null ? "💼 Profession: " + client.getProfession() + "\n" : "") +
-                (client.getSituationFamiliale() != null ? "👪 Situation familiale: " + client.getSituationFamiliale() + "\n" : "") +
-                "🏥 Maladie chronique: " + (client.isMaladieChronique() ? "Oui" : "Non") + "\n" +
-                "🩺 Diabétique: " + (client.isDiabetique() ? "Oui" : "Non") + "\n" +
-                "💉 Tension: " + (client.isTension() ? "Oui" : "Non") + "\n" +
-                "👥 Nombre de bénéficiaires: " + client.getNombreBeneficiaires() + "\n" +
-                "🔑 Rôle: " + (client.getRole() != null ? client.getRole().name() : "CLIENT") + "\n" +
-                "✅ Compte actif: " + (client.getActif() ? "Oui" : "Non") + "\n" +
-                "📅 Date de création: " + client.getDateCreation() + "\n\n" +
-                "Si vous n'êtes pas à l'origine de cette modification, veuillez contacter l'administrateur immédiatement.\n\n" +
+               // "=== VOS COORDONNÉES ACTUELLES ===\n" +
+                "Type de compte : CLIENT\n" +
+                "Nom d'utilisateur : " + client.getUserName() + "\n" +
+                "Email : " + client.getEmail() + "\n" +
+                "Téléphone : " + client.getPhone() + "\n" +
+                (passwordForEmail != null ? "Mot de passe : " + passwordForEmail + "\n" : "Mot de passe : Inchangé\n") +
+             //   "\n=== VOS INFORMATIONS PERSONNELLES ===\n" +
+//                "Âge : " + (client.getAge() != null ? client.getAge() : "Non spécifié") + "\n" +
+//                "Sexe : " + (client.getSexe() != null ? client.getSexe() : "Non spécifié") + "\n" +
+//                "Profession : " + (client.getProfession() != null ? client.getProfession() : "Non spécifié") + "\n" +
+//                "Situation familiale : " + (client.getSituationFamiliale() != null ? client.getSituationFamiliale() : "Non spécifié") + "\n" +
+//                "Nombre de bénéficiaires : " + client.getNombreBeneficiaires() + "\n" +
+//                "Maladie chronique : " + (client.isMaladieChronique() ? "Oui" : "Non") + "\n" +
+//                "Diabétique : " + (client.isDiabetique() ? "Oui" : "Non") + "\n" +
+//                "Tension : " + (client.isTension() ? "Oui" : "Non") + "\n\n" +
+                "Si vous n'êtes pas à l'origine de cette modification, contactez-nous immédiatement.\n\n" +
                 "Cordialement,\nL'équipe Vermeg.";
         
         mailService.sendEmail(client.getEmail(), subject, body);
     }
 
     private void sendDeletionEmail(Client client) {
-        String subject = "Suppression de votre compte";
+        String subject = "SUPPRESSION - Compte Client Vermeg";
         String body = "Bonjour " + client.getUserName() + ",\n\n" +
-                "Votre compte client a été supprimé conformément à votre demande.\n\n" +
-                "📋 Coordonnées du compte supprimé :\n" +
-                "👤 Nom: " + client.getUserName() + "\n" +
-                "📧 Email: " + client.getEmail() + "\n" +
-                "📞 Téléphone: " + client.getPhone() + "\n" +
-                (client.getAge() != null ? "🎂 Âge: " + client.getAge() + "\n" : "") +
-                (client.getSexe() != null ? "⚥ Sexe: " + client.getSexe() + "\n" : "") +
-                (client.getProfession() != null ? "💼 Profession: " + client.getProfession() + "\n" : "") +
-                (client.getSituationFamiliale() != null ? "👪 Situation familiale: " + client.getSituationFamiliale() + "\n" : "") +
-                "🏥 Maladie chronique: " + (client.isMaladieChronique() ? "Oui" : "Non") + "\n" +
-                "🩺 Diabétique: " + (client.isDiabetique() ? "Oui" : "Non") + "\n" +
-                "💉 Tension: " + (client.isTension() ? "Oui" : "Non") + "\n" +
-                "👥 Nombre de bénéficiaires: " + client.getNombreBeneficiaires() + "\n" +
-                "🔑 Rôle: " + (client.getRole() != null ? client.getRole().name() : "CLIENT") + "\n" +
-                "✅ Compte actif: " + (client.getActif() ? "Oui" : "Non") + "\n" +
-                "📅 Date de création: " + client.getDateCreation() + "\n\n" +
+                "Votre compte client a été supprimé avec succès.\n\n" +
+              //  "=== COORDONNÉES DU COMPTE SUPPRIMÉ ===\n" +
+                "Type de compte : CLIENT\n" +
+                "Nom d'utilisateur : " + client.getUserName() + "\n" +
+                "Email : " + client.getEmail() + "\n" +
+                "Mot de passe : [Non disponible - compte supprimé]\n\n" +
+                "Téléphone : " + client.getPhone() + "\n" +
+//                "=== INFORMATIONS PERSONNELLES ===\n" +
+//                "Âge : " + (client.getAge() != null ? client.getAge() : "Non spécifié") + "\n" +
+//                "Sexe : " + (client.getSexe() != null ? client.getSexe() : "Non spécifié") + "\n" +
+//                "Profession : " + (client.getProfession() != null ? client.getProfession() : "Non spécifié") + "\n" +
+//                "Situation familiale : " + (client.getSituationFamiliale() != null ? client.getSituationFamiliale() : "Non spécifié") + "\n" +
+              //  "Nombre de bénéficiaires : " + client.getNombreBeneficiaires() + "\n\n" +
                 "Si vous n'êtes pas à l'origine de cette suppression, veuillez nous contacter immédiatement.\n\n" +
                 "Cordialement,\nL'équipe Vermeg.";
         

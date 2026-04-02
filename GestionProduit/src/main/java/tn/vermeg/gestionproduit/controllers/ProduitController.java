@@ -2,6 +2,7 @@ package tn.vermeg.gestionproduit.controllers;
 
 import org.springframework.web.bind.annotation.*;
 import tn.vermeg.gestionproduit.entities.Produit;
+import tn.vermeg.gestionproduit.entities.TypeProduit;
 import tn.vermeg.gestionproduit.services.ProduitService;
 
 import java.util.List;
@@ -12,7 +13,6 @@ import java.util.List;
 public class ProduitController {
 
     private final ProduitService produitService;
-
     public ProduitController(ProduitService produitService) {this.produitService = produitService;}
 
     @PostMapping
@@ -34,4 +34,8 @@ public class ProduitController {
     @GetMapping
     public List<Produit> getAllProduits() {
         return produitService.getAllProduits();}
+    @GetMapping("/type/{typeProduit}")
+    public List<Produit> getProduitsByType(@PathVariable TypeProduit typeProduit) {
+        return produitService.getProduitsByType(typeProduit);
+    }
 }

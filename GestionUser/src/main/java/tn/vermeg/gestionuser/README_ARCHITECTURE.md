@@ -1,36 +1,28 @@
 # Architecture GestionUser - Version Nettoyée
-
 ## 📋 Vue d'ensemble
-
 L'architecture de GestionUser a été complètement restructurée pour éliminer les redondances et améliorer la maintenabilité.
-
 ## 🏗️ Structure Actuelle
-
 ### Controllers
 - **`ClientController`** - Contrôleur unique et principal pour la gestion des clients
   - Endpoint: `/api/clients`
   - Documentation Swagger intégrée
   - Validation des entrées avec Jakarta Validation
   - Gestion cohérente des erreurs
-
 ### Services
 - **`ClientService`** - Service unifié pour la logique métier
   - Validation complète des données
   - Hashage sécurisé des mots de passe
   - Envoi d'emails automatiques
   - Gestion des doublons
-
 ### DTOs
 - **`ClientDTO`** - DTO pour la réception des données (avec validation)
 - **`ClientResponseDTO`** - DTO pour la réponse (sans mot de passe)
 - **`ValidationResult`** - DTO pour les résultats de validation
-
 ### Repositories
 - **`ClientRepository`** - Repository unique avec toutes les requêtes nécessaires
   - Recherche par username
   - Recherche par email
   - Recherche textuelle (username ou email)
-
 ### Mappers
 - **`ClientMapper`** - Mapper unifié avec toutes les conversions
   - Entity → DTO

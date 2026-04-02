@@ -1,6 +1,7 @@
 package tn.vermeg.gestionproduit.controllers;
 import org.springframework.web.bind.annotation.*;
 import tn.vermeg.gestionproduit.entities.Pack;
+import tn.vermeg.gestionproduit.entities.TypeProduit;
 import tn.vermeg.gestionproduit.services.PackService;
 import java.util.List;
 
@@ -10,13 +11,21 @@ import java.util.List;
 public class PackController {
 
     private final PackService packService;
-
     public PackController(PackService packService) {this.packService = packService;}
 
     @PostMapping
     public Pack createPack(@RequestBody Pack pack) {
         return packService.createPack(pack);}
 
+    @GetMapping("/type/{typeProduit}")
+    public List<Pack> getPacksByType(@PathVariable String typeProduit) {
+        try {
+            TypeProduit type = TypeProduit.valueOf(typeProduit.toUpperCase());
+            return packService.getPacksByType(type);
+        } catch (IllegalArgumentException e) {
+            return List.of();
+        }
+    }
     @PutMapping("/{idPack}")
     public Pack updatePack(@PathVariable String idPack, @RequestBody Pack pack) {
         return packService.updatePack(idPack, pack);}

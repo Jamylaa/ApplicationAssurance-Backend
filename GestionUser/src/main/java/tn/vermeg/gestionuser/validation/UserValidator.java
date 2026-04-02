@@ -48,7 +48,6 @@ public class UserValidator {
             return "Le mot de passe doit contenir au moins un chiffre";}
         return null; // Valide
     }
-    
     /**
      * Valide le format de l'email
      * @param email L'email à valider

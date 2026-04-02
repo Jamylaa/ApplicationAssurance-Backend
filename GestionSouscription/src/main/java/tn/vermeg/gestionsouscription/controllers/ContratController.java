@@ -54,6 +54,15 @@ public class ContratController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }}
 
+    @PutMapping("/{idContrat}")
+    public ResponseEntity<?> updateContrat(@PathVariable String idContrat, @RequestBody Contrat contrat) {
+        try {
+            Contrat updatedContrat = contratService.updateContrat(idContrat, contrat);
+            return ResponseEntity.ok(updatedContrat);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
     @PutMapping("/resilier/{idContrat}")
     public ResponseEntity<?> resilierContrat(@PathVariable String idContrat) {
         try {

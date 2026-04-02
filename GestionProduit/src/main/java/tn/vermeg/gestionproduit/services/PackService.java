@@ -1,6 +1,7 @@
 package tn.vermeg.gestionproduit.services;
 import org.springframework.stereotype.Service;
 import tn.vermeg.gestionproduit.entities.Pack;
+import tn.vermeg.gestionproduit.entities.TypeProduit;
 import tn.vermeg.gestionproduit.repositories.PackRepository;
 import java.util.List;
 
@@ -19,4 +20,5 @@ public class PackService {
         return packRepository.findById(idPack).orElse(null);
     }
     public List<Pack> getAllPacks() {return packRepository.findAll();}
+    public List<Pack> getPacksByType(TypeProduit type) {return packRepository.findByTypeProduitAndActif(type, true);}
 }

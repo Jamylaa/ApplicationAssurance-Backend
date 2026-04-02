@@ -15,7 +15,7 @@
         <module name="Eureka" />
         <module name="GestionProduit (1)" />
       </profile>
-      <profile name="Annotation profile for GestionUser" enabled="true">
+      <profile name="Annotation profile for Recommendation" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
