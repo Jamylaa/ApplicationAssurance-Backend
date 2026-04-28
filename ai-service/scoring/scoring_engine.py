@@ -14,7 +14,6 @@ import joblib
 import requests
 from builtins import print
 
-
 class ScoringEngine:
     """ Moteur de scoring basé sur du Machine Learning (Random Forest).
     Prédit la pertinence d'un pack d'assurance pour un profil client donné. """
@@ -146,7 +145,6 @@ class ScoringEngine:
             }
 
         # Maps
-        produits_map = {p["idProduit"]: p for p in produits}
         garanties_map = {g["idGarantie"]: g for g in garanties}
 
         scored_packs = []
@@ -154,16 +152,14 @@ class ScoringEngine:
             if not pack.get("actif", False):
                 continue
 
-            # Déterminer les garanties du pack
+            # Déterminer les garanties du pack directement depuis ses champs
             pack_garantie_types = set()
-            if pack.get("produitsIds"):
-                for pid in pack["produitsIds"]:
-                    produit = produits_map.get(pid)
-                    if produit and produit.get("garantiesIds"):
-                        for gid in produit["garantiesIds"]:
-                            g = garanties_map.get(gid)
-                            if g:
-                                pack_garantie_types.add(g.get("typeGarantie", ""))
+            all_garantie_ids = list(pack.get("garantiesInclusesIds") or []) + \
+                               list(pack.get("garantiesOptionnellesIds") or [])
+            for gid in all_garantie_ids:
+                g = garanties_map.get(gid)
+                if g:
+                    pack_garantie_types.add(g.get("typeGarantie", ""))
 
             # Construire le feature vector
             features = self._build_features(client_profile, pack, pack_garantie_types)

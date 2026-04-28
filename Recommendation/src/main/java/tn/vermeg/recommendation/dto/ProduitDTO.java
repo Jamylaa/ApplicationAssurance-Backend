@@ -15,7 +15,6 @@ public class ProduitDTO {
     private boolean diabetiqueAutorise;
     private boolean actif;
     private Date dateCreation;
-
     public ProduitDTO(String idProduit, String nomProduit, String description,
                       List<String> garantiesIds, double prixBase, int ageMin, int ageMax,
                       boolean maladieChroniqueAutorisee, boolean diabetiqueAutorise,
@@ -30,9 +29,7 @@ public class ProduitDTO {
         this.maladieChroniqueAutorisee = maladieChroniqueAutorisee;
         this.diabetiqueAutorise = diabetiqueAutorise;
         this.actif = actif;
-        this.dateCreation = dateCreation;
-    }
-
+        this.dateCreation = dateCreation;}
     public ProduitDTO() {}
     public String getIdProduit() { return idProduit; }
     public void setIdProduit(String idProduit) { this.idProduit = idProduit; }

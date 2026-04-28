@@ -1,0 +1,79 @@
+server:
+  port: ${GATEWAY_PORT:9091}
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+        # Route vers GestionUser
+        - id: gestion-user
+          uri: http://localhost:${USER_SERVICE_PORT:9092}
+          predicates:
+            - Path=/api/users/**,/api/auth/**,/api/admins/**,/api/clients/**
+          filters:
+            - StripPrefix=0
+            
+        # Route vers GestionProduit
+        - id: gestion-produit
+          uri: http://localhost:${PRODUCT_SERVICE_PORT:9093}
+          predicates:
+            - Path=/api/produits/**,/api/packs/**,/api/garanties/**,/api/pack-garanties/**
+          filters:
+            - StripPrefix=0
+            
+        # Route vers GestionSouscription
+        - id: gestion-souscription
+          uri: http://localhost:${SUBSCRIPTION_SERVICE_PORT:9094}
+          predicates:
+            - Path=/api/souscription/**,/api/contrats/**
+          filters:
+            - StripPrefix=0
+            
+        # Route vers Recommendation
+        - id: recommendation
+          uri: http://localhost:${RECOMMENDATION_SERVICE_PORT:9095}
+          predicates:
+            - Path=/api/recommendations/**
+          filters:
+            - StripPrefix=0
+            
+        # Route vers AI Service
+        - id: ai-service
+          uri: http://localhost:${AI_SERVICE_PORT:5000}
+          predicates:
+            - Path=/api/ai/**
+          filters:
+            - StripPrefix=0
+
+      # Configuration CORS globale pour la Gateway
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+              - "http://127.0.0.1:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+            maxAge: 3600
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web.reactive: DEBUG

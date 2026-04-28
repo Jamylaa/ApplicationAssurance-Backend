@@ -25,20 +25,19 @@ public class ContratController {
     public ResponseEntity<Contrat> getContratById(@PathVariable String idContrat) {
         return contratService.getContratById(idContrat)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
+                .orElse(ResponseEntity.notFound().build());}
 
-    @GetMapping("/client/{clientId}")
-    public List<Contrat> getContratsByClientId(@PathVariable String clientId) {
-        return contratService.getContratsByClientId(clientId);}
+    @GetMapping("/client/{idClient}")
+    public List<Contrat> getContratsByClientId(@PathVariable String idClient) {
+        return contratService.getContratsByClientId(idClient);}
 
     @GetMapping("/client/email/{email}")
     public List<Contrat> getContratsByClientEmail(@PathVariable String email) {
         return contratService.getContratsByClientEmail(email);}
 
-    @GetMapping("/produit/{produitId}")
-    public List<Contrat> getContratsByProduitId(@PathVariable String produitId) {
-        return contratService.getContratsByProduitId(produitId);}
+    @GetMapping("/produit/{idProduit}")
+    public List<Contrat> getContratsByProduitId(@PathVariable String idProduit) {
+        return contratService.getContratsByProduitId(idProduit);}
 
     @GetMapping("/statut/{statut}")
     public List<Contrat> getContratsByStatut(@PathVariable String statut) {
@@ -49,8 +48,7 @@ public class ContratController {
                                                @RequestParam int dureeMois) {
         try {
             Contrat contrat = contratService.renouvelerContrat(idContrat, dureeMois);
-            return ResponseEntity.ok(contrat);
-        } catch (RuntimeException e) {
+            return ResponseEntity.ok(contrat);} catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }}
 
@@ -58,23 +56,19 @@ public class ContratController {
     public ResponseEntity<?> updateContrat(@PathVariable String idContrat, @RequestBody Contrat contrat) {
         try {
             Contrat updatedContrat = contratService.updateContrat(idContrat, contrat);
-            return ResponseEntity.ok(updatedContrat);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+            return ResponseEntity.ok(updatedContrat);} catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());}
     }
     @PutMapping("/resilier/{idContrat}")
     public ResponseEntity<?> resilierContrat(@PathVariable String idContrat) {
         try {
             Contrat contrat = contratService.resilierContrat(idContrat);
-            return ResponseEntity.ok(contrat);
-        } catch (RuntimeException e) {
+            return ResponseEntity.ok(contrat);} catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }}
 
     @DeleteMapping("/{idContrat}")
     public ResponseEntity<Void> supprimerContrat(@PathVariable String idContrat) {
         contratService.supprimerContrat(idContrat);
-        return ResponseEntity.noContent().build();
-    }
+        return ResponseEntity.noContent().build();}
 }

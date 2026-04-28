@@ -6,7 +6,7 @@ import tn.vermeg.gestionsouscription.dto.ClientDTO;
 import java.util.List;
  // Feign client pour communiquer avec le microservice GestionUser.
  // Le nom "GESTIONUSER" doit correspondre au spring.application.name du service User enregistré dans Eureka.
-@FeignClient(name = "GESTIONUSER", path = "/api/clients", contextId = "userClient")
+@FeignClient(name = "GESTIONUSER", path = "/api/clients", contextId = "userClient", configuration = tn.vermeg.gestionsouscription.config.FeignConfig.class)
 public interface UserServiceClient {
     @GetMapping("/{idUser}")
     ClientDTO getClientById(@PathVariable("idUser") String idUser);

@@ -1,6 +1,6 @@
-# Chatbot Package This package contains the chatbot engines for the Vermeg insurance system.
+# Chatbot Package - Unified chatbots for Vermeg insurance system
 ## Modules
-#- `recommendation_chatbot.py` - Recommendation chatbot for clients
-#- `chatbot_engine.py` - Administration chatbot for creating entities
-
-from .recommendation_chatbot import RecommendationChatbot
+#- unified_product_chatbot.py - Unified product chatbot
+#- unified_garantie_chatbot.py - Unified guarantee chatbot
+#- unified_pack_chatbot.py - Unified pack chatbot
+#- ase_chatbot.py - Base chatbot class
