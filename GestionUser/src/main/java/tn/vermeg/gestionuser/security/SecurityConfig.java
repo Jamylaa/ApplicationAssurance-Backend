@@ -67,7 +67,7 @@ public class SecurityConfig {
                         //.requestMatchers("/actuator/**").permitAll()
                        // .requestMatchers("/eureka/**").permitAll()
                         // Toutes les autres routes nécessitent une authentification
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

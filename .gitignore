@@ -1,5 +1,5 @@
 # Ignorer le dossier frontend
-frontend/
+#frontend/
 
 # Ignorer le fichier DIAGRAMMES_UML_GLOBAL.md
 

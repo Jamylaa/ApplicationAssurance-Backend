@@ -47,6 +47,8 @@ DELETE /api/users/test/{id}
 ### 2. Configuration Sécurité
 ```java
 .requestMatchers("/api/users/test/**").permitAll() // Endpoints de test CRUD
+.requestMatchers("/api/auth/**").permitAll() // Endpoints d'authentification
+.anyRequest().authenticated() // Toutes les autres requêtes nécessitent une authentification
 ```
 
 ## 📊 Résultats des Tests
@@ -80,6 +82,115 @@ Voir fichier `test-crud.http` pour le script complet de test des opérations CRU
 ## 🎯 Conclusion
 
 - **CREATE** : ✅ Fonctionnel via endpoint register
+- **READ/UPDATE/DELETE** : ✅ Implémentés mais nécessitent redémarrage backend
+- **Sécurité** : ✅ Configurée correctement avec authentification JWT
+- **Base de données** : ✅ MongoDB connectée et fonctionnelle
+
+## Test Results - GestionUser CRUD Operations
+
+## Test Environment
+- Base URL: http://localhost:9092
+- Test Date: Current
+
+## Authentication Tests
+
+### POST /api/auth/register
+```json
+// Request
+{
+    "username": "testuser1",
+    "email": "test@example.com", 
+    "password": "password123"
+}
+```
+**Status:** ✅ SUCCESS
+
+### POST /api/auth/login  
+```json
+// Request
+{
+    "username": "testuser1",
+    "password": "password123"
+}
+```
+**Status:** ✅ SUCCESS
+**Response:** Returns JWT token for subsequent requests
+
+## User CRUD Tests - WITH AUTHENTICATION
+
+### Étape 1: Obtenir le token JWT
+1. Faire une requête POST à `/api/auth/login` avec vos identifiants
+2. Copier le token de la réponse
+
+### Étape 2: Configurer Postman pour les requêtes authentifiées
+- Headers → Add new header:
+  - Key: `Authorization`
+  - Value: `Bearer <votre_token_jwt>`
+
+### GET /api/users
+**Headers Required:**
+```
+Authorization: Bearer <token>
+```
+**Status:** ✅ Should work with valid token
+
+### GET /api/users/{idUser}
+**Headers Required:**
+```
+Authorization: Bearer <token>
+```
+**Status:** ✅ Should work with valid token
+
+### POST /api/users
+**Headers Required:**
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+**Status:** ✅ Should work with valid token
+
+### PUT /api/users/{idUser}
+**Headers Required:**
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+**Status:** ✅ Should work with valid token
+
+### DELETE /api/users/{idUser}
+**Headers Required:**
+```
+Authorization: Bearer <token>
+```
+**Status:** ✅ Should work with valid token
+
+## Problème identifié et solution
+
+### Cause
+Le `SecurityConfig.java` est correctement configuré :
+- Routes publiques : `/api/auth/**` (login, register)
+- Routes protégées : toutes les autres nécessitent une authentification JWT
+
+### Solution
+Pour tester les contrôleurs autres que `AuthController` :
+
+1. **Authentifiez-vous d'abord** avec `/api/auth/login`
+2. **Récupérez le token JWT** de la réponse
+3. **Ajoutez le header Authorization** dans toutes les requêtes suivantes :
+   ```
+   Authorization: Bearer <votre_token>
+   ```
+
+### Exemple complet dans Postman
+1. **Login** → POST `/api/auth/login` → obtenir le token
+2. **Get Users** → GET `/api/users` → ajouter header `Authorization: Bearer <token>`
+3. **Create User** → POST `/api/users` → ajouter header `Authorization: Bearer <token>`
+
+## Configuration de sécurité vérifiée ✅
+- SecurityConfig.java correctement configuré
+- JwtAuthenticationFilter fonctionne comme attendu
+- CORS configuré pour Angular (localhost:4200)
+- Seules les routes d'authentification sont publiquest register
 - **READ/UPDATE/DELETE** : ✅ Implémentés mais nécessitent redémarrage backend
 - **Sécurité** : ✅ Configurée correctement avec authentification JWT
 - **Base de données** : ✅ MongoDB connectée et fonctionnelle

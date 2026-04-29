@@ -55,8 +55,14 @@ public class AuthController {
         }
 
         String token = jwtUtil.generateToken(user.getUsername());
+        
+        // Remove password from user object before sending to frontend
+        user.setPassword(null);
 
-        return ResponseEntity.ok(Map.of("token", token));
+        return ResponseEntity.ok(Map.of(
+            "token", token,
+            "utilisateur", user
+        ));
     }
 }
 
