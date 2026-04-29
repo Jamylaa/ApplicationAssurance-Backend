@@ -1,0 +1,109 @@
+<section class="offers-page">
+  <div class="offers-hero">
+    <h2>Configuration Pack + Garanties</h2>
+    <p>Ajout des garanties incluses et optionnelles, affichage instantané du prix total et préparation à la démonstration.</p>
+  </div>
+
+  <div class="offers-layout">
+    <article class="offers-form-card">
+      <h3>Configurer un pack</h3>
+
+      <div class="offers-form">
+        <div class="offers-field">
+          <label for="packSelection">Pack</label>
+          <select id="packSelection" [ngModel]="selectedPackId" (ngModelChange)="onPackChange($event)" [ngModelOptions]="{ standalone: true }">
+            <option value="">Choisir un pack</option>
+            <option *ngFor="let pack of packs" [value]="pack.idPack">{{ pack.nomPack }}</option>
+          </select>
+        </div>
+      </div>
+
+      <form class="offers-form" [formGroup]="configurationForm" (ngSubmit)="ajouterGarantie()" style="margin-top: 1rem;">
+        <div class="offers-field">
+          <label for="garantieSelection">Garantie</label>
+          <select id="garantieSelection" formControlName="garantieId" (change)="onGarantieSelected()">
+            <option value="">Choisir une garantie</option>
+            <option *ngFor="let garantie of catalogueGaranties" [value]="garantie.idGarantie">
+              {{ garantie.nomGarantie }}
+            </option>
+          </select>
+        </div>
+
+        <div class="offers-form-grid">
+          <div class="offers-field">
+            <label for="tauxPackGarantie">Taux remboursement</label>
+            <input id="tauxPackGarantie" type="number" formControlName="tauxRemboursement" />
+          </div>
+
+          <div class="offers-field">
+            <label for="plafondPackGarantie">Plafond</label>
+            <input id="plafondPackGarantie" type="number" formControlName="plafond" />
+          </div>
+        </div>
+
+        <div class="offers-form-grid">
+          <div class="offers-field">
+            <label for="franchisePackGarantie">Franchise</label>
+            <input id="franchisePackGarantie" type="number" formControlName="franchise" />
+          </div>
+
+          <div class="offers-field">
+            <label for="supplementPrix">Supplément prix</label>
+            <input id="supplementPrix" type="number" formControlName="supplementPrix" />
+          </div>
+        </div>
+
+        <label class="offers-checkbox">
+          <input type="checkbox" formControlName="estOptionnelle" />
+          Garantie optionnelle
+        </label>
+
+        <div class="offers-actions">
+          <button class="offers-btn offers-btn-primary" type="submit">Ajouter la garantie</button>
+        </div>
+      </form>
+
+      <div *ngIf="feedback" class="offers-feedback" style="margin-top: 1rem;">{{ feedback }}</div>
+    </article>
+
+    <div class="offers-columns">
+      <article class="offers-card">
+        <h3>Garanties incluses</h3>
+        <div *ngIf="garantiesIncluses.length; else noIncluse">
+          <div class="offers-card" *ngFor="let garantie of garantiesIncluses" style="margin-top: 0.75rem; padding: 1rem;">
+            <strong>{{ garantie.nomGarantie || garantie.garantieId }}</strong>
+            <p>{{ garantie.tauxRemboursement }}% • Plafond {{ garantie.plafond | number: '1.0-0' }} TND</p>
+            <button class="offers-btn offers-btn-danger" type="button" (click)="supprimerGarantie(garantie)">Retirer</button>
+          </div>
+        </div>
+
+        <ng-template #noIncluse>
+          <div class="offers-empty">Aucune garantie incluse.</div>
+        </ng-template>
+      </article>
+
+      <article class="offers-card">
+        <h3>Garanties optionnelles</h3>
+        <div *ngIf="garantiesOptionnelles.length; else noOptionnelle">
+          <div class="offers-card" *ngFor="let garantie of garantiesOptionnelles" style="margin-top: 0.75rem; padding: 1rem;">
+            <strong>{{ garantie.nomGarantie || garantie.garantieId }}</strong>
+            <p>
+              {{ garantie.tauxRemboursement }}% • Supplément
+              {{ garantie.supplementPrix | number: '1.0-2' }} TND
+            </p>
+            <button class="offers-btn offers-btn-danger" type="button" (click)="supprimerGarantie(garantie)">Retirer</button>
+          </div>
+        </div>
+
+        <ng-template #noOptionnelle>
+          <div class="offers-empty">Aucune garantie optionnelle.</div>
+        </ng-template>
+      </article>
+    </div>
+  </div>
+
+  <article class="offers-card">
+    <h3>Prix total du pack</h3>
+    <div class="offers-kpi">{{ prixTotal | number: '1.0-2' }} TND</div>
+  </article>
+</section>

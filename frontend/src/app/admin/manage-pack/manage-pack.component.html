@@ -1,0 +1,226 @@
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+  <p-toolbar styleClass="mb-4 gap-2 bg-white border-0 py-3 px-4">
+    <ng-template pTemplate="left">
+      <div>
+        <h2 class="h4 mb-0 fw-bold">Gestion des Packs</h2>
+        <p class="text-muted small mb-0">Chaque pack porte ses garanties configurees avec taux, plafond et options.</p>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="right">
+      <div class="d-flex gap-2">
+        <button pButton pRipple label="Assistant IA" icon="bi bi-robot" class="p-button-outlined" (click)="openChatbot()"></button>
+        <button pButton pRipple label="Nouveau Pack" icon="pi pi-plus" class="p-button-primary" (click)="resetForm(); showForm = true"></button>
+      </div>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table
+    #dt
+    [value]="packs"
+    [rows]="10"
+    [paginator]="true"
+    [globalFilterFields]="['nomPack', 'description']"
+    [tableStyle]="{ 'min-width': '80rem' }"
+    [(selection)]="currentId"
+    [rowHover]="true"
+    dataKey="idPack"
+    currentPageReportTemplate="Affichage de {first} a {last} sur {totalRecords} packs"
+    [showCurrentPageReport]="true"
+    [loading]="loading"
+    styleClass="p-datatable-striped">
+
+    <ng-template pTemplate="caption">
+      <div class="d-flex align-items-center justify-content-between">
+        <h5 class="m-0">Liste des Packs</h5>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Rechercher..." />
+        </span>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="nomPack">Nom <p-sortIcon field="nomPack"></p-sortIcon></th>
+        <th>Produit</th>
+        <th>Garanties du pack</th>
+        <th pSortableColumn="prixMensuel">Prix mensuel <p-sortIcon field="prixMensuel"></p-sortIcon></th>
+        <th pSortableColumn="niveauCouverture">Niveau <p-sortIcon field="niveauCouverture"></p-sortIcon></th>
+        <th pSortableColumn="actif">Statut <p-sortIcon field="actif"></p-sortIcon></th>
+        <th class="text-end">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-pack>
+      <tr>
+        <td class="fw-bold">
+          <a [routerLink]="['/admin', 'packs', pack.idPack]" class="text-decoration-none">{{ pack.nomPack }}</a>
+        </td>
+        <td>
+          <span class="badge bg-primary-subtle text-primary border border-primary">{{ getProduitName(pack.produitId) }}</span>
+        </td>
+        <td>
+          <div class="d-flex flex-column gap-2" *ngIf="pack.garanties?.length; else aucunPackGarantie">
+            <div *ngIf="getPackGaranties(pack, 'incluses').length" class="border rounded-3 px-3 py-2 bg-success-subtle">
+              <div class="fw-semibold small text-success mb-1">Incluses</div>
+              <div *ngFor="let garantie of getPackGaranties(pack, 'incluses')" class="small mb-1">
+                <span class="fw-semibold">{{ getGarantieDisplay(garantie) }}</span>
+                <span class="text-muted"> - {{ garantie.tauxRemboursement }}% - plafond {{ garantie.plafond | number:'1.0-0' }} DT</span>
+              </div>
+            </div>
+            <div *ngIf="getPackGaranties(pack, 'optionnelles').length" class="border rounded-3 px-3 py-2 bg-warning-subtle">
+              <div class="fw-semibold small text-warning-emphasis mb-1">Optionnelles</div>
+              <div *ngFor="let garantie of getPackGaranties(pack, 'optionnelles')" class="small mb-1">
+                <span class="fw-semibold">{{ getGarantieDisplay(garantie) }}</span>
+                <span class="text-muted"> - {{ garantie.tauxRemboursement }}% - supplement {{ garantie.supplementPrix | number:'1.2-2' }} DT</span>
+              </div>
+            </div>
+          </div>
+          <ng-template #aucunPackGarantie>
+            <span class="small text-muted">Aucune garantie configuree</span>
+          </ng-template>
+        </td>
+        <td class="fw-bold text-primary">{{ pack.prixMensuel | number:'1.2-2' }} DT</td>
+        <td>
+          <p-badge [value]="getNiveauLabel(pack.niveauCouverture)" [severity]="getNiveauSeverity(pack.niveauCouverture)"></p-badge>
+        </td>
+        <td>
+          <span class="badge rounded-pill" [ngClass]="pack.actif ? 'bg-success-subtle text-success border border-success' : 'bg-danger-subtle text-danger border border-danger'">
+            {{ pack.actif ? 'Actif' : 'Inactif' }}
+          </span>
+        </td>
+        <td class="text-end">
+          <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text p-button-info me-2" (click)="voirDetails(pack)"></button>
+          <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-primary me-2" (click)="modifier(pack)"></button>
+          <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="supprimer(pack)"></button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="summary">
+      <div class="flex align-items-center justify-content-between">
+        Total de {{ packs ? packs.length : 0 }} packs.
+      </div>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog [(visible)]="showForm" [style]="{ width: '900px' }" [header]="isEditing ? 'Modifier le Pack' : 'Nouveau Pack'" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <form [formGroup]="packForm">
+      <div class="field mb-4">
+        <label for="nomPack" class="fw-bold mb-2">Nom du Pack</label>
+        <input type="text" pInputText id="nomPack" formControlName="nomPack" required autofocus />
+      </div>
+
+      <div class="field mb-4">
+        <label for="description" class="fw-bold mb-2">Description</label>
+        <textarea id="description" pInputTextarea formControlName="description" required rows="3"></textarea>
+      </div>
+
+      <div class="formgrid grid">
+        <div class="field col-6">
+          <label for="produitId" class="fw-bold mb-2">Produit parent</label>
+          <p-dropdown id="produitId" [options]="produits" formControlName="produitId" optionLabel="nomProduit" optionValue="idProduit" placeholder="Selectionner un produit" [filter]="true"></p-dropdown>
+        </div>
+        <div class="field col-6">
+          <label for="niveauCouverture" class="fw-bold mb-2">Niveau de couverture</label>
+          <p-dropdown id="niveauCouverture" [options]="niveauxCouverture" formControlName="niveauCouverture" optionLabel="label" optionValue="value" placeholder="Selectionner un niveau"></p-dropdown>
+        </div>
+      </div>
+
+      <div class="formgrid grid">
+        <div class="field col-4">
+          <label for="prixMensuel" class="fw-bold mb-2">Prix mensuel (DT)</label>
+          <p-inputNumber id="prixMensuel" formControlName="prixMensuel" mode="currency" currency="TND" locale="fr-TN"></p-inputNumber>
+        </div>
+        <div class="field col-4">
+          <label for="dureeMinContrat" class="fw-bold mb-2">Duree min (mois)</label>
+          <p-inputNumber id="dureeMinContrat" formControlName="dureeMinContrat" [showButtons]="true" [min]="1"></p-inputNumber>
+        </div>
+        <div class="field col-4">
+          <label for="dureeMaxContrat" class="fw-bold mb-2">Duree max (mois)</label>
+          <p-inputNumber id="dureeMaxContrat" formControlName="dureeMaxContrat" [showButtons]="true" [min]="1"></p-inputNumber>
+        </div>
+      </div>
+
+      <div class="field mt-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <label class="fw-bold mb-0">Garanties du pack</label>
+          <button type="button" pButton pRipple icon="pi pi-plus" label="Ajouter une garantie" class="p-button-sm p-button-outlined" (click)="addGarantieLine()"></button>
+        </div>
+
+        <div formArrayName="garanties" class="d-flex flex-column gap-3">
+          <div *ngFor="let garantieGroup of garantiesArray.controls; let i = index" [formGroupName]="i" class="border rounded-4 p-3 bg-light-subtle">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div class="fw-semibold">Garantie #{{ i + 1 }}</div>
+              <button type="button" pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="removeGarantieLine(i)"></button>
+            </div>
+
+            <div class="formgrid grid">
+              <div class="field col-6">
+                <label class="fw-bold mb-2">Garantie</label>
+                <p-dropdown [options]="garanties" formControlName="garantieId" optionLabel="nomGarantie" optionValue="idGarantie" placeholder="Selectionner une garantie" [filter]="true"></p-dropdown>
+              </div>
+              <div class="field col-3">
+                <label class="fw-bold mb-2">Taux remboursement</label>
+                <p-inputNumber formControlName="tauxRemboursement" suffix=" %" [min]="0" [max]="100"></p-inputNumber>
+              </div>
+              <div class="field col-3">
+                <label class="fw-bold mb-2">Plafond specifique</label>
+                <p-inputNumber formControlName="plafondSpecifique" mode="currency" currency="TND" locale="fr-TN" [min]="0"></p-inputNumber>
+              </div>
+            </div>
+
+            <div class="formgrid grid">
+              <div class="field col-4">
+                <label class="fw-bold mb-2">Niveau specifique</label>
+                <input type="text" pInputText formControlName="niveauCouvertureSpecifique" placeholder="Ex: Silver, Gold..." />
+              </div>
+              <div class="field col-4">
+                <label class="fw-bold mb-2">Supplement prix</label>
+                <p-inputNumber formControlName="supplementPrix" mode="currency" currency="TND" locale="fr-TN" [min]="0"></p-inputNumber>
+              </div>
+              <div class="field col-4 d-flex align-items-end">
+                <div class="field d-flex align-items-center gap-2 mb-2">
+                  <p-inputSwitch [formControlName]="'estOptionnelle'"></p-inputSwitch>
+                  <label class="fw-bold mb-0">Garantie optionnelle</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field d-flex align-items-center gap-2 mt-4">
+        <p-inputSwitch id="actif" formControlName="actif"></p-inputSwitch>
+        <label for="actif" class="fw-bold mb-0">Pack actif</label>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text" (click)="showForm = false"></button>
+    <button pButton pRipple [label]="isEditing ? 'Mettre a jour' : 'Enregistrer'" icon="pi pi-check" class="p-button-primary" [disabled]="packForm.invalid" (click)="onSubmit()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Chatbot Panel -->
+<div class="chatbot-overlay" [class.show]="showChatbot" (click)="closeChatbot()"></div>
+<div class="chatbot-panel" [class.show]="showChatbot">
+  <div class="chatbot-panel-header">
+    <div class="header-content">
+      <h4><i class="bi bi-robot"></i> Assistant IA</h4>
+      <p>Créez un pack en décrivant simplement ce que vous voulez</p>
+    </div>
+    <button class="close-btn" (click)="closeChatbot()" title="Fermer">
+      <i class="bi bi-x"></i>
+    </button>
+  </div>
+  <div class="chatbot-panel-body">
+    <div class="p-4 text-muted">
+      Assistant IA pack non branche dans cette version.
+    </div>
+  </div>
+</div>

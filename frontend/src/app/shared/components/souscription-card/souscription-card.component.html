@@ -1,0 +1,290 @@
+<div class="souscription-card-container" 
+     [class]="{ 
+       'compact': compact, 
+       'priority-active': isActive,
+       'priority-expiring': isExpiringSoon,
+       'priority-overdue': isPaymentOverdue,
+       'priority-inactive': !isActive && !isExpiringSoon && !isPaymentOverdue
+     }"
+     [style]="{ 'border-left': `4px solid ${getBorderColor()}` }">
+  <p-card [class]="compact ? 'compact-card' : 'full-card'">
+    <!-- Header -->
+    <div class="card-header">
+      <div class="header-content">
+        <div class="title-section">
+          <div class="title-row">
+            <h3 class="souscription-title">{{ souscription.numeroPolice || souscription.idSouscription }}</h3>
+            <div class="title-badges">
+              <p-tag 
+                *ngFor="let tag of getTags() | slice:0:2" 
+                [value]="tag.label" 
+                [severity]="tag.severity"
+                [icon]="tag.icon"
+                class="status-badge">
+              </p-tag>
+              <span class="more-badges" *ngIf="getTags().length > 2">
+                +{{ getTags().length - 2 }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="subtitle-row">
+            <span class="client-name">{{ souscription.nomClient }}</span>
+            <span class="pack-name">{{ souscription.nomPack }}</span>
+          </div>
+        </div>
+        
+        <div class="header-actions" *ngIf="showActions">
+          <div class="action-buttons">
+            <p-button 
+              icon="pi pi-eye"
+              class="p-button-outlined p-button-sm"
+              (click)="onView()"
+              pTooltip="Voir les détails"
+              tooltipPosition="top">
+            </p-button>
+            <p-button 
+              icon="pi pi-pencil"
+              class="p-button-outlined p-button-sm"
+              (click)="onEdit()"
+              pTooltip="Modifier"
+              tooltipPosition="top"
+              *ngIf="canEdit()">
+            </p-button>
+            <p-button 
+              icon="pi pi-play"
+              class="p-button-success p-button-sm"
+              (click)="onActivate()"
+              pTooltip="Activer"
+              tooltipPosition="top"
+              *ngIf="canActivate()">
+            </p-button>
+            <p-button 
+              icon="pi pi-pause"
+              class="p-button-warning p-button-sm"
+              (click)="onSuspend()"
+              pTooltip="Suspendre"
+              tooltipPosition="top"
+              *ngIf="canSuspend()">
+            </p-button>
+            <p-button 
+              icon="pi pi-times"
+              class="p-button-danger p-button-sm"
+              (click)="onResilier()"
+              pTooltip="Résilier"
+              tooltipPosition="top"
+              *ngIf="canResilier()">
+            </p-button>
+            <p-button 
+              icon="pi pi-trash"
+              class="p-button-danger p-button-sm"
+              (click)="onDelete()"
+              pTooltip="Supprimer"
+              tooltipPosition="top"
+              *ngIf="canDelete()">
+            </p-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="card-content">
+      <!-- Alertes -->
+      <div class="alerts-section" *ngIf="hasAlerts()">
+        <div class="alert-item" 
+             *ngFor="let alert of getAlerts()" 
+             [class]="`alert-${alert.severity}`">
+          <i class="pi" 
+             [class]="alert.severity === 'danger' ? 'pi-exclamation-circle' : 
+                     alert.severity === 'warning' ? 'pi-exclamation-triangle' : 'pi-info-circle'"></i>
+          <span class="alert-message">{{ alert.message }}</span>
+        </div>
+      </div>
+
+      <!-- Informations principales -->
+      <div class="info-section">
+        <div class="info-grid">
+          <!-- Produit et Pack -->
+          <div class="info-item">
+            <div class="info-label">Produit</div>
+            <div class="info-value">{{ souscription.nomProduit }}</div>
+          </div>
+
+          <!-- Dates -->
+          <div class="info-item" *ngIf="!compact">
+            <div class="info-label">Période</div>
+            <div class="info-value">
+              {{ formatDate(souscription.dateDebut) }} - {{ formatDate(souscription.dateFin) }}
+              <span class="duration">({{ getDureeContrat() }} mois)</span>
+            </div>
+          </div>
+
+          <!-- Prime -->
+          <div class="info-item">
+            <div class="info-label">Prime</div>
+            <div class="info-value">
+              <span class="prime-amount">{{ formatPrix(souscription.primeMensuelle || 0) }}</span>
+              <span class="prime-period">/mois</span>
+            </div>
+          </div>
+
+          <!-- Mode de paiement -->
+          <div class="info-item" *ngIf="!compact">
+            <div class="info-label">Paiement</div>
+            <div class="info-value">
+              <span class="payment-mode">{{ getModePaiementLabel() }}</span>
+              <span class="payment-frequency">({{ getFrequenceLabel() }})</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informations détaillées -->
+      <div class="details-section" *ngIf="showDetails && !compact">
+        <!-- Bénéficiaires -->
+        <div class="detail-item" *ngIf="hasBeneficiaires()">
+          <div class="detail-header">
+            <i class="pi pi-users"></i>
+            <span class="detail-title">Bénéficiaires</span>
+            <p-badge [value]="getNombreBeneficiaires()" severity="info"></p-badge>
+          </div>
+          <div class="detail-content">
+            <div class="beneficiaire-item" 
+                 *ngFor="let beneficiaire of souscription.beneficiaires | slice:0:2">
+              <span class="beneficiaire-name">{{ beneficiaire.nom }} {{ beneficiaire.prenom }}</span>
+              <span class="beneficiaire-relation">{{ beneficiaire.lienParente }}</span>
+              <p-tag *ngIf="beneficiaire.beneficiairePrincipal" 
+                     value="Principal" 
+                     severity="success" 
+                     class="principal-tag">
+              </p-tag>
+            </div>
+            <span class="more-beneficiaires" *ngIf="getNombreBeneficiaires() > 2">
+              +{{ getNombreBeneficiaires() - 2 }} autres
+            </span>
+          </div>
+        </div>
+
+        <!-- Garanties personnalisées -->
+        <div class="detail-item" *ngIf="hasGarantiesPersonnalisees()">
+          <div class="detail-header">
+            <i class="pi pi-shield"></i>
+            <span class="detail-title">Garanties personnalisées</span>
+            <p-badge [value]="getNombreGaranties()" severity="secondary"></p-badge>
+          </div>
+          <div class="detail-content">
+            <div class="garantie-item" 
+                 *ngFor="let garantie of souscription.garantiesPersonnalisees | slice:0:2">
+              <span class="garantie-name">{{ garantie.nomGarantie }}</span>
+              <span class="garantie-price" *ngIf="garantie.prixAdditionnel">
+                +{{ formatPrix(garantie.prixAdditionnel) }}
+              </span>
+              <p-tag *ngIf="garantie.optionnelle" 
+                     value="Optionnelle" 
+                     severity="warning" 
+                     class="option-tag">
+              </p-tag>
+            </div>
+            <span class="more-garanties" *ngIf="getNombreGaranties() > 2">
+              +{{ getNombreGaranties() - 2 }} autres
+            </span>
+          </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="detail-item" *ngIf="hasDocuments()">
+          <div class="detail-header">
+            <i class="pi pi-file"></i>
+            <span class="detail-title">Documents</span>
+            <p-badge [value]="getNombreDocuments()" severity="info"></p-badge>
+          </div>
+          <div class="detail-content">
+            <div class="document-item" 
+                 *ngFor="let document of souscription.documents | slice:0:2">
+              <i class="pi pi-file-pdf document-icon"></i>
+              <span class="document-name">{{ document.nomFichier }}</span>
+              <p-tag [value]="document.statut" 
+                     [severity]="document.statut === 'VALIDÉ' ? 'success' : 'warning'" 
+                     class="document-status">
+              </p-tag>
+            </div>
+            <span class="more-documents" *ngIf="getNombreDocuments() > 2">
+              +{{ getNombreDocuments() - 2 }} autres
+            </span>
+          </div>
+        </div>
+
+        <!-- Conditions spéciales -->
+        <div class="detail-item" *ngIf="hasConditionsSpeciales()">
+          <div class="detail-header">
+            <i class="pi pi-info-circle"></i>
+            <span class="detail-title">Conditions spéciales</span>
+            <p-badge [value]="souscription.conditionsSpeciales?.length" severity="warning"></p-badge>
+          </div>
+          <div class="detail-content">
+            <div class="condition-item" 
+                 *ngFor="let condition of souscription.conditionsSpeciales | slice:0:2">
+              <span class="condition-text">{{ condition }}</span>
+            </div>
+            <span class="more-conditions" *ngIf="souscription.conditionsSpeciales.length > 2">
+              +{{ souscription.conditionsSpeciales.length - 2 }} autres
+            </span>
+          </div>
+        </div>
+
+        <!-- Prochain paiement -->
+        <div class="detail-item" *ngIf="souscription.dateProchainPaiement">
+          <div class="detail-header">
+            <i class="pi pi-calendar"></i>
+            <span class="detail-title">Prochain paiement</span>
+          </div>
+          <div class="detail-content">
+            <span class="payment-date">{{ formatDate(souscription.dateProchainPaiement) }}</span>
+            <span class="payment-countdown" [class]="{ 'overdue': isPaymentOverdue }">
+              {{ getProchainPaiementText() }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="card-footer" *ngIf="!compact">
+      <div class="footer-content">
+        <div class="footer-left">
+          <div class="footer-info">
+            <span class="creation-date">
+              Créée le {{ formatDate(souscription.dateCreation) }}
+            </span>
+            <span class="modification-date" *ngIf="souscription.dateModification !== souscription.dateCreation">
+              Modifiée le {{ formatDate(souscription.dateModification) }}
+            </span>
+          </div>
+          <div class="footer-summary">
+            {{ getSummary() }}
+          </div>
+        </div>
+        
+        <div class="footer-right">
+          <div class="footer-actions">
+            <p-button 
+              label="Exporter" 
+              icon="pi pi-download" 
+              class="p-button-outlined p-button-sm"
+              (click)="onExport())"
+              pRipple>
+            </p-button>
+            <p-button 
+              label="Voir détails" 
+              icon="pi pi-arrow-right" 
+              class="p-button-outlined p-button-sm"
+              (click)="onView())"
+              pRipple>
+            </p-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </p-card>
+</div>

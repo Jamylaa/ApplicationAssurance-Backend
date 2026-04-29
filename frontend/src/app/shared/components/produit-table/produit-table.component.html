@@ -1,0 +1,370 @@
+<div class="produit-table-container">
+  <!-- Filtres -->
+  <div class="filters-section" *ngIf="showFilters">
+    <div class="filters-header">
+      <h3 class="filters-title">
+        <i class="pi pi-filter"></i>
+        Filtres
+      </h3>
+      <div class="filters-actions">
+        <p-button 
+          label="Réinitialiser" 
+          icon="pi pi-refresh" 
+          class="p-button-outlined p-button-sm"
+          (click)="clearFilters()">
+        </p-button>
+      </div>
+    </div>
+
+    <div class="filters-content">
+      <div class="filter-row">
+        <!-- Recherche globale -->
+        <div class="filter-field">
+          <label for="globalFilter">Recherche</label>
+          <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input 
+              id="globalFilter"
+              type="text" 
+              pInputText 
+              placeholder="Rechercher..." 
+              [(ngModel)]="globalFilter"
+              (input)="onGlobalFilterChange()"
+              class="search-input">
+          </span>
+        </div>
+
+        <!-- Type de produit -->
+        <div class="filter-field">
+          <label for="typeFilter">Type</label>
+          <p-dropdown 
+            id="typeFilter"
+            [options]="typeProduitOptions" 
+            [(ngModel)]="filter.typeProduit"
+            (onChange)="onTypeProduitFilterChange()"
+            placeholder="Tous les types"
+            [showClear]="true"
+            optionLabel="label"
+            optionValue="value"
+            class="filter-dropdown">
+          </p-dropdown>
+        </div>
+
+        <!-- Statut -->
+        <div class="filter-field">
+          <label for="statutFilter">Statut</label>
+          <p-dropdown 
+            id="statutFilter"
+            [options]="statutOptions" 
+            [(ngModel)]="filter.actif"
+            (onChange)="onStatutFilterChange()"
+            placeholder="Tous les statuts"
+            [showClear]="true"
+            optionLabel="label"
+            optionValue="value"
+            class="filter-dropdown">
+          </p-dropdown>
+        </div>
+
+        <!-- Catégorie -->
+        <div class="filter-field" *ngIf="categorieOptions.length > 0">
+          <label for="categorieFilter">Catégorie</label>
+          <p-dropdown 
+            id="categorieFilter"
+            [options]="categorieOptions" 
+            [(ngModel)]="filter.categorie"
+            (onChange)="onCategorieFilterChange()"
+            placeholder="Toutes les catégories"
+            [showClear]="true"
+            optionLabel="label"
+            optionValue="value"
+            class="filter-dropdown">
+          </p-dropdown>
+        </div>
+      </div>
+
+      <!-- Prix -->
+      <div class="filter-row">
+        <div class="filter-field">
+          <label for="prixMin">Prix minimum</label>
+          <input 
+            id="prixMin"
+            type="number" 
+            pInputText 
+            placeholder="Min DT"
+            [(ngModel)]="filter.prixMin"
+            (ngModelChange)="onFilterChange()"
+            class="price-input">
+        </div>
+
+        <div class="filter-field">
+          <label for="prixMax">Prix maximum</label>
+          <input 
+            id="prixMax"
+            type="number" 
+            pInputText 
+            placeholder="Max DT"
+            [(ngModel)]="filter.prixMax"
+            (ngModelChange)="onFilterChange()"
+            class="price-input">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions groupées -->
+  <div class="bulk-actions" *ngIf="selectedProduits.length > 0">
+    <div class="bulk-info">
+      <span>{{ selectedProduits.length }} produit(s) sélectionné(s)</span>
+    </div>
+    <div class="bulk-buttons">
+      <p-button 
+        label="Supprimer" 
+        icon="pi pi-trash" 
+        class="p-button-danger p-button-sm"
+        (click)="onBulkDelete()">
+      </p-button>
+      <p-button 
+        label="Activer/Désactiver" 
+        icon="pi pi-power-off" 
+        class="p-button-warning p-button-sm"
+        (click)="onBulkToggle()">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-section">
+    <div class="table-header">
+      <h3 class="table-title">
+        <i class="pi pi-table"></i>
+        Liste des produits
+        <span class="count-badge" *ngIf="totalRecords > 0">
+          {{ totalRecords }}
+        </span>
+      </h3>
+      <div class="table-actions">
+        <p-button 
+          label="Exporter CSV" 
+          icon="pi pi-download" 
+          class="p-button-outlined p-button-sm"
+          (click)="exportToCSV()">
+        </p-button>
+      </div>
+    </div>
+
+    <p-table 
+      [value]="produits"
+      [lazy]="true"
+      (onLazyLoad)="onPageChange($event)"
+      [paginator]="showPagination"
+      [rows]="rows"
+      [totalRecords]="totalRecords"
+      [first]="first"
+      [rowsPerPageOptions]="rowsPerPageOptions"
+      [loading]="loading"
+      [scrollable]="true"
+      scrollHeight="flex"
+      selectionMode="multiple"
+      [(selection)]="selectedProduits"
+      (selectionChange)="onSelectionChange()"
+      (onRowSelect)="onRowSelect($event)"
+      (onSort)="onSort($event)"
+      sortMode="single"
+      dataKey="idProduit"
+      [globalFilterFields]="['nomProduit', 'description', 'typeProduit', 'categorie']"
+      [globalFilter]="globalFilter"
+      class="produits-table">
+
+      <!-- En-tête -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="nomProduit" style="width: 20%">
+            Nom du produit
+            <p-sortIcon field="nomProduit"></p-sortIcon>
+          </th>
+          <th pSortableColumn="typeProduit" style="width: 12%">
+            Type
+            <p-sortIcon field="typeProduit"></p-sortIcon>
+          </th>
+          <th pSortableColumn="ageMin" style="width: 10%">
+            Âge
+            <p-sortIcon field="ageMin"></p-sortIcon>
+          </th>
+          <th style="width: 15%">Conditions</th>
+          <th pSortableColumn="prixMoyenPacks" style="width: 12%">
+            Prix moyen
+            <p-sortIcon field="prixMoyenPacks"></p-sortIcon>
+          </th>
+          <th style="width: 8%">Packs</th>
+          <th pSortableColumn="actif" style="width: 8%">
+            Statut
+            <p-sortIcon field="actif"></p-sortIcon>
+          </th>
+          <th pSortableColumn="dateCreation" style="width: 10%">
+            Création
+            <p-sortIcon field="dateCreation"></p-sortIcon>
+          </th>
+          <th style="width: 5%" *ngIf="showActions">Actions</th>
+        </tr>
+      </ng-template>
+
+      <!-- Corps -->
+      <ng-template pTemplate="body" let-produit>
+        <tr [class]="{ 'inactive-row': !produit.actif, 'recent-row': isProduitRecent(produit) }">
+          <!-- Nom du produit -->
+          <td>
+            <div class="produit-info">
+              <div class="produit-name">{{ produit.nomProduit }}</div>
+              <div class="produit-description">{{ produit.description }}</div>
+              <div class="produit-tags" *ngIf="produit.tags && produit.tags.length > 0">
+                <p-tag 
+                  *ngFor="let tag of produit.tags.slice(0, 2)" 
+                  [value]="tag"
+                  severity="secondary"
+                  class="tag-item">
+                </p-tag>
+                <span class="more-tags" *ngIf="produit.tags.length > 2">
+                  +{{ produit.tags.length - 2 }}
+                </span>
+              </div>
+            </div>
+          </td>
+
+          <!-- Type -->
+          <td>
+            <p-tag 
+              [value]="getTypeProduitLabel(produit.typeProduit)" 
+              severity="info"
+              class="type-tag">
+            </p-tag>
+          </td>
+
+          <!-- Âge -->
+          <td>
+            <div class="age-info">
+              <span class="age-range">{{ getAgeRange(produit) }}</span>
+            </div>
+          </td>
+
+          <!-- Conditions -->
+          <td>
+            <div class="conditions-info" *ngIf="hasConditionsSpeciales(produit)">
+              <div class="condition-tags">
+                <p-tag 
+                  *ngFor="let condition of getConditionsSpeciales(produit)" 
+                  [value]="condition"
+                  severity="success"
+                  class="condition-tag">
+                </p-tag>
+              </div>
+            </div>
+            <span class="no-conditions" *ngIf="!hasConditionsSpeciales(produit)">Standard</span>
+          </td>
+
+          <!-- Prix moyen -->
+          <td>
+            <div class="prix-info">
+              <span class="prix-value">{{ formatPrix(produit.prixMoyenPacks || 0) }}</span>
+              <span class="prix-period">/mois</span>
+            </div>
+          </td>
+
+          <!-- Packs -->
+          <td>
+            <div class="packs-info">
+              <p-badge 
+                [value]="getNombrePacksActifs(produit)" 
+                severity="info"
+                class="packs-badge">
+              </p-badge>
+              <span class="packs-total">{{ produit.packs?.length || 0 }} total</span>
+            </div>
+          </td>
+
+          <!-- Statut -->
+          <td>
+            <p-tag 
+              [value]="produit.actif ? 'Actif' : 'Inactif'" 
+              [severity]="getStatutColor(produit.actif)"
+              class="statut-tag">
+            </p-tag>
+          </td>
+
+          <!-- Date de création -->
+          <td>
+            <div class="date-info">
+              <span class="date-value">{{ produit.dateCreation | date:'dd/MM/yyyy' }}</span>
+              <p-tag 
+                *ngIf="isProduitRecent(produit)"
+                value="Nouveau"
+                severity="warning"
+                class="recent-tag">
+              </p-tag>
+            </div>
+          </td>
+
+          <!-- Actions -->
+          <td *ngIf="showActions">
+            <div class="action-buttons">
+              <p-button 
+                icon="pi pi-eye"
+                class="p-button-outlined p-button-sm"
+                (click)="onSelect(produit)"
+                pTooltip="Voir les détails"
+                tooltipPosition="top">
+              </p-button>
+              <p-button 
+                icon="pi pi-pencil"
+                class="p-button-outlined p-button-sm"
+                (click)="onEdit(produit)"
+                pTooltip="Modifier"
+                tooltipPosition="top"
+                *ngIf="produit.actif">
+              </p-button>
+              <p-button 
+                [icon]="produit.actif ? 'pi pi-power-off' : 'pi pi-check'"
+                [class]="produit.actif ? 'p-button-warning' : 'p-button-success'"
+                class="p-button-sm"
+                (click)="onToggle(produit)"
+                pTooltip="{{ produit.actif ? 'Désactiver' : 'Activer' }}"
+                tooltipPosition="top">
+              </p-button>
+              <p-button 
+                icon="pi pi-trash"
+                class="p-button-danger p-button-sm"
+                (click)="onDelete(produit)"
+                pTooltip="Supprimer"
+                tooltipPosition="top">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- Vide -->
+      <ng-template pTemplate="emptymessage">
+        <div class="empty-message">
+          <i class="pi pi-inbox"></i>
+          <span>Aucun produit trouvé</span>
+          <p *ngIf="globalFilter || filter.typeProduit || filter.actif">
+            Essayez de modifier vos filtres de recherche
+          </p>
+        </div>
+      </ng-template>
+
+      <!-- Footer -->
+      <ng-template pTemplate="footer" *ngIf="showPagination">
+        <tr>
+          <td colspan="9">
+            <div class="table-footer">
+              <div class="footer-info">
+                <span>Affichage de {{ first + 1 }} à {{ Math.min(first + rows, totalRecords) }} de {{ totalRecords }} produits</span>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

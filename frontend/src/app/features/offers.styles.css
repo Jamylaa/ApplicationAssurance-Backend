@@ -1,0 +1,241 @@
+.offers-page {
+  padding: 1.5rem;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.offers-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 1.5rem;
+  background:
+    radial-gradient(circle at top right, rgba(255, 184, 77, 0.35), transparent 35%),
+    linear-gradient(135deg, #12343b 0%, #1f5c65 45%, #2c7a7b 100%);
+  color: #fff;
+  box-shadow: 0 20px 40px rgba(18, 52, 59, 0.2);
+}
+
+.offers-hero h1,
+.offers-hero h2,
+.offers-hero p {
+  margin: 0;
+}
+
+.offers-hero p {
+  margin-top: 0.75rem;
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 720px;
+}
+
+.offers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.offers-card,
+.offers-form-card,
+.offers-table-card {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid #d7e5e8;
+  box-shadow: 0 16px 30px rgba(18, 52, 59, 0.08);
+}
+
+.offers-card {
+  padding: 1.25rem;
+}
+
+.offers-card h3,
+.offers-form-card h3,
+.offers-table-card h3 {
+  margin: 0 0 0.75rem;
+  color: #12343b;
+}
+
+.offers-kpi {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f5c65;
+}
+
+.offers-kpi-label {
+  color: #56737a;
+  font-size: 0.95rem;
+}
+
+.offers-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.offers-form-card,
+.offers-table-card {
+  padding: 1.25rem;
+}
+
+.offers-form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.offers-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.offers-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.offers-field label {
+  font-size: 0.9rem;
+  color: #35555c;
+  font-weight: 600;
+}
+
+.offers-field input,
+.offers-field textarea,
+.offers-field select {
+  width: 100%;
+  border: 1px solid #c2d6da;
+  border-radius: 12px;
+  padding: 0.8rem 0.9rem;
+  background: #f8fbfb;
+  color: #12343b;
+}
+
+.offers-field textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.offers-field input:focus,
+.offers-field textarea:focus,
+.offers-field select:focus {
+  outline: 0;
+  border-color: #2c7a7b;
+  box-shadow: 0 0 0 3px rgba(44, 122, 123, 0.12);
+}
+
+.offers-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #35555c;
+  font-weight: 600;
+}
+
+.offers-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.offers-btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.8rem 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.offers-btn:hover {
+  transform: translateY(-1px);
+}
+
+.offers-btn-primary {
+  background: linear-gradient(135deg, #f59e0b 0%, #ef7d00 100%);
+  color: #fff;
+  box-shadow: 0 10px 18px rgba(239, 125, 0, 0.24);
+}
+
+.offers-btn-secondary {
+  background: #eaf3f4;
+  color: #12343b;
+}
+
+.offers-btn-danger {
+  background: #ffe2de;
+  color: #aa2e25;
+}
+
+.offers-btn-link {
+  background: transparent;
+  color: #1f5c65;
+  padding-inline: 0;
+}
+
+.offers-table-wrap {
+  overflow: auto;
+}
+
+.offers-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+.offers-table th,
+.offers-table td {
+  padding: 0.9rem 0.75rem;
+  border-bottom: 1px solid #edf3f4;
+  text-align: left;
+  vertical-align: top;
+}
+
+.offers-table th {
+  color: #5a7a80;
+  font-size: 0.9rem;
+}
+
+.offers-empty {
+  padding: 1.25rem;
+  text-align: center;
+  color: #68858a;
+  border: 1px dashed #c6d7da;
+  border-radius: 16px;
+  background: #f8fbfb;
+}
+
+.offers-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  background: #e6f5ef;
+  color: #13795b;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.offers-badge.is-muted {
+  background: #eef3f5;
+  color: #5f767b;
+}
+
+.offers-feedback {
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  background: #eef8ff;
+  color: #0d5a83;
+}
+
+.offers-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 960px) {
+  .offers-layout,
+  .offers-columns,
+  .offers-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

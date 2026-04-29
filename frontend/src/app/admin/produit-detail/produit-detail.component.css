@@ -1,0 +1,81 @@
+/* Styles for produit detail page */
+
+.pack-card {
+  height: 100%;
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: linear-gradient(160deg, #ffffff, #f8fafc);
+  box-shadow: 0 20px 45px -30px rgba(15, 23, 42, 0.35);
+}
+
+.pack-card--basic {
+  background: linear-gradient(160deg, #ffffff, #eff6ff);
+}
+
+.pack-card--silver {
+  background: linear-gradient(160deg, #ffffff, #f3f4f6);
+}
+
+.pack-card--gold {
+  background: linear-gradient(160deg, #fff8e7, #fff1bf);
+}
+
+.pack-card--default {
+  background: linear-gradient(160deg, #ffffff, #f8fafc);
+}
+
+.pack-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.pack-card__eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 0.35rem;
+}
+
+.pack-card__price {
+  font-size: 2rem;
+  line-height: 1;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.pack-card__price span {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #64748b;
+  margin-left: 0.25rem;
+}
+
+.pack-card__feature {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-radius: 999px;
+  padding: 0.65rem 0.9rem;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  font-size: 0.9rem;
+}
+
+.comparison-table thead th {
+  background: #f8fafc;
+  min-width: 220px;
+}
+
+.comparison-table__sticky {
+  position: sticky;
+  left: 0;
+  background: #ffffff;
+  z-index: 1;
+}

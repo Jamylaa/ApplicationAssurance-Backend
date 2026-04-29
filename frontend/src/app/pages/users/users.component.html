@@ -1,0 +1,153 @@
+<div class="users-container">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+  
+  <p-card header="Gestion des Utilisateurs" styleClass="users-card">
+    <div class="card-header">
+      <div class="header-actions">
+        <p-button 
+          label="Actualiser" 
+          icon="pi pi-refresh" 
+          (click)="refreshUsers()"
+          [loading]="loading">
+        </p-button>
+        <p-button 
+          label="Ajouter un utilisateur" 
+          icon="pi pi-plus" 
+          styleClass="p-button-outlined">
+        </p-button>
+      </div>
+    </div>
+
+    <div class="search-section">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input 
+          type="text" 
+          pInputText 
+          placeholder="Rechercher..." 
+          (input)="onGlobalFilter($event)"
+          [value]="globalFilterValue">
+      </span>
+    </div>
+
+    <p-table 
+      [value]="users" 
+      [loading]="loading"
+      [globalFilterFields]="['userName', 'email', 'departement']"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Affichage de {first} a {last} sur {totalRecords} utilisateurs"
+      [sortMode]="'single'"
+      styleClass="p-datatable-sm p-datatable-gridlines"
+      responsiveLayout="scroll"
+      class="users-table">
+    
+      <ng-template pTemplate="caption">
+        <div class="table-caption">
+          <h5 class="mb-0">Liste des utilisateurs ({{ users.length }})</h5>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="userName" style="width: 20%">
+            Nom utilisateur
+            <p-sortIcon field="userName"></p-sortIcon>
+          </th>
+          <th pSortableColumn="email" style="width: 25%">
+            Email
+            <p-sortIcon field="email"></p-sortIcon>
+          </th>
+          <th pSortableColumn="phone" style="width: 15%">
+            Telephone
+            <p-sortIcon field="phone"></p-sortIcon>
+          </th>
+          <th pSortableColumn="departement" style="width: 15%">
+            Departement
+            <p-sortIcon field="departement"></p-sortIcon>
+          </th>
+          <th pSortableColumn="dateCreation" style="width: 15%">
+            Date creation
+            <p-sortIcon field="dateCreation"></p-sortIcon>
+          </th>
+          <th style="width: 10%">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>
+            <div class="user-name">
+              <i class="pi pi-user me-2"></i>
+              <span>{{ user.userName }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="user-email">
+              <i class="pi pi-envelope me-2"></i>
+              <span>{{ user.email }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="user-phone">
+              <i class="pi pi-phone me-2"></i>
+              <span>{{ user.phone || 'Non specifie' }}</span>
+            </div>
+          </td>
+          <td>
+            <p-badge 
+              [value]="user.departement || 'Non specifie'" 
+              [severity]="getBadgeSeverity(user.departement)">
+            </p-badge>
+          </td>
+          <td>
+            <div class="date-creation">
+              <i class="pi pi-calendar me-2"></i>
+              <span>{{ user.dateCreation | date:'dd/MM/yyyy' }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <p-button 
+                icon="pi pi-pencil" 
+                styleClass="p-button-rounded p-button-text p-button-info"
+                pTooltip="Modifier"
+                tooltipPosition="top">
+              </p-button>
+              <p-button 
+                icon="pi pi-trash" 
+                styleClass="p-button-rounded p-button-text p-button-danger"
+                (onClick)="deleteUser(user)"
+                pTooltip="Supprimer"
+                tooltipPosition="top">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6">
+            <div class="empty-message text-center p-4">
+              <i class="pi pi-users" style="font-size: 3rem; color: #adb5bd;"></i>
+              <p class="mt-2 mb-0">Aucun utilisateur trouve</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="6" class="text-center p-4">
+            <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+            <p class="mt-2">Chargement des utilisateurs...</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>

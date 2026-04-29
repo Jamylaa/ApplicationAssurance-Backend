@@ -1,0 +1,320 @@
+.breadcrumb-container {
+  padding: 1rem 0;
+  background: transparent;
+
+  ::ng-deep .p-breadcrumb {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+
+    ul {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      li {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+
+        &.p-breadcrumb-home {
+          .breadcrumb-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: #f8fafc;
+            border-radius: 6px;
+            color: #64748b;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: 1px solid #e2e8f0;
+
+            &:hover {
+              background: #f1f5f9;
+              color: #475569;
+              border-color: #cbd5e1;
+              transform: translateY(-1px);
+            }
+
+            .breadcrumb-icon {
+              font-size: 1rem;
+            }
+
+            .breadcrumb-label {
+              font-weight: 500;
+            }
+          }
+        }
+
+        &:not(.p-breadcrumb-home) {
+          .breadcrumb-link {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.375rem 0.5rem;
+            color: #64748b;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-radius: 4px;
+
+            &:hover:not(.disabled) {
+              background: #f8fafc;
+              color: #475569;
+            }
+
+            &.disabled {
+              color: #9ca3af;
+              cursor: default;
+            }
+
+            .breadcrumb-icon {
+              font-size: 0.875rem;
+              color: #9ca3af;
+            }
+
+            .breadcrumb-label {
+              font-weight: 400;
+            }
+
+            &.with-icon {
+              .breadcrumb-label {
+                font-weight: 500;
+              }
+            }
+          }
+        }
+
+        &.p-breadcrumb-chevron {
+          color: #d1d5db;
+          font-size: 0.75rem;
+          margin: 0 0.25rem;
+        }
+
+        &:last-child {
+          .breadcrumb-link {
+            color: #1e293b;
+            font-weight: 600;
+
+            &.disabled {
+              color: #1e293b;
+              font-weight: 600;
+            }
+
+            .breadcrumb-icon {
+              color: #3b82f6;
+            }
+          }
+        }
+      }
+    }
+
+    // Responsive
+    @media (max-width: 768px) {
+      ul {
+        flex-wrap: wrap;
+        gap: 0.25rem;
+
+        li {
+          font-size: 0.813rem;
+
+          &.p-breadcrumb-home {
+            .breadcrumb-link {
+              padding: 0.375rem 0.5rem;
+
+              .breadcrumb-label {
+                display: none; // Cache le texte "Accueil" sur mobile
+              }
+            }
+          }
+
+          &:not(.p-breadcrumb-home) {
+            .breadcrumb-link {
+              padding: 0.25rem 0.375rem;
+
+              .breadcrumb-label {
+                max-width: 100px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              }
+            }
+          }
+
+          &.p-breadcrumb-chevron {
+            margin: 0 0.125rem;
+          }
+        }
+      }
+    }
+
+    // Animation
+    ul li {
+      .breadcrumb-link {
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 0;
+          height: 2px;
+          background: #3b82f6;
+          transition: width 0.3s ease;
+        }
+
+        &:hover:not(.disabled)::before {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .breadcrumb-container {
+    ::ng-deep .p-breadcrumb {
+      ul {
+        li {
+          &.p-breadcrumb-home {
+            .breadcrumb-link {
+              background: #374151;
+              color: #d1d5db;
+              border-color: #4b5563;
+
+              &:hover {
+                background: #4b5563;
+                color: #f3f4f6;
+                border-color: #6b7280;
+              }
+            }
+          }
+
+          &:not(.p-breadcrumb-home) {
+            .breadcrumb-link {
+              color: #9ca3af;
+
+              &:hover:not(.disabled) {
+                background: #374151;
+                color: #d1d5db;
+              }
+
+              &.disabled {
+                color: #6b7280;
+              }
+            }
+          }
+
+          &:last-child {
+            .breadcrumb-link {
+              color: #f9fafb;
+
+              &.disabled {
+                color: #f9fafb;
+              }
+            }
+          }
+
+          &.p-breadcrumb-chevron {
+            color: #4b5563;
+          }
+        }
+      }
+    }
+  }
+}
+
+// États spéciaux
+.breadcrumb-container {
+  &.compact {
+    padding: 0.5rem 0;
+
+    ::ng-deep .p-breadcrumb ul li {
+      font-size: 0.813rem;
+
+      &.p-breadcrumb-home .breadcrumb-link {
+        padding: 0.375rem 0.5rem;
+      }
+
+      &:not(.p-breadcrumb-home) .breadcrumb-link {
+        padding: 0.25rem 0.375rem;
+      }
+    }
+  }
+
+  &.large {
+    padding: 1.5rem 0;
+
+    ::ng-deep .p-breadcrumb ul li {
+      font-size: 1rem;
+
+      &.p-breadcrumb-home .breadcrumb-link {
+        padding: 0.625rem 1rem;
+
+        .breadcrumb-icon {
+          font-size: 1.125rem;
+        }
+      }
+
+      &:not(.p-breadcrumb-home) .breadcrumb-link {
+        padding: 0.5rem 0.75rem;
+
+        .breadcrumb-icon {
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+
+  &.centered {
+    text-align: center;
+
+    ::ng-deep .p-breadcrumb ul {
+      justify-content: center;
+    }
+  }
+
+  &.vertical {
+    ::ng-deep .p-breadcrumb ul {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+
+      li {
+        width: 100%;
+
+        &.p-breadcrumb-chevron {
+          display: none;
+        }
+
+        .breadcrumb-link {
+          width: 100%;
+          padding: 0.75rem 1rem;
+          justify-content: flex-start;
+        }
+      }
+    }
+  }
+}
+
+// Animation de chargement
+.breadcrumb-container {
+  &.loading {
+    ::ng-deep .p-breadcrumb ul li {
+      opacity: 0.6;
+
+      .breadcrumb-link {
+        pointer-events: none;
+      }
+    }
+  }
+}

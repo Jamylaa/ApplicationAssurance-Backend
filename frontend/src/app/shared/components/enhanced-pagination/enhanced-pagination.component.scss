@@ -1,0 +1,36 @@
+.enhanced-pagination {
+  .pagination-info {
+    text-align: center;
+    margin-top: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background: var(--surface-secondary);
+    border-radius: var(--border-radius-md);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+  }
+  
+  .current-page-info {
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+}
+
+.p-paginator {
+  .p-paginator {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+  
+  .p-paginator-page {
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition-normal);
+    font-family: var(--font-family);
+    
+    &:hover {
+      background: var(--primary-light);
+      transform: translateY(-1px);
+    }
+  }
+}

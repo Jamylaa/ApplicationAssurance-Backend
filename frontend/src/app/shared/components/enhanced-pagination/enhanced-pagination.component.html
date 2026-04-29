@@ -1,0 +1,16 @@
+<div class="enhanced-pagination">
+  <p-paginator 
+    [rows]="rows"
+    [totalRecords]="totalRecords"
+    [rowsPerPageOptions]="rowsPerPageOptions"
+    [showCurrentPageReport]="showCurrentPageReport"
+    [showPageLinks]="showPageLinks"
+    [first]="first"
+    currentPageReportTemplate="{{currentPageReport}}"
+    (onPageChange)="onPageChangeHandler($event)">
+  </p-paginator>
+  
+  <div *ngIf="showCurrentPageReport" class="pagination-info">
+    <span class="current-page-info">{{currentPageReport}}</span>
+  </div>
+</div>

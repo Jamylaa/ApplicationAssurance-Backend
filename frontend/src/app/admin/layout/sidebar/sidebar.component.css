@@ -1,0 +1,112 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  z-index: 1000;
+  overflow-y: auto;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-brand {
+  padding: 2rem 1.5rem;
+  border-bottom: 1px solid var(--sidebar-border);
+}
+
+.brand-icon {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.brand-icon i {
+  color: #ffffff !important;
+}
+
+.sidebar .text-white {
+  color: var(--sidebar-text) !important;
+}
+
+.sidebar .text-white-50 {
+  color: var(--sidebar-text-muted) !important;
+}
+
+.sidebar-content {
+  flex: 1;
+}
+
+:host ::ng-deep .sidebar-panelmenu.p-panelmenu {
+  border: none;
+  background: transparent;
+}
+
+:host ::ng-deep .sidebar-panelmenu .p-panelmenu-panel {
+  margin-bottom: 0.5rem;
+  border: none;
+  background: transparent;
+}
+
+:host ::ng-deep .sidebar-panelmenu .p-panelmenu-header > a {
+  background: var(--sidebar-surface);
+  border: 1px solid var(--sidebar-border);
+  border-radius: 0.75rem;
+  color: var(--sidebar-text);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+:host ::ng-deep .sidebar-panelmenu .p-panelmenu-header > a:hover {
+  background: var(--sidebar-active);
+  border-color: rgba(129, 140, 248, 0.45);
+}
+
+:host ::ng-deep .sidebar-panelmenu .p-panelmenu-content {
+  border: none;
+  background: transparent;
+  padding-top: 0.4rem;
+}
+
+:host ::ng-deep .sidebar-panelmenu .p-menuitem-link {
+  border-radius: 0.7rem;
+  color: var(--sidebar-text-muted);
+  margin: 0.2rem 0;
+  transition: all 0.2s ease;
+}
+
+:host ::ng-deep .sidebar-panelmenu .p-menuitem-link:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text);
+}
+
+:host ::ng-deep .sidebar-panelmenu .p-menuitem-link-active {
+  background: var(--sidebar-active);
+  color: var(--primary-color);
+}
+
+:host ::ng-deep .sidebar-panelmenu .p-menuitem-icon,
+:host ::ng-deep .sidebar-panelmenu .p-panelmenu-icon {
+  color: inherit;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--sidebar-hover);
+  border-radius: 10px;
+}
+
+@media (max-width: 991.98px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+}

@@ -1,0 +1,57 @@
+.enhanced-form {
+  .field-container {
+    margin-bottom: var(--spacing-md);
+    
+    &.error {
+      .p-float-label {
+        color: var(--danger-color);
+      }
+      
+      input, p-password, p-calendar, p-dropdown, p-multiselect {
+        border-color: var(--danger-color);
+      }
+    }
+  }
+  
+  .form-actions {
+    margin-top: var(--spacing-xl);
+    
+    button {
+      transition: var(--transition-normal);
+      
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+      }
+      
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+  
+  // Accessibilité
+  .p-error {
+    display: block;
+    margin-top: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    color: var(--danger-color);
+    
+    &[aria-live="polite"] {
+      // Animation subtile pour les erreurs
+      animation: slideIn 0.3s ease-out;
+    }
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

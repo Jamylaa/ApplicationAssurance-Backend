@@ -1,0 +1,102 @@
+<form [formGroup]="formGroup" (ngSubmit)="submit()" class="enhanced-form">
+  <div *ngFor="let field of formFields" class="field-container" [ngClass]="{'error': hasFieldError(field.name)}">
+    <p-floatLabel [id]="field.name" [label]="field.label">
+      <ng-container [ngSwitch]="field.type">
+        <!-- Input Text -->
+        <input pInputText 
+            *ngSwitchCase="'text'" 
+            [id]="field.name" 
+            [formControlName]="field.name" 
+            [placeholder]="field.placeholder"
+            [attr.aria-label]="field.label"
+            [attr.aria-required]="field.required"
+            class="w-full">
+          
+        <!-- Email -->
+        <input pInputText 
+            *ngSwitchCase="'email'" 
+            [id]="field.name" 
+            [formControlName]="field.name" 
+            [placeholder]="field.placeholder"
+            [attr.aria-label]="field.label"
+            [attr.aria-required]="field.required"
+            class="w-full">
+          
+        <!-- Password -->
+        <p-password 
+            *ngSwitchCase="'password'" 
+            [id]="field.name" 
+            [formControlName]="field.name" 
+            [placeholder]="field.placeholder"
+            [toggleMask]="true"
+            [feedback]="false"
+            [attr.aria-label]="field.label"
+            [attr.aria-required]="field.required"
+            class="w-full">
+          
+        <!-- Calendar -->
+        <p-calendar 
+            *ngSwitchCase="'date'" 
+            [id]="field.name" 
+            [formControlName]="field.name" 
+            [placeholder]="field.placeholder"
+            [dateFormat]="'dd/mm/yy'"
+            [attr.aria-label]="field.label"
+            [attr.aria-required]="field.required"
+            class="w-full">
+          
+        <!-- Dropdown -->
+        <p-dropdown 
+            *ngSwitchCase="'dropdown'" 
+            [id]="field.name" 
+            [formControlName]="field.name" 
+            [options]="field.options"
+            [placeholder]="field.placeholder"
+            [attr.aria-label]="field.label"
+            [attr.aria-required]="field.required"
+            class="w-full">
+          
+        <!-- MultiSelect -->
+        <p-multiSelect 
+            *ngSwitchCase="'multiselect'" 
+            [id]="field.name" 
+            [formControlName]="field.name" 
+            [options]="field.options"
+            [placeholder]="field.placeholder"
+            [attr.aria-label]="field.label"
+            [attr.aria-required]="field.required"
+            class="w-full">
+          
+        <!-- Input Mask -->
+        <p-inputMask 
+            *ngSwitchCase="'mask'" 
+            [id]="field.name" 
+            [formControlName]="field.name" 
+            [mask]="field.mask"
+            [placeholder]="field.placeholder"
+            [attr.aria-label]="field.label"
+            [attr.aria-required]="field.required"
+            class="w-full">
+      </ng-container>
+    </p-floatLabel>
+      
+    <!-- Validation Errors -->
+    <small class="p-error" 
+           *ngIf="showValidationErrors && hasFieldError(field.name)"
+           [attr.aria-live]="'polite'">
+      {{ getFieldError(field.name) }}
+    </small>
+  </div>
+  
+  <!-- Submit Button -->
+  <div class="form-actions">
+    <button pButton 
+            type="submit" 
+            [label]="submitLabel" 
+            [loading]="loading"
+            [disabled]="formGroup.invalid"
+            class="w-full p-3 font-bold"
+            [attr.aria-label]="submitLabel">
+    </button>
+  </div>
+</form>

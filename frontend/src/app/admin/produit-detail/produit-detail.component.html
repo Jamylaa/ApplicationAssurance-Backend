@@ -1,0 +1,99 @@
+<div class="container-fluid py-4">
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border" role="status"></div>
+    <p class="mt-3">Chargement...</p>
+  </div>
+  <div *ngIf="!isLoading && err" class="alert alert-danger">
+    {{ err }}
+  </div>
+  <app-breadcrumb [items]="[{ label: 'Produits', link: '/admin/produits' }, { label: 'Details' }]"></app-breadcrumb>
+  <div *ngIf="!isLoading && produit as selectedProduit" class="card border-0 shadow-sm">
+    <div class="card-body">
+      <h2 class="h4 mb-3">{{ selectedProduit.nomProduit }}</h2>
+      <p class="text-muted">{{ selectedProduit.description }}</p>
+      <dl class="row mb-4">
+        <dt class="col-sm-3">ID Produit</dt>
+        <dd class="col-sm-9">{{ produit.idProduit || '-' }}</dd>
+        <dt class="col-sm-3">Type</dt>
+        <dd class="col-sm-9">{{ getTypeLabel() }}</dd>
+        <!-- Legacy fields removed from backend - ageMin, ageMax, maladieChroniqueAutorisee, diabetiqueAutorisee -->
+        <dt class="col-sm-3">Nombre de packs</dt>
+        <dd class="col-sm-9">{{ getPacks().length }}</dd>
+        <dt class="col-sm-3">Date de creation</dt>
+        <dd class="col-sm-9">{{ produit.dateCreation ? (produit.dateCreation | date:'dd/MM/yyyy HH:mm') : '-' }}</dd>
+        <dt class="col-sm-3">Statut</dt>
+        <dd class="col-sm-9">
+          <span class="badge" [ngClass]="produit.statut === 'ACTIF' ? 'bg-success' : 'bg-danger'">{{ produit.statut || 'INACTIF' }}</span>
+        </dd>
+      </dl>
+
+      <div class="mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h3 class="h5 mb-0">Packs associes</h3>
+          <small class="text-muted">Affichage en cards + comparaison des garanties</small>
+        </div>
+        <div class="row g-4" *ngIf="getSortedPacks().length; else aucunPackProduit">
+          <div *ngFor="let pack of getSortedPacks()" class="col-lg-4 col-md-6">
+            <div [ngClass]="getPackAccentClass(pack)">
+              <div class="pack-card__header">
+                <div>
+                  <div class="pack-card__eyebrow">{{ getPackSubtitle(pack) }}</div>
+                  <h4 class="h5 mb-1">{{ pack.nomPack }}</h4>
+                  <p class="text-muted small mb-0">{{ pack.description }}</p>
+                </div>
+                <span class="badge rounded-pill bg-white text-dark border">{{ pack.niveauCouverture }}</span>
+              </div>
+              <div class="pack-card__price">{{ pack.prixMensuel | number:'1.2-2' }} DT<span>/mois</span></div>
+              <div class="small text-secondary mb-3">{{ pack.dureeMinContrat }} - {{ pack.dureeMaxContrat }} mois</div>
+              <div class="d-flex flex-column gap-2 mb-3">
+                <div *ngFor="let garantie of getPackGaranties(pack) | slice:0:4" class="pack-card__feature">
+                  <span class="fw-semibold">{{ garantie.nomGarantie || garantie.garantieId }}</span>
+                  <span class="text-muted">{{ garantie.tauxRemboursement }}%</span>
+                </div>
+              </div>
+              <a [routerLink]="['/admin', 'packs', pack.idPack]" class="btn btn-outline-dark btn-sm rounded-pill">
+                Voir details
+              </a>
+            </div>
+          </div>
+        </div>
+        <ng-template #aucunPackProduit>
+          <div class="alert alert-light border mb-0">Aucun pack rattache a ce produit.</div>
+        </ng-template>
+      </div>
+
+      <div class="mb-4" *ngIf="getSortedPacks().length">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h3 class="h5 mb-0">Comparaison des garanties</h3>
+          <small class="text-muted">Lecture horizontale pack par pack</small>
+        </div>
+        <div class="table-responsive border rounded-4 overflow-hidden">
+          <table class="table table-hover align-middle mb-0 comparison-table">
+            <thead>
+              <tr>
+                <th class="comparison-table__sticky">Garantie</th>
+                <th *ngFor="let pack of getSortedPacks()">
+                  <div class="fw-semibold">{{ pack.nomPack }}</div>
+                  <small class="text-muted">{{ pack.prixMensuel | number:'1.2-2' }} DT</small>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let label of getComparisonRows()">
+                <th class="comparison-table__sticky fw-semibold">{{ label }}</th>
+                <td *ngFor="let pack of getSortedPacks()">
+                  {{ getGarantieCell(pack, label) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <button pButton class="p-button-outlined p-button-secondary me-2" (click)="back()">Retour</button>
+        <button pButton class="p-button-warning" (click)="edit()">Modifier</button>
+      </div>
+    </div>
+  </div>
+</div>

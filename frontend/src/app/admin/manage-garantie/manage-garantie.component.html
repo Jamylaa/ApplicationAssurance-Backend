@@ -1,0 +1,349 @@
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+  <p-toolbar styleClass="mb-4 gap-2 bg-white border-0 py-3 px-4">
+    <ng-template pTemplate="left">
+      <div>
+        <h2 class="h4 mb-0 fw-bold">Gestion des Garanties</h2>
+        <p class="text-muted small mb-0">Les garanties portent maintenant leur code, leur statut et leurs composants metier detailles.</p>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="right">
+      <div class="d-flex gap-2">
+        <button pButton pRipple label="Assistant IA" icon="bi bi-shield-plus" class="p-button-outlined" (click)="openChatbot()"></button>
+        <button pButton pRipple label="Nouvelle Garantie" icon="pi pi-plus" class="p-button-primary" (click)="resetForm(); showForm = true"></button>
+      </div>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table
+    #dt
+    [value]="garanties"
+    [rows]="10"
+    [paginator]="true"
+    [globalFilterFields]="['codeGarantie', 'nomGarantie', 'description', 'typeGarantie', 'statut']"
+    [tableStyle]="{ 'min-width': '80rem' }"
+    [(selection)]="currentId"
+    [rowHover]="true"
+    dataKey="idGarantie"
+    currentPageReportTemplate="Affichage de {first} a {last} sur {totalRecords} garanties"
+    [showCurrentPageReport]="true"
+    [loading]="loading"
+    styleClass="p-datatable-striped">
+
+    <ng-template pTemplate="caption">
+      <div class="d-flex align-items-center justify-content-between">
+        <h5 class="m-0">Liste des Garanties</h5>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Rechercher..." />
+        </span>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Code</th>
+        <th pSortableColumn="nomGarantie">Nom <p-sortIcon field="nomGarantie"></p-sortIcon></th>
+        <th>Type</th>
+        <th>Couverture</th>
+        <th>Plafond</th>
+        <th pSortableColumn="statut">Statut <p-sortIcon field="statut"></p-sortIcon></th>
+        <th class="text-end">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-g>
+      <tr>
+        <td class="font-monospace small">{{ g.codeGarantie || '-' }}</td>
+        <td>
+          <a [routerLink]="['/admin', 'garanties', g.idGarantie]" class="fw-bold text-decoration-none">{{ g.nomGarantie }}</a>
+          <div class="text-muted small text-truncate">{{ g.description }}</div>
+        </td>
+        <td>{{ g.typeGarantie || '-' }}</td>
+        <td>{{ g.couvertures?.[0]?.tauxRemboursement ?? g.tauxCouverture ?? 0 }}%</td>
+        <td>{{ g.plafondsLimites?.[0]?.montantPlafond ?? g.plafondAnnuel ?? 0 | number:'1.0-0' }} DT</td>
+        <td>
+          <p-tag [value]="g.statut || 'ACTIF'" [severity]="g.statut === 'ACTIF' ? 'success' : (g.statut === 'EN_ATTENTE' ? 'warning' : 'danger')"></p-tag>
+        </td>
+        <td class="text-end">
+          <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-text p-button-info me-2" (click)="voirDetails(g)"></button>
+          <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-primary me-2" (click)="modifier(g)"></button>
+          <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="supprimer(g.idGarantie)"></button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="summary">
+      <div class="flex align-items-center justify-content-between">
+        Total de {{ garanties ? garanties.length : 0 }} garanties.
+      </div>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog [(visible)]="showForm" [style]="{ width: '980px' }" [header]="isEditing ? 'Modifier la Garantie' : 'Nouvelle Garantie'" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <p-steps [model]="steps" [(activeIndex)]="activeIndex" [readonly]="false" styleClass="mb-4 custom-steps"></p-steps>
+    <p-message severity="info" text="Créez votre garantie étape par étape pour une saisie plus rapide et plus claire." styleClass="mb-4"></p-message>
+
+    <form [formGroup]="garantieForm" class="form-modern">
+      <p-tabView [(activeIndex)]="activeIndex">
+        <p-tabPanel header="Général" leftIcon="pi pi-info-circle">
+          <div class="formgrid grid">
+            <div class="field col-4">
+              <label class="fw-bold mb-2">Code garantie</label>
+              <input type="text" pInputText formControlName="codeGarantie" />
+              <small *ngIf="garantieForm.get('codeGarantie')?.invalid && (garantieForm.get('codeGarantie')?.touched || garantieForm.get('codeGarantie')?.dirty)" class="p-error">Le code est requis.</small>
+            </div>
+            <div class="field col-4">
+              <label class="fw-bold mb-2">Nom</label>
+              <input type="text" pInputText formControlName="nomGarantie" />
+              <small *ngIf="garantieForm.get('nomGarantie')?.invalid && (garantieForm.get('nomGarantie')?.touched || garantieForm.get('nomGarantie')?.dirty)" class="p-error">Le nom est requis.</small>
+            </div>
+            <div class="field col-4">
+              <label class="fw-bold mb-2">Type</label>
+              <p-dropdown [options]="typesGarantie" formControlName="typeGarantie"></p-dropdown>
+            </div>
+          </div>
+
+          <div class="formgrid grid">
+            <div class="field col-8">
+              <label class="fw-bold mb-2">Description</label>
+              <textarea pInputTextarea formControlName="description" rows="3" placeholder="Résumé de la garantie et ses bénéfices"></textarea>
+              <small *ngIf="garantieForm.get('description')?.invalid && (garantieForm.get('description')?.touched || garantieForm.get('description')?.dirty)" class="p-error">La description est requise.</small>
+            </div>
+            <div class="field col-4">
+              <label class="fw-bold mb-2">Statut</label>
+              <p-dropdown [options]="statuts" formControlName="statut"></p-dropdown>
+            </div>
+          </div>
+          <div class="field-help">Commencez par les informations clés de votre garantie.</div>
+        </p-tabPanel>
+
+        <p-tabPanel header="Couvertures" leftIcon="pi pi-shield">
+          <div class="section-toolbar mb-3">
+            <div class="section-title">Définissez les profils de remboursement</div>
+            <button type="button" pButton pRipple icon="pi pi-plus" label="Ajouter une couverture" class="p-button-sm p-button-outlined" (click)="addCouverture()"></button>
+          </div>
+          <div formArrayName="couvertures" class="d-flex flex-column gap-3">
+            <div *ngFor="let couvertureGroup of couverturesArray.controls; let i = index" [formGroupName]="i" class="section-card">
+              <div class="section-card-header">
+                <span>Couverture #{{ i + 1 }}</span>
+                <button type="button" pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="removeCouverture(i)"></button>
+              </div>
+              <div class="formgrid grid">
+                <div class="field col-4">
+                  <label class="fw-bold mb-2">Type garantie</label>
+                  <p-dropdown [options]="typesGarantie" formControlName="typeSoins"></p-dropdown>
+                </div>
+                <div class="field col-4">
+                  <label class="fw-bold mb-2">Niveau couverture</label>
+                  <p-dropdown [options]="niveauxCouverture" formControlName="niveauCouverture"></p-dropdown>
+                </div>
+                <div class="field col-4">
+                  <label class="fw-bold mb-2">Type montant</label>
+                  <p-dropdown [options]="typesMontant" formControlName="typeMontant"></p-dropdown>
+                </div>
+              </div>
+              <div class="formgrid grid">
+                <div class="field col-4">
+                  <label class="fw-bold mb-2">Taux remboursement</label>
+                  <p-inputNumber formControlName="tauxRemboursement" suffix=" %" [min]="0" [max]="100"></p-inputNumber>
+                </div>
+                <div class="field col-4">
+                  <label class="fw-bold mb-2">Montant remboursé</label>
+                  <p-inputNumber formControlName="montantRembourse" mode="currency" currency="TND" locale="fr-TN" [min]="0"></p-inputNumber>
+                </div>
+                <div class="field col-4">
+                  <label class="fw-bold mb-2">Actes inclus</label>
+                  <input type="text" pInputText formControlName="actesMedicauxInclusText" placeholder="Acte1, Acte2" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="field-help">Séparez les actes par des virgules pour générer automatiquement la liste.</div>
+        </p-tabPanel>
+
+        <p-tabPanel header="Plafonds" leftIcon="pi pi-wallet">
+          <div class="section-toolbar mb-3">
+            <div class="section-title">Cadrez les limites de remboursement</div>
+            <button type="button" pButton pRipple icon="pi pi-plus" label="Ajouter un plafond" class="p-button-sm p-button-outlined" (click)="addPlafond()"></button>
+          </div>
+          <div formArrayName="plafondsLimites" class="d-flex flex-column gap-3">
+            <div *ngFor="let plafondGroup of plafondsArray.controls; let i = index" [formGroupName]="i" class="section-card">
+              <div class="section-card-header">
+                <span>Plafond #{{ i + 1 }}</span>
+                <button type="button" pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="removePlafond(i)"></button>
+              </div>
+              <div class="formgrid grid">
+                <div class="field col-4">
+                  <label class="fw-bold mb-2">Type plafond</label>
+                  <p-dropdown [options]="typesPlafond" formControlName="typePlafond"></p-dropdown>
+                </div>
+                <div class="field col-4">
+                  <label class="fw-bold mb-2">Montant plafond</label>
+                  <p-inputNumber formControlName="montantPlafond" mode="currency" currency="TND" locale="fr-TN" [min]="0"></p-inputNumber>
+                </div>
+                <div class="field col-4">
+                  <label class="fw-bold mb-2">Nb max remboursements</label>
+                  <p-inputNumber formControlName="nombreMaxRemboursements" [min]="0"></p-inputNumber>
+                </div>
+              </div>
+              <div class="formgrid grid">
+                <div class="field col-4">
+                  <label class="fw-bold mb-2">Franchise</label>
+                  <p-inputNumber formControlName="franchise" mode="currency" currency="TND" locale="fr-TN" [min]="0"></p-inputNumber>
+                </div>
+                <div class="field col-4">
+                  <label class="fw-bold mb-2">Delai carence</label>
+                  <p-inputNumber formControlName="delaiCarenceMois" [min]="0"></p-inputNumber>
+                </div>
+                <div class="field col-4">
+                  <label class="fw-bold mb-2">Couverture geographique</label>
+                  <p-dropdown [options]="couverturesGeo" formControlName="couvertureGeographique"></p-dropdown>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="field-help">Vous pouvez définir plusieurs plafonds pour adapter la garantie à différents cas.</div>
+        </p-tabPanel>
+
+        <p-tabPanel header="Eligibilité" leftIcon="pi pi-user-check">
+          <div class="formgrid grid">
+            <div class="field col-3">
+              <label class="fw-bold mb-2">Age min</label>
+              <p-inputNumber formControlName="ageMinimum" [min]="0"></p-inputNumber>
+            </div>
+            <div class="field col-3">
+              <label class="fw-bold mb-2">Age max</label>
+              <p-inputNumber formControlName="ageMaximum" [min]="0"></p-inputNumber>
+            </div>
+            <div class="field col-3">
+              <label class="fw-bold mb-2">Type client</label>
+              <p-dropdown [options]="typesClient" formControlName="typeClient"></p-dropdown>
+            </div>
+            <div class="field col-3 d-flex align-items-end">
+              <div class="field d-flex align-items-center gap-2 mb-2">
+                <p-inputSwitch formControlName="exclusionMaladiesChroniques"></p-inputSwitch>
+                <label class="fw-bold mb-0">Exclut maladies chroniques</label>
+              </div>
+            </div>
+          </div>
+          <div class="formgrid grid">
+            <div class="field col-8">
+              <label class="fw-bold mb-2">Conditions medicales</label>
+              <textarea pInputTextarea formControlName="conditionsMedicales" rows="2"></textarea>
+            </div>
+            <div class="field col-4">
+              <label class="fw-bold mb-2">Anciennete contrat (mois)</label>
+              <p-inputNumber formControlName="ancienneteContratMois" [min]="0"></p-inputNumber>
+            </div>
+          </div>
+          <div class="formgrid grid mt-3" formGroupName="regleCalcul">
+            <div class="field col-6">
+              <label class="fw-bold mb-2">Formule remboursement</label>
+              <input type="text" pInputText formControlName="formuleRemboursement" />
+            </div>
+            <div class="field col-3">
+              <label class="fw-bold mb-2">Base calcul</label>
+              <p-dropdown [options]="basesCalcul" formControlName="baseCalcul"></p-dropdown>
+            </div>
+            <div class="field col-3">
+              <label class="fw-bold mb-2">Priorite</label>
+              <p-inputNumber formControlName="prioriteGarantie" [min]="0"></p-inputNumber>
+            </div>
+          </div>
+          <div class="formgrid grid mt-3">
+            <div class="field col-8">
+              <label class="fw-bold mb-2">Description regle</label>
+              <textarea pInputTextarea formControlName="descriptionRegle" rows="2"></textarea>
+            </div>
+            <div class="field col-4 d-flex align-items-end">
+              <div class="field d-flex align-items-center gap-2 mb-2">
+                <p-inputSwitch formControlName="cumulAutresGarantiesAutorise"></p-inputSwitch>
+                <label class="fw-bold mb-0">Cumul autorise</label>
+              </div>
+            </div>
+          </div>
+          <div class="field-help">Renseignez la logique de calcul et le niveau de priorité pour cette garantie.</div>
+        </p-tabPanel>
+
+        <p-tabPanel header="Exclusions" leftIcon="pi pi-ban">
+          <div class="formgrid grid">
+            <div class="field col-6">
+              <label class="fw-bold mb-2">Maladies exclues</label>
+              <input type="text" pInputText formControlName="maladiesExcluesText" placeholder="Maladie1, Maladie2" />
+            </div>
+            <div class="field col-6">
+              <label class="fw-bold mb-2">Actes non remboursables</label>
+              <input type="text" pInputText formControlName="actesNonRemboursablesText" placeholder="Acte1, Acte2" />
+            </div>
+          </div>
+          <div class="field mb-3">
+            <label class="fw-bold mb-2">Autres exclusions</label>
+            <textarea pInputTextarea formControlName="autresExclusions" rows="3"></textarea>
+          </div>
+          <div class="d-flex gap-4 flex-wrap mb-3">
+            <div class="field d-flex align-items-center gap-2 mb-0">
+              <p-inputSwitch formControlName="depassementsNonPrisEnCharge"></p-inputSwitch>
+              <label class="fw-bold mb-0">Depassements exclus</label>
+            </div>
+            <div class="field d-flex align-items-center gap-2 mb-0">
+              <p-inputSwitch formControlName="soinsEtrangerExclus"></p-inputSwitch>
+              <label class="fw-bold mb-0">Soins etrangers exclus</label>
+            </div>
+          </div>
+          <!-- <div class="formgrid grid" formGroupName="parametresTechniques">
+            <div class="field col-6">
+              <label class="fw-bold mb-2">Code interne</label>
+              <input type="text" pInputText formControlName="codeInterne" />
+            </div> -->
+            <!-- <div class="field col-6">
+              <label class="fw-bold mb-2">Workflow associe</label>
+              <input type="text" pInputText formControlName="workflowAssocie" />
+            </div>
+          </div> -->
+          <!-- <div class="formgrid grid mt-3">
+            <div class="field col-6">
+              <label class="fw-bold mb-2">Mapping champs formulaire</label>
+              <textarea pInputTextarea formControlName="mappingChampsFormulaireText" rows="4" placeholder="champFrontend: champBackend"></textarea>
+            </div>
+            <div class="field col-6">
+              <label class="fw-bold mb-2">Regles controle</label>
+              <textarea pInputTextarea formControlName="reglesControleText" rows="4" placeholder="regle: valeur"></textarea>
+            </div> -->
+          <!-- </div>
+          <div class="field d-flex align-items-center gap-2 mt-2">
+            <p-inputSwitch formControlName="actif"></p-inputSwitch>
+            <label class="fw-bold mb-0">Parametres actifs</label>
+          </div> -->
+          <!-- <div class="field-help">Gardez ces informations pour une gestion précise de vos garanties.</div> -->
+        </p-tabPanel>
+      </p-tabView>
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text" (click)="showForm = false"></button>
+    <button pButton pRipple [label]="isEditing ? 'Mettre a jour' : 'Enregistrer'" icon="pi pi-check" class="p-button-primary" [disabled]="garantieForm.invalid" (click)="onSubmit()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Chatbot Panel -->
+<div class="chatbot-overlay" [class.show]="showChatbot" (click)="closeChatbot()"></div>
+<div class="chatbot-panel" [class.show]="showChatbot">
+  <div class="chatbot-panel-header">
+    <div class="header-content">
+      <h4><i class="bi bi-shield-plus"></i> Assistant IA</h4>
+      <p>Créez une garantie en décrivant simplement ce que vous voulez</p>
+    </div>
+    <button class="close-btn" (click)="closeChatbot()" title="Fermer">
+      <i class="bi bi-x"></i>
+    </button>
+  </div>
+  <div class="chatbot-panel-body">
+    <div class="p-4 text-muted">
+      Assistant IA garantie non branche dans cette version.
+    </div>
+  </div>
+</div>

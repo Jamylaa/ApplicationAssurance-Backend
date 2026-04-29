@@ -1,0 +1,67 @@
+<section class="offers-page">
+  <div class="offers-hero">
+    <h1>Dashboard Offres</h1>
+    <p>
+      Vue synthétique pour la soutenance PFE: suivi des produits, packs, garanties et
+      simulation de remboursement sur la même page.
+    </p>
+  </div>
+
+  <div class="offers-grid">
+    <article class="offers-card">
+      <div class="offers-kpi">{{ stats.produits }}</div>
+      <div class="offers-kpi-label">Produits actifs ou configurables</div>
+    </article>
+
+    <article class="offers-card">
+      <div class="offers-kpi">{{ stats.packs }}</div>
+      <div class="offers-kpi-label">Packs disponibles</div>
+    </article>
+
+    <article class="offers-card">
+      <div class="offers-kpi">{{ stats.garanties }}</div>
+      <div class="offers-kpi-label">Garanties exploitables</div>
+    </article>
+
+    <article class="offers-card">
+      <div class="offers-kpi">{{ stats.prixMoyen | number: '1.0-2' }} TND</div>
+      <div class="offers-kpi-label">Prix moyen mensuel</div>
+    </article>
+  </div>
+
+  <div class="offers-layout">
+    <article class="offers-form-card">
+      <h3>Simulation assurance</h3>
+      <form class="offers-form" [formGroup]="simulationForm">
+        <div class="offers-field">
+          <label for="montant">Montant sinistre</label>
+          <input id="montant" type="number" formControlName="montant" />
+        </div>
+
+        <div class="offers-field">
+          <label for="franchise">Franchise</label>
+          <input id="franchise" type="number" formControlName="franchise" />
+        </div>
+
+        <div class="offers-field">
+          <label for="taux">Taux remboursement (%)</label>
+          <input id="taux" type="number" formControlName="taux" />
+        </div>
+      </form>
+    </article>
+
+    <article class="offers-card">
+      <h3>Résultat calculé</h3>
+      <div class="offers-kpi">{{ remboursement | number: '1.0-2' }} TND</div>
+      <p>
+        Formule utilisée:
+        <strong>({{ simulationForm.value.montant || 0 }} - {{ simulationForm.value.franchise || 0 }}) x
+          {{ simulationForm.value.taux || 0 }}%</strong>
+      </p>
+      <div class="offers-actions" style="margin-top: 1rem;">
+        <a class="offers-btn offers-btn-primary" routerLink="/admin/offres/produits">Gérer les produits</a>
+        <a class="offers-btn offers-btn-secondary" routerLink="/admin/offres/configuration">Configurer un pack</a>
+      </div>
+    </article>
+  </div>
+</section>

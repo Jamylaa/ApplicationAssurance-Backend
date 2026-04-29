@@ -1,0 +1,265 @@
+<div class="unified-chatbot-container">
+  <div class="chat-header">
+    <h2>Assistant IA Assurance</h2>
+    <p class="help-text">{{ helpText }}</p>
+  </div>
+
+  <!-- Chat Type Tabs -->
+  <p-tabView [(activeIndex)]="activeTab" (onTabChange)="onTabChange($event)">
+    <p-tabPanel header="Recommandation" leftIcon="pi pi-comments">
+      <div class="chat-content">
+        <div class="messages-container" [ngClass]="{'loading': loading}">
+          <div *ngFor="let message of messages" class="message" 
+               [ngClass]="{'user': message.isUser, 'bot': !message.isUser}">
+            <div class="message-content">
+              <p>{{ message.message }}</p>
+              <small class="timestamp">{{ message.timestamp | date:'shortTime' }}</small>
+            </div>
+          </div>
+          
+          <div *ngIf="loading" class="message bot">
+            <div class="message-content">
+              <div class="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-area">
+          <form [formGroup]="chatForm" (ngSubmit)="sendMessage()">
+            <div class="input-group">
+              <input 
+                pInputText 
+                formControlName="message"
+                type="text" 
+                [placeholder]="placeholder"
+                [disabled]="loading"
+                class="message-input">
+              <button 
+                pButton 
+                type="submit"
+                label="Envoyer"
+                icon="pi pi-send"
+                [disabled]="chatForm.invalid || loading"
+                class="send-btn">
+              </button>
+            </div>
+            
+            <div class="optional-fields" *ngIf="currentChatType === 'recommendation'">
+              <div class="field">
+                <label for="clientId">ID Client (optionnel)</label>
+                <input 
+                  pInputText 
+                  id="clientId"
+                  formControlName="clientId"
+                  type="text"
+                  placeholder="ID du client pour des recommandations personnalisées">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </p-tabPanel>
+
+    <p-tabPanel header="Administration" leftIcon="pi pi-cog">
+      <div class="chat-content">
+        <div class="messages-container" [ngClass]="{'loading': loading}">
+          <div *ngFor="let message of messages" class="message" 
+               [ngClass]="{'user': message.isUser, 'bot': !message.isUser}">
+            <div class="message-content">
+              <p>{{ message.message }}</p>
+              <small class="timestamp">{{ message.timestamp | date:'shortTime' }}</small>
+            </div>
+          </div>
+          
+          <div *ngIf="loading" class="message bot">
+            <div class="message-content">
+              <div class="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-area">
+          <form [formGroup]="adminForm" (ngSubmit)="sendMessage()">
+            <div class="mode-selection">
+              <label>Mode:</label>
+              <p-radioButton 
+                name="mode" 
+                value="creation" 
+                formControlName="mode"
+                inputId="mode-creation"
+                label="Création">
+              </p-radioButton>
+              <p-radioButton 
+                name="mode" 
+                value="modification" 
+                formControlName="mode"
+                inputId="mode-modification"
+                label="Modification">
+              </p-radioButton>
+            </div>
+            
+            <div class="input-group">
+              <input 
+                pInputText 
+                formControlName="message"
+                type="text" 
+                [placeholder]="placeholder"
+                [disabled]="loading"
+                class="message-input">
+              <button 
+                pButton 
+                type="submit"
+                label="Envoyer"
+                icon="pi pi-send"
+                [disabled]="adminForm.invalid || loading"
+                class="send-btn">
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </p-tabPanel>
+
+    <p-tabPanel header="Création Pack" leftIcon="pi pi-box">
+      <div class="chat-content">
+        <div class="single-prompt-info">
+          <p-message severity="info" text="Décrivez en détail le pack d'assurance que vous souhaitez créer. L'assistant IA générera le pack complet avec toutes ses caractéristiques."></p-message>
+        </div>
+        
+        <div class="messages-container" [ngClass]="{'loading': loading}">
+          <div *ngFor="let message of messages" class="message" 
+               [ngClass]="{'user': message.isUser, 'bot': !message.isUser}">
+            <div class="message-content">
+              <p>{{ message.message }}</p>
+              <small class="timestamp">{{ message.timestamp | date:'shortTime' }}</small>
+            </div>
+          </div>
+          
+          <div *ngIf="loading" class="message bot">
+            <div class="message-content">
+              <div class="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-area">
+          <form [formGroup]="chatForm" (ngSubmit)="sendMessage()">
+            <div class="input-group">
+              <textarea 
+                pInputTextarea 
+                formControlName="message"
+                [placeholder]="placeholder"
+                [disabled]="loading"
+                class="message-textarea"
+                rows="4"
+                autoResize>
+              </textarea>
+              <button 
+                pButton 
+                type="submit"
+                label="Créer le Pack"
+                icon="pi pi-plus"
+                [disabled]="chatForm.invalid || loading"
+                class="send-btn">
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </p-tabPanel>
+
+    <p-tabPanel header="Création Garantie" leftIcon="pi pi-shield">
+      <div class="chat-content">
+        <div class="single-prompt-info">
+          <p-message severity="info" text="Décrivez en détail la garantie d'assurance que vous souhaitez créer. L'assistant IA générera la garantie complète avec tous ses paramètres."></p-message>
+        </div>
+        
+        <div class="messages-container" [ngClass]="{'loading': loading}">
+          <div *ngFor="let message of messages" class="message" 
+               [ngClass]="{'user': message.isUser, 'bot': !message.isUser}">
+            <div class="message-content">
+              <p>{{ message.message }}</p>
+              <small class="timestamp">{{ message.timestamp | date:'shortTime' }}</small>
+            </div>
+          </div>
+          
+          <div *ngIf="loading" class="message bot">
+            <div class="message-content">
+              <div class="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-area">
+          <form [formGroup]="chatForm" (ngSubmit)="sendMessage()">
+            <div class="input-group">
+              <textarea 
+                pInputTextarea 
+                formControlName="message"
+                [placeholder]="placeholder"
+                [disabled]="loading"
+                class="message-textarea"
+                rows="4"
+                autoResize>
+              </textarea>
+              <button 
+                pButton 
+                type="submit"
+                label="Créer la Garantie"
+                icon="pi pi-plus"
+                [disabled]="chatForm.invalid || loading"
+                class="send-btn">
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
+
+  <!-- Action Buttons -->
+  <div class="chat-actions">
+    <button 
+      pButton 
+      label="Nouveau Chat" 
+      icon="pi pi-refresh"
+      (click)="startNewChat()"
+      [disabled]="loading"
+      class="action-btn">
+    </button>
+    
+    <button 
+      pButton 
+      label="Réinitialiser" 
+      icon="pi pi-undo"
+      (click)="resetChat()"
+      [disabled]="loading || currentChatType !== 'admin'"
+      class="action-btn">
+    </button>
+    
+    <button 
+      pButton 
+      label="Effacer Tout" 
+      icon="pi pi-trash"
+      (click)="clearAll()"
+      [disabled]="loading"
+      class="action-btn p-button-danger">
+    </button>
+  </div>
+</div>
