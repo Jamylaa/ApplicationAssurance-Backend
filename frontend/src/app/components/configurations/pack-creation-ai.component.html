@@ -1,0 +1,161 @@
+<div class="pack-creation-ai-container">
+  <div class="creation-header">
+    <h2>Création de Pack avec IA</h2>
+    <p class="help-text">{{ helpText }}</p>
+    
+    <div class="mode-toggle">
+      <button 
+        pButton 
+        [label]="aiMode ? 'Mode Manuel' : 'Mode IA'"
+        [icon]="aiMode ? 'pi pi-pencil' : 'pi pi-robot'"
+        (click)="toggleAiMode()"
+        class="toggle-btn">
+      </button>
+    </div>
+  </div>
+
+  <!-- AI Mode -->
+  <div *ngIf="aiMode" class="ai-mode-section">
+    <div class="ai-prompt-section">
+      <div class="field">
+        <label for="aiPrompt">Description du pack souhaité</label>
+        <textarea
+          pInputTextarea
+          id="aiPrompt"
+          [(ngModel)]="aiPrompt"
+          [disabled]="loading"
+          rows="6"
+          autoResize
+          placeholder="Exemple: Je souhaite créer un pack santé premium pour les familles avec une couverture complète incluant les consultations, les médicaments, l'hospitalisation et les soins dentaires. Le prix devrait être autour de 150€ par mois...">
+        </textarea>
+      </div>
+      
+      <div class="ai-actions">
+        <button
+          pButton
+          label="Générer avec l'IA"
+          icon="pi pi-robot"
+          (click)="generateFromAi()"
+          [disabled]="aiPromptInvalid || loading"
+          class="generate-btn">
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="loading-section">
+      <p-message severity="info" text="L'IA analyse votre demande et génère le pack..."></p-message>
+      <div class="loading-spinner">
+        <i class="pi pi-spin pi-spinner"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Mode -->
+  <div *ngIf="showForm || !aiMode" class="form-section">
+    <form [formGroup]="packForm" (ngSubmit)="savePack()">
+      <div class="form-grid">
+        <div class="field">
+          <label for="nom">Nom du pack *</label>
+          <input
+            pInputText
+            id="nom"
+            formControlName="nom"
+            type="text"
+            placeholder="Nom du pack d'assurance"
+            [disabled]="loading">
+        </div>
+
+        <div class="field">
+          <label for="prix">Prix mensuel (€) *</label>
+          <p-inputNumber
+            id="prix"
+            formControlName="prix"
+            [min]="0"
+            [maxFractionDigits]="2"
+            mode="currency"
+            currency="EUR"
+            placeholder="0.00"
+            [disabled]="loading">
+          </p-inputNumber>
+        </div>
+
+        <div class="field full-width">
+          <label for="description">Description *</label>
+          <textarea
+            pInputTextarea
+            id="description"
+            formControlName="description"
+            rows="4"
+            autoResize
+            placeholder="Description détaillée du pack..."
+            [disabled]="loading">
+          </textarea>
+        </div>
+
+        <div class="field">
+          <label for="niveauCouverture">Niveau de couverture *</label>
+          <p-dropdown
+            id="niveauCouverture"
+            formControlName="niveauCouverture"
+            [options]="niveauCouvertureOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Sélectionner un niveau"
+            [disabled]="loading">
+          </p-dropdown>
+        </div>
+
+        <div class="field full-width">
+          <label for="produitsAssocies">Produits associés *</label>
+          <p-chips
+            id="produitsAssocies"
+            formControlName="produitsAssocies"
+            placeholder="Ajouter des produits..."
+            [disabled]="loading">
+          </p-chips>
+        </div>
+
+        <div class="field full-width">
+          <label for="garantiesIncluses">Garanties incluses</label>
+          <p-chips
+            id="garantiesIncluses"
+            formControlName="garantiesIncluses"
+            placeholder="Ajouter des garanties..."
+            [disabled]="loading">
+          </p-chips>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          pButton
+          type="submit"
+          label="Enregistrer"
+          icon="pi pi-save"
+          [disabled]="formInvalid || loading"
+          class="save-btn">
+        </button>
+        
+        <button
+          pButton
+          type="button"
+          label="Réinitialiser"
+          icon="pi pi-refresh"
+          (click)="resetForm()"
+          [disabled]="loading"
+          class="reset-btn">
+        </button>
+        
+        <button
+          pButton
+          type="button"
+          label="Annuler"
+          icon="pi pi-times"
+          (click)="cancel()"
+          [disabled]="loading"
+          class="cancel-btn p-button-outlined">
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

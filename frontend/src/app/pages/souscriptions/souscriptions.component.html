@@ -1,0 +1,63 @@
+<div class="souscriptions-container">
+  <p-toast></p-toast>
+  
+  <p-card header="Gestion des Souscriptions" class="souscriptions-card">
+    <div class="card-header">
+      <div class="header-actions">
+        <p-button 
+          label="Actualiser" 
+          icon="pi pi-refresh" 
+          (click)="loadSouscriptions()"
+          [loading]="loading">
+        </p-button>
+        <p-button 
+          label="Ajouter une souscription" 
+          icon="pi pi-plus" 
+          class="p-button-outlined">
+        </p-button>
+      </div>
+    </div>
+
+    <p-table 
+      [value]="souscriptions" 
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="10"
+      emptyMessage="'Aucune souscription trouvée'"
+      responsiveLayout="scroll">
+      
+      <ng-template pTemplate="caption">
+        <div class="table-caption">
+          <h5>Liste des souscriptions ({{ souscriptions.length }})</h5>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th>ID Utilisateur</th>
+          <th>ID Produit</th>
+          <th>Date</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-souscription>
+        <tr>
+          <td>{{ souscription.idUser }}</td>
+          <td>{{ souscription.idProduit }}</td>
+          <td>{{ souscription.dateSouscription | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <p-badge [value]="souscription.statut"></p-badge>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <p-button icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-info"></p-button>
+              <p-button icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"></p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>

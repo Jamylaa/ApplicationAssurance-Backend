@@ -2,6 +2,7 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -13,29 +14,36 @@
         <module name="GestionUser (1)" />
         <module name="Gateway (1)" />
         <module name="Eureka" />
+        <module name="gateway" />
         <module name="GestionProduit (1)" />
       </profile>
-      <profile name="Annotation profile for Recommendation" enabled="true">
+      <profile name="Annotation profile for projt-vermeg" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
         </processorPath>
         <module name="GestionUser" />
         <module name="GestionSouscription" />
         <module name="GestionProduit" />
+        <module name="gestion-user" />
         <module name="Recommendation" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="common-jwt-utils" target="21" />
+      <module name="common-security" target="21" />
+      <module name="common-securityy" target="23" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="Eureka" options="-parameters" />
-      <module name="Gateway" options="-parameters" />
+      <module name="Gateway" options="" />
       <module name="GestionProduit" options="-parameters" />
       <module name="GestionSouscription" options="-parameters" />
-      <module name="GestionUser" options="-parameters" />
+      <module name="GestionUser" options="" />
       <module name="Recommendation" options="-parameters" />
     </option>
   </component>

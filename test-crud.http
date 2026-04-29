@@ -1,0 +1,37 @@
+### SCRIPT DE TEST CRUD - GestionUser Backend
+### Tests des opérations Create, Read, Update, Delete
+
+### 1. READ - Lister tous les utilisateurs
+GET http://localhost:9092/api/users/test/all
+
+### 2. CREATE - Créer un nouvel utilisateur
+POST http://localhost:9092/api/users/test/create
+Content-Type: application/json
+
+{
+  "userName": "testuser_crud",
+  "email": "test.crud@example.com",
+  "password": "test123",
+  "phone": 123456789,
+  "departement": "Test Department"
+}
+
+### 3. READ - Obtenir un utilisateur par ID (remplacer ID par l'ID retourné)
+GET http://localhost:9092/api/users/test/USER_ID_HERE
+
+### 4. UPDATE - Mettre à jour un utilisateur
+PUT http://localhost:9092/api/users/test/USER_ID_HERE
+Content-Type: application/json
+
+{
+  "userName": "testuser_updated",
+  "email": "test.updated@example.com",
+  "phone": 987654321,
+  "departement": "Updated Department"
+}
+
+### 5. DELETE - Supprimer un utilisateur
+DELETE http://localhost:9092/api/users/test/USER_ID_HERE
+
+### 6. READ - Vérifier que l'utilisateur a été supprimé
+GET http://localhost:9092/api/users/test/all

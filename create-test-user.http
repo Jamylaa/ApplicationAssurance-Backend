@@ -1,0 +1,26 @@
+### Créer un utilisateur de test pour le login
+
+POST http://localhost:9092/api/users
+Content-Type: application/json
+
+{
+  "userName": "admin",
+  "email": "admin@vermeg.com",
+  "password": "admin123",
+  "phone": 123456789,
+  "departement": "IT"
+}
+
+### Vérifier l'utilisateur créé
+
+GET http://localhost:9092/api/users
+
+### Tester le login
+
+POST http://localhost:9092/api/auth/login
+Content-Type: application/json
+
+{
+  "userName": "admin",
+  "password": "admin123"
+}

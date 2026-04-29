@@ -1,0 +1,195 @@
+<div class="produit-card-container" [class.compact]="compact" [class.ineligible]="!isEligible">
+  <p-card [class]="compact ? 'compact-card' : 'full-card'" [style]="{ 'border-left': `4px solid ${getBorderColor()}` }">
+    <!-- Header -->
+    <div class="card-header">
+      <div class="header-content">
+        <div class="title-section">
+          <h3 class="produit-title" [class]="{ 'inactive': !produit.actif }">
+            {{ produit.nomProduit }}
+          </h3>
+          <div class="title-badges">
+            <p-tag 
+              [value]="getTagValue()" 
+              [severity]="getTagSeverity()"
+              *ngIf="getTagValue() !== 'Standard'"
+              class="status-badge">
+            </p-tag>
+            <p-badge 
+              [value]="produit.packs?.length || 0" 
+              severity="info"
+              *ngIf="hasPacks()"
+              class="packs-count">
+            </p-badge>
+          </div>
+        </div>
+        
+        <div class="header-actions" *ngIf="showActions">
+          <div class="action-buttons">
+            <p-button 
+              icon="pi pi-eye"
+              class="p-button-outlined p-button-sm"
+              (click)="onSelect()"
+              pTooltip="Voir les détails"
+              tooltipPosition="top">
+            </p-button>
+            <p-button 
+              icon="pi pi-pencil"
+              class="p-button-outlined p-button-sm"
+              (click)="onEdit()"
+              pTooltip="Modifier"
+              tooltipPosition="top"
+              *ngIf="produit.actif">
+            </p-button>
+            <p-button 
+              [icon]="produit.actif ? 'pi pi-power-off' : 'pi pi-check'"
+              [class]="produit.actif ? 'p-button-warning' : 'p-button-success'"
+              class="p-button-sm"
+              (click)="onToggle()"
+              pTooltip="{{ produit.actif ? 'Désactiver' : 'Activer' }}"
+              tooltipPosition="top">
+            </p-button>
+            <p-button 
+              icon="pi pi-trash"
+              class="p-button-danger p-button-sm"
+              (click)="onDelete()"
+              pTooltip="Supprimer"
+              tooltipPosition="top">
+            </p-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="card-content">
+      <!-- Type et Description -->
+      <div class="info-section">
+        <div class="type-info">
+          <p-tag [value]="typeProduitLabel" severity="info" class="type-tag"></p-tag>
+          <span class="age-range">{{ getAgeRange() }}</span>
+        </div>
+        
+        <p class="description" *ngIf="!compact">
+          {{ produit.description }}
+        </p>
+        <p class="description compact" *ngIf="compact">
+          {{ produit.descriptionCourte || produit.description }}
+        </p>
+      </div>
+
+      <!-- Prix et Popularité -->
+      <div class="pricing-section" *ngIf="!compact">
+        <div class="price-info">
+          <span class="price-label">À partir de</span>
+          <span class="price-value">{{ formatPrix(prixMoyen) }}</span>
+          <span class="price-period">/mois</span>
+        </div>
+        
+        <div class="popularity-info">
+          <div class="stars">
+            <i 
+              *ngFor="let star of getPopulariteStars(); let i = index" 
+              class="pi" 
+              [class]="star >= i ? 'pi-star-fill' : 'pi-star'"
+              [class.filled]="star >= 1">
+            </i>
+          </div>
+          <span class="popularity-text">Popularité</span>
+        </div>
+      </div>
+
+      <!-- Conditions Médicales -->
+      <div class="medical-section" *ngIf="getConditionsMedicales().length > 0 && !compact">
+        <div class="medical-title">Conditions médicales couvertes:</div>
+        <div class="medical-tags">
+          <p-tag 
+            *ngFor="let condition of getConditionsMedicales()" 
+            [value]="condition"
+            severity="success"
+            class="medical-tag">
+          </p-tag>
+        </div>
+      </div>
+
+      <!-- Packs et Garanties -->
+      <div class="packs-section" *ngIf="hasPacks() && !compact">
+        <div class="packs-header">
+          <span class="packs-title">Packs disponibles ({{ getNombrePacksActifs() }})</span>
+          <span class="garanties-count">{{ getNombreGarantiesTotal() }} garanties</span>
+        </div>
+        
+        <div class="packs-preview">
+          <div 
+            *ngFor="let pack of produit.packs?.slice(0, 3)" 
+            class="pack-preview-item"
+            [class.inactive]="!pack.actif">
+            <span class="pack-name">{{ pack.nomPack }}</span>
+            <span class="pack-price">{{ formatPrix(pack.prixMensuel) }}</span>
+            <p-tag 
+              [value]="pack.niveauCouverture" 
+              [severity]="getNiveauCouvertureColor(pack.niveauCouverture)"
+              class="pack-level">
+            </p-tag>
+          </div>
+          
+          <div class="more-packs" *ngIf="produit.packs && produit.packs.length > 3">
+            <span>+{{ produit.packs.length - 3 }} packs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Éligibilité -->
+      <div class="eligibility-section" *ngIf="ageClient && !isEligible">
+        <div class="eligibility-header">
+          <i class="pi pi-exclamation-triangle warning-icon"></i>
+          <span class="eligibility-title">Non éligible</span>
+        </div>
+        <div class="eligibility-reasons">
+          <div *ngFor="let reason of eligibilityReasons" class="reason-item">
+            <i class="pi pi-times-circle"></i>
+            <span>{{ reason }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="tags-section" *ngIf="produit.tags && produit.tags.length > 0 && !compact">
+        <div class="tags-container">
+          <p-tag 
+            *ngFor="let tag of produit.tags.slice(0, 5)" 
+            [value]="tag"
+            severity="secondary"
+            class="tag-item">
+          </p-tag>
+          <span class="more-tags" *ngIf="produit.tags.length > 5">
+            +{{ produit.tags.length - 5 }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="card-footer" *ngIf="!compact">
+      <div class="footer-content">
+        <div class="footer-left">
+          <span class="creation-date">
+            Créé le {{ produit.dateCreation | date:'dd/MM/yyyy' }}
+          </span>
+          <span class="modification-date" *ngIf="produit.dateModification !== produit.dateCreation">
+            Modifié le {{ produit.dateModification | date:'dd/MM/yyyy' }}
+          </span>
+        </div>
+        
+        <div class="footer-right">
+          <p-button 
+            label="Voir les packs"
+            icon="pi pi-arrow-right"
+            class="p-button-outlined"
+            (click)="onSelect()"
+            pRipple>
+          </p-button>
+        </div>
+      </div>
+    </div>
+  </p-card>
+</div>

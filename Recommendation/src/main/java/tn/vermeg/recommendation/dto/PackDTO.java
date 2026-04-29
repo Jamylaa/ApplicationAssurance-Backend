@@ -1,8 +1,6 @@
 package tn.vermeg.recommendation.dto;
-
 import java.util.Date;
 import java.util.List;
-
 public class PackDTO {
 
     private String idPack;
@@ -15,12 +13,9 @@ public class PackDTO {
     private String niveauCouverture; // basic, premium, gold
     private boolean actif;
     private Date dateCreation;
-
     public PackDTO() {}
-
     public String getIdPack() { return idPack; }
     public void setIdPack(String idPack) { this.idPack = idPack; }
-
     public PackDTO(String idPack, String nomPack, String description, List<String> produitsIds,
                    double prixMensuel, int dureeMinContrat, int dureeMaxContrat,
                    String niveauCouverture, boolean actif, Date dateCreation) {
@@ -33,9 +28,7 @@ public class PackDTO {
         this.dureeMaxContrat = dureeMaxContrat;
         this.niveauCouverture = niveauCouverture;
         this.actif = actif;
-        this.dateCreation = dateCreation;
-    }
-
+        this.dateCreation = dateCreation;}
     public String getNomPack() { return nomPack; }
     public void setNomPack(String nomPack) { this.nomPack = nomPack; }
     public String getDescription() { return description; }
@@ -44,7 +37,6 @@ public class PackDTO {
     public void setProduitsIds(List<String> produitsIds) { this.produitsIds = produitsIds; }
     public double getPrixMensuel() { return prixMensuel; }
     public void setPrixMensuel(double prixMensuel) { this.prixMensuel = prixMensuel; }
-
     public int getDureeMinContrat() { return dureeMinContrat; }
     public void setDureeMinContrat(int dureeMinContrat) { this.dureeMinContrat = dureeMinContrat; }
     public int getDureeMaxContrat() { return dureeMaxContrat; }

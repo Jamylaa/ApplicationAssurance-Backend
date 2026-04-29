@@ -11,10 +11,8 @@ import java.util.List;
 public class RecommendationController {
 
     private final RecommendationService recommendationService;
-
     public RecommendationController(RecommendationService recommendationService) {
-        this.recommendationService = recommendationService;
-    }
+        this.recommendationService = recommendationService;}
     // Évaluer et recommander les packs à partir d'un questionnaire.
      // Le corps de la requête contient les réponses du chatbot.
     @PostMapping("/evaluate")
@@ -34,6 +32,5 @@ public class RecommendationController {
      // Récupérer les questionnaires d'un client.
     @GetMapping("/questionnaires/{clientId}")
     public List<QuestionnaireResponse> getQuestionnairesByClient(@PathVariable String clientId) {
-        return recommendationService.getQuestionnairesByClientId(clientId);
-    }
+        return recommendationService.getQuestionnairesByClientId(clientId);}
 }

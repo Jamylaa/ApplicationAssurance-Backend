@@ -1,0 +1,9 @@
+<div class="theme-toggle">
+  <button pButton 
+          [icon]="getThemeIcon()" 
+          [label]="getThemeLabel()"
+          (click)="toggleTheme()"
+          class="p-button-outlined p-button-secondary"
+          [attr.aria-label]="getThemeLabel()">
+  </button>
+</div>

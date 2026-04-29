@@ -40,11 +40,19 @@ public class ContratService {
                 .orElseThrow(() -> new RuntimeException("Contrat non trouvé: " + idContrat));
         contrat.setStatut("RESILIE");
         return contratRepository.save(contrat);}
-    public Contrat updateContrat(String idContrat, Contrat contrat) {
-        if (!contratRepository.existsById(idContrat)) {
-            throw new RuntimeException("Contrat non trouvé: " + idContrat);}
-        contrat.setIdContrat(idContrat);
-        return contratRepository.save(contrat);}
+    public Contrat updateContrat(String idContrat, Contrat updatedContrat) {
+        Contrat existingContrat = contratRepository.findById(idContrat)
+                .orElseThrow(() -> new RuntimeException("Contrat non trouvé: " + idContrat));
+        
+        // Mettre à jour uniquement les champs modifiables (ne pas écraser les snapshots)
+        if (updatedContrat.getStatut() != null) existingContrat.setStatut(updatedContrat.getStatut());
+        if (updatedContrat.getDateDebut() != null) existingContrat.setDateDebut(updatedContrat.getDateDebut());
+        if (updatedContrat.getDateFin() != null) existingContrat.setDateFin(updatedContrat.getDateFin());
+        if (updatedContrat.getDureeMois() > 0) existingContrat.setDureeMois(updatedContrat.getDureeMois());
+        if (updatedContrat.getPrimeTotale() > 0) existingContrat.setPrimeTotale(updatedContrat.getPrimeTotale());
+        if (updatedContrat.getOptionsSupplementaires() != null) existingContrat.setOptionsSupplementaires(updatedContrat.getOptionsSupplementaires());
+        return contratRepository.save(existingContrat);}
+
      //Suppression d'un contrat.
     public void supprimerContrat(String idContrat) {
         contratRepository.deleteById(idContrat);

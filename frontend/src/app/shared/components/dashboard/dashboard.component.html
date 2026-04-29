@@ -1,0 +1,382 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1 class="dashboard-title">
+        <i class="pi pi-chart-bar"></i>
+        Tableau de bord
+      </h1>
+      <div class="header-actions">
+        <p-button 
+          label="Actualiser" 
+          icon="pi pi-refresh" 
+          class="p-button-outlined"
+          (click)="refreshData()">
+        </p-button>
+        <p-button 
+          label="Exporter" 
+          icon="pi pi-download" 
+          class="p-button-outlined"
+          (click)="exportData()">
+        </p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-content">
+      <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+      <p>Chargement des données...</p>
+    </div>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div class="dashboard-content" *ngIf="!loading && statistics">
+    <!-- KPI Cards -->
+    <div class="kpi-section">
+      <div class="kpi-grid">
+        <!-- Produits -->
+        <div class="kpi-card" (click)="navigateToProduits()">
+          <div class="kpi-header">
+            <div class="kpi-icon produits">
+              <i class="pi pi-box"></i>
+            </div>
+            <div class="kpi-trend">
+              <span class="trend-value">+{{ getPercentage(statistics.produitsActifs, statistics.totalProduits) }}%</span>
+              <i class="pi pi-arrow-up"></i>
+            </div>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-value">{{ statistics.totalProduits }}</div>
+            <div class="kpi-label">Produits totaux</div>
+            <div class="kpi-details">
+              <span class="detail-item">
+                <span class="detail-value">{{ statistics.produitsActifs }}</span>
+                actifs
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Packs -->
+        <div class="kpi-card" (click)="navigateToPacks()">
+          <div class="kpi-header">
+            <div class="kpi-icon packs">
+              <i class="pi pi-folder"></i>
+            </div>
+            <div class="kpi-trend">
+              <span class="trend-value">+{{ getPercentage(statistics.packsActifs, statistics.totalPacks) }}%</span>
+              <i class="pi pi-arrow-up"></i>
+            </div>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-value">{{ statistics.totalPacks }}</div>
+            <div class="kpi-label">Packs totaux</div>
+            <div class="kpi-details">
+              <span class="detail-item">
+                <span class="detail-value">{{ statistics.packsActifs }}</span>
+                actifs
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Garanties -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <div class="kpi-icon garanties">
+              <i class="pi pi-shield"></i>
+            </div>
+            <div class="kpi-trend">
+              <span class="trend-value">+{{ getPercentage(statistics.garantiesActives, statistics.totalGaranties) }}%</span>
+              <i class="pi pi-arrow-up"></i>
+            </div>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-value">{{ statistics.totalGaranties }}</div>
+            <div class="kpi-label">Garanties totales</div>
+            <div class="kpi-details">
+              <span class="detail-item">
+                <span class="detail-value">{{ statistics.garantiesActives }}</span>
+                actives
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clients -->
+        <div class="kpi-card" (click)="navigateToClients()">
+          <div class="kpi-header">
+            <div class="kpi-icon clients">
+              <i class="pi pi-users"></i>
+            </div>
+            <div class="kpi-trend">
+              <span class="trend-value">+{{ getPercentage(statistics.clientsActifs, statistics.totalClients) }}%</span>
+              <i class="pi pi-arrow-up"></i>
+            </div>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-value">{{ statistics.totalClients }}</div>
+            <div class="kpi-label">Clients totaux</div>
+            <div class="kpi-details">
+              <span class="detail-item">
+                <span class="detail-value">{{ statistics.clientsActifs }}</span>
+                actifs
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Souscriptions -->
+        <div class="kpi-card" (click)="navigateToSouscriptions()">
+          <div class="kpi-header">
+            <div class="kpi-icon souscriptions">
+              <i class="pi pi-file-text"></i>
+            </div>
+            <div class="kpi-trend">
+              <span class="trend-value">+{{ getPercentage(statistics.souscriptionsActives, statistics.totalSouscriptions) }}%</span>
+              <i class="pi pi-arrow-up"></i>
+            </div>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-value">{{ statistics.totalSouscriptions }}</div>
+            <div class="kpi-label">Souscriptions totales</div>
+            <div class="kpi-details">
+              <span class="detail-item">
+                <span class="detail-value">{{ statistics.souscriptionsActives }}</span>
+                actives
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chiffre d'affaires mensuel -->
+        <div class="kpi-card revenue">
+          <div class="kpi-header">
+            <div class="kpi-icon revenue">
+              <i class="pi pi-money-bill"></i>
+            </div>
+            <div class="kpi-trend positive">
+              <span class="trend-value">+12.5%</span>
+              <i class="pi pi-arrow-up"></i>
+            </div>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-value">{{ formatCurrency(statistics.chiffreAffairesMensuel) }}</div>
+            <div class="kpi-label">CA Mensuel</div>
+            <div class="kpi-details">
+              <span class="detail-item">
+                <span class="detail-value">{{ formatCurrency(statistics.chiffreAffairesAnnuel) }}</span>
+                annuel
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <div class="charts-grid">
+        <!-- Produits par type -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 class="chart-title">Répartition des produits</h3>
+            <div class="chart-actions">
+              <p-button icon="pi pi-download" class="p-button-outlined p-button-sm" pTooltip="Exporter"></p-button>
+            </div>
+          </div>
+          <div class="chart-content">
+            <canvas 
+              *ngIf="produitsParTypeData" 
+              baseChart 
+              [type]="produitsParTypeData.type" 
+              [data]="produitsParTypeData.data" 
+              [options]="produitsParTypeData.options">
+            </canvas>
+          </div>
+        </div>
+
+        <!-- Évolution mensuelle -->
+        <div class="chart-card full-width">
+          <div class="chart-header">
+            <h3 class="chart-title">Évolution mensuelle</h3>
+            <div class="chart-actions">
+              <p-button icon="pi pi-download" class="p-button-outlined p-button-sm" pTooltip="Exporter"></p-button>
+            </div>
+          </div>
+          <div class="chart-content">
+            <canvas 
+              *ngIf="evolutionMensuelleData" 
+              baseChart 
+              [type]="evolutionMensuelleData.type" 
+              [data]="evolutionMensuelleData.data" 
+              [options]="evolutionMensuelleData.options">
+            </canvas>
+          </div>
+        </div>
+
+        <!-- Souscriptions par statut -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 class="chart-title">Souscriptions par statut</h3>
+            <div class="chart-actions">
+              <p-button icon="pi pi-download" class="p-button-outlined p-button-sm" pTooltip="Exporter"></p-button>
+            </div>
+          </div>
+          <div class="chart-content">
+            <canvas 
+              *ngIf="souscriptionsParStatutData" 
+              baseChart 
+              [type]="souscriptionsParStatutData.type" 
+              [data]="souscriptionsParStatutData.data" 
+              [options]="souscriptionsParStatutData.options">
+            </canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Data Section -->
+    <div class="recent-section">
+      <div class="recent-grid">
+        <!-- Produits récents -->
+        <div class="recent-card">
+          <div class="recent-header">
+            <h3 class="recent-title">
+              <i class="pi pi-clock"></i>
+              Produits récents
+            </h3>
+            <p-button 
+              label="Voir tout" 
+              icon="pi pi-arrow-right" 
+              class="p-button-outlined p-button-sm"
+              routerLink="/admin/produits">
+            </p-button>
+          </div>
+          <div class="recent-content">
+            <div class="recent-list">
+              <div 
+                *ngFor="let produit of recentProduits" 
+                class="recent-item produit-item">
+                <div class="item-info">
+                  <div class="item-name">{{ produit.nomProduit }}</div>
+                  <div class="item-description">{{ produit.description }}</div>
+                  <div class="item-meta">
+                    <p-tag 
+                      [value]="produit.typeProduit" 
+                      severity="info"
+                      class="type-tag">
+                    </p-tag>
+                    <span class="item-price">{{ formatCurrency(produit.prixMoyenPacks || 0) }}</span>
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <p-button 
+                    icon="pi pi-eye" 
+                    class="p-button-outlined p-button-sm"
+                    routerLink="/admin/produits/{{ produit.idProduit }}">
+                  </p-button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Packs populaires -->
+        <div class="recent-card">
+          <div class="recent-header">
+            <h3 class="recent-title">
+              <i class="pi pi-star"></i>
+              Packs populaires
+            </h3>
+            <p-button 
+              label="Voir tout" 
+              icon="pi pi-arrow-right" 
+              class="p-button-outlined p-button-sm"
+              routerLink="/admin/packs">
+            </p-button>
+          </div>
+          <div class="recent-content">
+            <div class="recent-list">
+              <div 
+                *ngFor="let pack of popularPacks" 
+                class="recent-item pack-item">
+                <div class="item-info">
+                  <div class="item-name">{{ pack.nomPack }}</div>
+                  <div class="item-description">{{ pack.description }}</div>
+                  <div class="item-meta">
+                    <p-tag 
+                      [value]="pack.niveauCouverture" 
+                      [severity]="getNiveauCouvertureColor(pack.niveauCouverture)"
+                      class="level-tag">
+                    </p-tag>
+                    <span class="item-price">{{ formatCurrency(pack.prixMensuel) }}</span>
+                    <p-badge 
+                      [value]="pack.nombreSouscriptions || 0" 
+                      severity="info"
+                      class="subscriptions-badge">
+                    </p-badge>
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <p-button 
+                    icon="pi pi-eye" 
+                    class="p-button-outlined p-button-sm"
+                    routerLink="/admin/packs/{{ pack.idPack }}">
+                  </p-button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Souscriptions récentes -->
+        <div class="recent-card">
+          <div class="recent-header">
+            <h3 class="recent-title">
+              <i class="pi pi-file-text"></i>
+              Souscriptions récentes
+            </h3>
+            <p-button 
+              label="Voir tout" 
+              icon="pi pi-arrow-right" 
+              class="p-button-outlined p-button-sm"
+              routerLink="/admin/souscriptions">
+            </p-button>
+          </div>
+          <div class="recent-content">
+            <div class="recent-list">
+              <div 
+                *ngFor="let souscription of recentSouscriptions" 
+                class="recent-item souscription-item">
+                <div class="item-info">
+                  <div class="item-name">Souscription #{{ souscription.idSouscription }}</div>
+                  <div class="item-description">
+                    Du {{ souscription.dateDebut | date:'dd/MM/yyyy' }} au {{ souscription.dateFin | date:'dd/MM/yyyy' }}
+                  </div>
+                  <div class="item-meta">
+                    <p-tag 
+                      [value]="souscription.statut" 
+                      [severity]="getStatutColor(souscription.statut)"
+                      class="statut-tag">
+                    </p-tag>
+                    <span class="item-price">{{ formatCurrency(souscription.primeMensuel || 0) }}</span>
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <p-button 
+                    icon="pi pi-eye" 
+                    class="p-button-outlined p-button-sm"
+                    routerLink="/admin/souscriptions/{{ souscription.idSouscription }}">
+                  </p-button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

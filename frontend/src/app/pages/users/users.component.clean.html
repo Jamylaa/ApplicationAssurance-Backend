@@ -1,0 +1,184 @@
+<div class="users-container-clean">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+  
+  <p-card header="Gestion des Utilisateurs" class="users-card-clean">
+    <!-- Actions Header -->
+    <div class="card-header-clean">
+      <div class="header-left">
+        <p-button 
+          label="Actualiser" 
+          icon="pi pi-refresh" 
+          (click)="refreshUsers()"
+          [loading]="loading"
+          class="p-button-outlined">
+        </p-button>
+        <p-button 
+          label="Ajouter" 
+          icon="pi pi-plus" 
+          (click)="addUser()"
+          class="p-button-success">
+        </p-button>
+        <p-button 
+          label="Exporter" 
+          icon="pi pi-download" 
+          (click)="exportUsers()"
+          class="p-button-outlined p-button-info"
+          [disabled]="users.length === 0">
+        </p-button>
+      </div>
+      
+      <div class="header-right">
+        <p-dropdown 
+          [options]="departmentOptions" 
+          [(ngModel)]="selectedDepartment"
+          placeholder="Filtrer par département"
+          class="department-filter"
+          [showClear]="true">
+        </p-dropdown>
+        <span class="p-input-icon-left global-search">
+          <i class="pi pi-search"></i>
+          <input 
+            type="text" 
+            pInputText 
+            placeholder="Rechercher..." 
+            (input)="onGlobalFilter($event)"
+            [value]="globalFilterValue">
+        </span>
+      </div>
+    </div>
+
+    <!-- Table with Selection -->
+    <p-table 
+      [value]="users" 
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} utilisateurs"
+      emptyMessage="'Aucun utilisateur trouvé'"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-striped p-datatable-hoverable-rows"
+      [selection]="selectedUsers"
+      (selectionChange)="selectedUsers = $event"
+      dataKey="idUser">
+      
+      <!-- Header with Selection -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 3rem">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th pSortableColumn="userName">Nom d'utilisateur <p-sortIcon field="userName"></p-sortIcon></th>
+          <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+          <th pSortableColumn="phone">Téléphone <p-sortIcon field="phone"></p-sortIcon></th>
+          <th pSortableColumn="departement">Département <p-sortIcon field="departement"></p-sortIcon></th>
+          <th pSortableColumn="dateCreation">Date de création <p-sortIcon field="dateCreation"></p-sortIcon></th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+
+      <!-- Body with Enhanced Display -->
+      <ng-template pTemplate="body" let-user>
+        <tr [pSelectableRow]="user">
+          <td>
+            <p-tableCheckbox [value]="user"></p-tableCheckbox>
+          </td>
+          <td>
+            <div class="user-info">
+              <div class="user-avatar">
+                <i class="pi pi-user"></i>
+              </div>
+              <div class="user-details">
+                <span class="user-name">{{ user.userName }}</span>
+                <small class="user-id">ID: {{ user.idUser || 'N/A' }}</small>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="email-info">
+              <i class="pi pi-envelope"></i>
+              <span>{{ user.email || 'Non spécifié' }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="phone-info">
+              <i class="pi pi-phone"></i>
+              <span>{{ user.phone || 'Non spécifié' }}</span>
+            </div>
+          </td>
+          <td>
+            <p-badge 
+              [value]="user.departement || 'Non spécifié'" 
+              [class]="getDepartementBadgeClass(user.departement)"
+              size="large">
+            </p-badge>
+          </td>
+          <td>
+            <div class="date-info">
+              <i class="pi pi-calendar"></i>
+              <span>{{ user.dateCreation | date:'dd/MM/yyyy' }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <p-button 
+                icon="pi pi-pencil" 
+                class="p-button-rounded p-button-text p-button-info"
+                (click)="editUser(user)"
+                pTooltip="Modifier"
+                tooltipPosition="top">
+              </p-button>
+              <p-button 
+                icon="pi pi-trash" 
+                class="p-button-rounded p-button-text p-button-danger"
+                (click)="deleteUser(user)"
+                pTooltip="Supprimer"
+                tooltipPosition="top">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- Footer with Bulk Actions -->
+      <ng-template pTemplate="footer">
+        <div class="table-footer" *ngIf="selectedUsers.length > 0">
+          <div class="selection-info">
+            <span>{{ selectedUsers.length }} utilisateur(s) sélectionné(s)</span>
+          </div>
+          <div class="bulk-actions">
+            <p-button 
+              label="Supprimer la sélection" 
+              icon="pi pi-trash"
+              class="p-button-danger"
+              (click)="deleteSelectedUsers()">
+            </p-button>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- Empty Message -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7">
+            <div class="empty-state">
+              <i class="pi pi-users empty-icon"></i>
+              <div class="empty-content">
+                <h4>Aucun utilisateur trouvé</h4>
+                <p>Commencez par ajouter un nouvel utilisateur</p>
+                <p-button 
+                  label="Ajouter un utilisateur" 
+                  icon="pi pi-plus"
+                  class="p-button-outlined"
+                  (click)="addUser()">
+                </p-button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>

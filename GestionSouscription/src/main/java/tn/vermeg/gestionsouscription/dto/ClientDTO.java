@@ -21,6 +21,8 @@ public class ClientDTO {
     private boolean diabetique;
     private boolean tension;
     private int nombreBeneficiaires;
+    private String numeroCIN;
+    private String clientPrenom;
 
     public ClientDTO() {}
 
@@ -55,4 +57,8 @@ public class ClientDTO {
     public void setTension(boolean tension) { this.tension = tension; }
     public int getNombreBeneficiaires() { return nombreBeneficiaires; }
     public void setNombreBeneficiaires(int nombreBeneficiaires) { this.nombreBeneficiaires = nombreBeneficiaires; }
+    public String getNumeroCIN() { return numeroCIN; }
+    public void setNumeroCIN(String numeroCIN) { this.numeroCIN = numeroCIN; }
+    public String getClientPrenom() { return clientPrenom; }
+    public void setClientPrenom(String clientPrenom) { this.clientPrenom = clientPrenom; }
 }

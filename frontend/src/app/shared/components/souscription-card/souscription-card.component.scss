@@ -1,0 +1,706 @@
+.souscription-card-container {
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+
+  &.compact {
+    margin-bottom: 0.5rem;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  // Classes de priorité
+  &.priority-active {
+    ::ng-deep .p-card {
+      border-left-color: #10b981;
+    }
+  }
+
+  &.priority-expiring {
+    ::ng-deep .p-card {
+      border-left-color: #f59e0b;
+    }
+  }
+
+  &.priority-overdue {
+    ::ng-deep .p-card {
+      border-left-color: #ef4444;
+    }
+  }
+
+  &.priority-inactive {
+    ::ng-deep .p-card {
+      border-left-color: #6b7280;
+    }
+  }
+
+  ::ng-deep .p-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background: white;
+
+    &.compact-card {
+      .p-card-body {
+        padding: 1rem;
+      }
+    }
+
+    &.full-card {
+      .p-card-body {
+        padding: 1.5rem;
+      }
+    }
+
+    &:hover {
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  .card-header {
+    margin-bottom: 1rem;
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+
+      .title-section {
+        flex: 1;
+
+        .title-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 0.5rem;
+          margin-bottom: 0.5rem;
+
+          .souscription-title {
+            margin: 0;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1.3;
+          }
+
+          .title-badges {
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
+            flex-wrap: wrap;
+
+            .status-badge {
+              font-size: 0.75rem;
+              font-weight: 500;
+            }
+
+            .more-badges {
+              font-size: 0.75rem;
+              color: #64748b;
+              background: #f3f4f6;
+              padding: 0.125rem 0.375rem;
+              border-radius: 4px;
+            }
+          }
+        }
+
+        .subtitle-row {
+          display: flex;
+          gap: 0.75rem;
+          align-items: center;
+
+          .client-name {
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.875rem;
+          }
+
+          .pack-name {
+            color: #64748b;
+            font-size: 0.813rem;
+          }
+        }
+      }
+
+      .header-actions {
+        .action-buttons {
+          display: flex;
+          gap: 0.25rem;
+
+          .p-button {
+            width: 2rem;
+            height: 2rem;
+            padding: 0;
+
+            ::ng-deep .p-button-label {
+              display: none;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .card-content {
+    .alerts-section {
+      margin-bottom: 1rem;
+
+      .alert-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        &.alert-danger {
+          background: #fef2f2;
+          border: 1px solid #fecaca;
+          color: #991b1b;
+
+          i {
+            color: #dc2626;
+          }
+        }
+
+        &.alert-warning {
+          background: #fffbeb;
+          border: 1px solid #fef3c7;
+          color: #92400e;
+
+          i {
+            color: #d97706;
+          }
+        }
+
+        &.alert-info {
+          background: #eff6ff;
+          border: 1px solid #dbeafe;
+          color: #1e40af;
+
+          i {
+            color: #2563eb;
+          }
+        }
+
+        .alert-message {
+          font-size: 0.875rem;
+          font-weight: 500;
+        }
+      }
+    }
+
+    .info-section {
+      margin-bottom: 1rem;
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+
+        .info-item {
+          .info-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+          }
+
+          .info-value {
+            font-size: 0.875rem;
+            color: #1e293b;
+            font-weight: 500;
+
+            .duration {
+              font-size: 0.75rem;
+              color: #64748b;
+              margin-left: 0.25rem;
+            }
+
+            .prime-amount {
+              font-weight: 600;
+              color: #059669;
+            }
+
+            .prime-period {
+              font-size: 0.75rem;
+              color: #64748b;
+            }
+
+            .payment-mode {
+              font-weight: 500;
+            }
+
+            .payment-frequency {
+              font-size: 0.75rem;
+              color: #64748b;
+              margin-left: 0.25rem;
+            }
+          }
+        }
+      }
+    }
+
+    .details-section {
+      .detail-item {
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        .detail-header {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 0.75rem;
+
+          i {
+            color: #64748b;
+            font-size: 1rem;
+          }
+
+          .detail-title {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+          }
+
+          ::ng-deep .p-badge {
+            font-size: 0.75rem;
+            min-width: 1.25rem;
+            height: 1.25rem;
+          }
+        }
+
+        .detail-content {
+          .beneficiaire-item,
+          .garantie-item,
+          .document-item,
+          .condition-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            .beneficiaire-name,
+            .garantie-name,
+            .document-name,
+            .condition-text {
+              font-size: 0.813rem;
+              color: #374151;
+              flex: 1;
+            }
+
+            .beneficiaire-relation {
+              font-size: 0.75rem;
+              color: #64748b;
+              background: #f3f4f6;
+              padding: 0.125rem 0.375rem;
+              border-radius: 4px;
+            }
+
+            .garantie-price {
+              font-weight: 600;
+              color: #059669;
+              font-size: 0.813rem;
+            }
+
+            .principal-tag,
+            .option-tag,
+            .document-status {
+              font-size: 0.75rem;
+            }
+
+            .document-icon {
+              color: #dc2626;
+            }
+          }
+
+          .more-beneficiaires,
+          .more-garanties,
+          .more-documents,
+          .more-conditions {
+            font-size: 0.813rem;
+            color: #64748b;
+            font-style: italic;
+            display: block;
+            padding: 0.5rem 0;
+          }
+
+          .payment-date {
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.875rem;
+          }
+
+          .payment-countdown {
+            font-size: 0.813rem;
+            color: #059669;
+            margin-left: 0.5rem;
+
+            &.overdue {
+              color: #dc2626;
+              font-weight: 600;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .card-footer {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 1rem;
+    margin-top: 1rem;
+
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1rem;
+
+      .footer-left {
+        flex: 1;
+
+        .footer-info {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+          margin-bottom: 0.5rem;
+
+          .creation-date,
+          .modification-date {
+            font-size: 0.75rem;
+            color: #64748b;
+          }
+        }
+
+        .footer-summary {
+          font-size: 0.875rem;
+          color: #374151;
+          font-weight: 500;
+        }
+      }
+
+      .footer-right {
+        .footer-actions {
+          display: flex;
+          gap: 0.5rem;
+
+          .p-button {
+            font-weight: 500;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .souscription-card-container {
+    .card-header {
+      .header-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+
+        .title-section {
+          .title-row {
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: stretch;
+
+            .title-badges {
+              justify-content: flex-start;
+            }
+          }
+
+          .subtitle-row {
+            flex-direction: column;
+            gap: 0.25rem;
+            align-items: flex-start;
+          }
+        }
+
+        .header-actions {
+          .action-buttons {
+            justify-content: flex-end;
+          }
+        }
+      }
+    }
+
+    .info-section {
+      .info-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+    }
+
+    .details-section {
+      .detail-item {
+        padding: 0.75rem;
+
+        .detail-header {
+          margin-bottom: 0.5rem;
+        }
+
+        .detail-content {
+          .beneficiaire-item,
+          .garantie-item,
+          .document-item,
+          .condition-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.25rem;
+            padding: 0.25rem 0;
+          }
+        }
+      }
+    }
+
+    .card-footer {
+      .footer-content {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+
+        .footer-right {
+          .footer-actions {
+            justify-content: stretch;
+
+            .p-button {
+              flex: 1;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Compact mode
+.souscription-card-container.compact {
+  .card-header {
+    margin-bottom: 0.75rem;
+
+    .header-content {
+      .title-section {
+        .title-row {
+          .souscription-title {
+            font-size: 1rem;
+          }
+        }
+
+        .subtitle-row {
+          .client-name,
+          .pack-name {
+            font-size: 0.813rem;
+          }
+        }
+      }
+    }
+  }
+
+  .card-content {
+    .info-section {
+      margin-bottom: 0.75rem;
+
+      .info-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 0.75rem;
+
+        .info-item {
+          .info-label {
+            font-size: 0.688rem;
+          }
+
+          .info-value {
+            font-size: 0.813rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .souscription-card-container {
+    ::ng-deep .p-card {
+      background: #1e293b;
+      border-color: #334155;
+    }
+
+    .card-header {
+      .header-content {
+        .title-section {
+          .souscription-title {
+            color: #f1f5f9 !important;
+          }
+
+          .subtitle-row {
+            .client-name {
+              color: #e2e8f0 !important;
+            }
+
+            .pack-name {
+              color: #94a3b8 !important;
+            }
+          }
+        }
+      }
+    }
+
+    .info-section {
+      .info-grid {
+        .info-item {
+          .info-label {
+            color: #94a3b8 !important;
+          }
+
+          .info-value {
+            color: #f1f5f9 !important;
+
+            .duration,
+            .prime-period,
+            .payment-frequency {
+              color: #94a3b8 !important;
+            }
+          }
+        }
+      }
+    }
+
+    .details-section {
+      .detail-item {
+        background: #334155;
+        border-color: #475569;
+
+        .detail-header {
+          i {
+            color: #94a3b8;
+          }
+
+          .detail-title {
+            color: #e2e8f0 !important;
+          }
+        }
+
+        .detail-content {
+          .beneficiaire-name,
+          .garantie-name,
+          .document-name,
+          .condition-text {
+            color: #e2e8f0 !important;
+          }
+
+          .beneficiaire-relation {
+            background: #475569;
+            color: #cbd5e1;
+          }
+        }
+      }
+    }
+
+    .card-footer {
+      border-top-color: #334155;
+
+      .footer-content {
+        .footer-left {
+          .footer-info {
+            .creation-date,
+            .modification-date {
+              color: #94a3b8 !important;
+            }
+          }
+
+          .footer-summary {
+            color: #e2e8f0 !important;
+          }
+        }
+      }
+    }
+
+    .alerts-section {
+      .alert-item {
+        &.alert-danger {
+          background: #7f1d1d;
+          border-color: #991b1b;
+          color: #fef2f2;
+        }
+
+        &.alert-warning {
+          background: #78350f;
+          border-color: #92400e;
+          color: #fffbeb;
+        }
+
+        &.alert-info {
+          background: #1e3a8a;
+          border-color: #1e40af;
+          color: #eff6ff;
+        }
+      }
+    }
+  }
+}
+
+// Animation states
+.souscription-card-container {
+  &.loading {
+    ::ng-deep .p-card {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+  }
+
+  &.selected {
+    ::ng-deep .p-card {
+      border: 2px solid #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+  }
+
+  &.updating {
+    ::ng-deep .p-card {
+      background: #f0f9ff;
+      border-color: #3b82f6;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.souscription-card-container {
+  animation: fadeIn 0.3s ease-out;
+}

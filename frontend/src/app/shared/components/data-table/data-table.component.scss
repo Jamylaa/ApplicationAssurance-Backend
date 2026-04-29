@@ -1,0 +1,56 @@
+.data-table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  
+  .p-paginator {
+    background: transparent;
+    border: none;
+    padding: 1rem 0 0 0;
+  }
+  
+  .p-table {
+    .p-table-thead > tr > th {
+      background: #f8f9fa;
+      color: #495057;
+      font-weight: 600;
+      border-bottom: 2px solid #dee2e6;
+      padding: 1rem;
+    }
+    
+    .p-table-tbody > tr > td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .p-table-tbody > tr:hover {
+      background: #f8f9fa;
+    }
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+  
+  .empty-message {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+    
+    p {
+      margin: 0.5rem 0 0 0;
+      font-weight: 500;
+    }
+  }
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
+.text-center {
+  text-align: center;
+}

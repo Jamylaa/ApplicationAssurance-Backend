@@ -1,0 +1,218 @@
+.users-container {
+  padding: 2rem;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.users-card {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 12px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.search-section {
+  margin-bottom: 1.5rem;
+}
+
+.search-section .p-input-icon-left {
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-section input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease;
+}
+
+.search-section input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.users-table {
+  margin-top: 1rem;
+}
+
+.table-caption h5 {
+  margin: 0;
+  color: #495057;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.user-name,
+.user-email,
+.user-phone,
+.date-creation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-name i,
+.user-email i,
+.user-phone i,
+.date-creation i {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.action-buttons .p-button {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.empty-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.empty-message i {
+  font-size: 1.25rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .users-container {
+    padding: 1rem;
+  }
+
+  .card-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    justify-content: center;
+  }
+
+  .search-section .p-input-icon-left {
+    max-width: 100%;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .action-buttons .p-button {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-actions {
+    flex-direction: column;
+  }
+
+  .header-actions .p-button {
+    width: 100%;
+  }
+}
+
+/* Table Styles */
+::ng-deep .users-table .p-datatable-header {
+  background: #fff;
+  border-bottom: 2px solid #e9ecef;
+}
+
+::ng-deep .users-table .p-datatable-thead > tr > th {
+  background: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  border-bottom: 1px solid #dee2e6;
+  padding: 1rem;
+}
+
+::ng-deep .users-table .p-datatable-tbody > tr > td {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+::ng-deep .users-table .p-datatable-tbody > tr:hover > td {
+  background: #f8f9fa;
+}
+
+::ng-deep .users-table .p-paginator {
+  background: #fff;
+  border-top: 1px solid #dee2e6;
+  padding: 1rem;
+}
+
+::ng-deep .users-table .p-sortable-column {
+  cursor: pointer;
+  user-select: none;
+}
+
+::ng-deep .users-table .p-sortable-column:hover {
+  background: #e9ecef;
+}
+
+::ng-deep .users-table .p-sortable-column.p-highlight {
+  background: #007bff;
+  color: white;
+}
+
+/* Badge Styles */
+::ng-deep .p-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+::ng-deep .p-badge-info {
+  background: #17a2b8;
+  color: white;
+}
+
+::ng-deep .p-badge-success {
+  background: #28a745;
+  color: white;
+}
+
+::ng-deep .p-badge-warning {
+  background: #ffc107;
+  color: #212529;
+}
+
+::ng-deep .p-badge-danger {
+  background: #dc3545;
+  color: white;
+}
+
+::ng-deep .p-badge-secondary {
+  background: #6c757d;
+  color: white;
+}

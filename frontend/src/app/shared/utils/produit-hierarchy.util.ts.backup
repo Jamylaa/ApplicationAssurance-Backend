@@ -1,0 +1,489 @@
+import {
+  ConditionEligibilite,
+  Couverture,
+  Exclusion,
+  Garantie,
+  PackGarantie,
+  Pack,
+  Produit,
+  PlafondLimite,
+  RegleCalculGarantie,
+  NiveauCouverture,
+  TypeProduit,
+  TypeMontant,
+  Statut
+} from '../../models/entities.model';
+
+function normalizeStringArray(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item ?? '').trim()).filter(Boolean);
+  }
+
+  if (typeof value === 'string') {
+    return value
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
+function normalizeRecord(value: unknown): Record<string, string> {
+  if (!value || typeof value !== 'object') {
+    return {};
+  }
+
+  return Object.entries(value as Record<string, unknown>).reduce<Record<string, string>>((accumulator, [key, entry]) => {
+    accumulator[key] = String(entry ?? '').trim();
+    return accumulator;
+  }, {});
+}
+
+function buildGarantieMap(garanties: Garantie[]): Map<string, Garantie> {
+  return new Map(
+    (garanties ?? [])
+      .filter((garantie) => Boolean(garantie.idGarantie))
+      .map((garantie) => [garantie.idGarantie as string, garantie])
+  );
+}
+
+function buildPackGarantieMap(packGaranties: PackGarantie[]): Map<string, PackGarantie[]> {
+  return (packGaranties ?? []).reduce<Map<string, PackGarantie[]>>((accumulator, relation) => {
+    const packId = String(relation.idPack ?? relation.packId ?? '').trim();
+    if (!packId) {
+      return accumulator;
+    }
+
+    accumulator.set(packId, [...(accumulator.get(packId) ?? []), relation]);
+    return accumulator;
+  }, new Map<string, PackGarantie[]>());
+}
+
+export function normalizeCouverture(couverture: Partial<Couverture> | null | undefined): Couverture {
+  return {
+    idCouverture: couverture?.idCouverture,
+    typeSoins: couverture?.typeSoins ?? 'HOSPITALISATION',
+    actesMedicauxInclus: normalizeStringArray(couverture?.actesMedicauxInclus),
+    niveauCouverture: couverture?.niveauCouverture ?? NiveauCouverture.BASIC,
+    tauxRemboursement: Number(couverture?.tauxRemboursement ?? 0),
+    typeMontant: couverture?.typeMontant ?? 'FORFAIT',
+    montantRembourse: Number(couverture?.montantRembourse ?? 0)
+  };
+}
+
+export function normalizePlafond(plafond: Partial<PlafondLimite> | null | undefined): PlafondLimite {
+  return {
+    idPlafond: plafond?.idPlafond,
+    typePlafond: plafond?.typePlafond ?? 'ANNUEL',
+    montantPlafond: Number(plafond?.montantPlafond ?? 0),
+    nombreMaxRemboursements: Number(plafond?.nombreMaxRemboursements ?? 0),
+    franchise: Number(plafond?.franchise ?? 0),
+    delaiCarenceMois: Number(plafond?.delaiCarenceMois ?? 0),
+    couvertureGeographique: plafond?.couvertureGeographique ?? 'NATIONAL'
+  };
+}
+
+export function normalizeConditionEligibilite(
+  condition: Partial<ConditionEligibilite> | null | undefined
+): ConditionEligibilite | undefined {
+  if (!condition) {
+    return undefined;
+  }
+
+  return {
+    idCondition: condition.idCondition,
+    ageMinimum: condition.ageMinimum !== undefined ? Number(condition.ageMinimum) : undefined,
+    ageMaximum: condition.ageMaximum !== undefined ? Number(condition.ageMaximum) : undefined,
+    typeClient: condition.typeClient ?? 'INDIVIDUEL',
+    conditionsMedicales: String(condition.conditionsMedicales ?? '').trim(),
+    ancienneteContratMois: Number(condition.ancienneteContratMois ?? 0),
+    exclusionMaladiesChroniques: Boolean(condition.exclusionMaladiesChroniques)
+  };
+}
+
+export function normalizeExclusion(exclusion: Partial<Exclusion> | null | undefined): Exclusion | undefined {
+  if (!exclusion) {
+    return undefined;
+  }
+
+  return {
+    idExclusion: exclusion.idExclusion,
+    maladiesExclues: normalizeStringArray(exclusion.maladiesExclues),
+    actesNonRemboursables: normalizeStringArray(exclusion.actesNonRemboursables),
+    depassementsNonPrisEnCharge: Boolean(exclusion.depassementsNonPrisEnCharge),
+    soinsEtrangerExclus: Boolean(exclusion.soinsEtrangerExclus),
+    autresExclusions: String(exclusion.autresExclusions ?? '').trim()
+  };
+}
+
+export function normalizeRegleCalcul(regle: Partial<RegleCalculGarantie> | null | undefined): RegleCalculGarantie | undefined {
+  if (!regle) {
+    return undefined;
+  }
+
+  return {
+    idRegle: regle.idRegle,
+    formuleRemboursement: String(regle.formuleRemboursement ?? '').trim(),
+    baseCalcul: regle.baseCalcul ?? 'FRAIS_REELS',
+    cumulAutresGarantiesAutorise: Boolean(regle.cumulAutresGarantiesAutorise),
+    prioriteGarantie: Number(regle.prioriteGarantie ?? 0),
+    descriptionRegle: String(regle.descriptionRegle ?? '').trim()
+  };
+}
+
+// export function normalizeParametresTechniques(
+//   parametres: Partial<ParametreTechnique> | null | undefined
+// ): ParametreTechnique | undefined {
+//   if (!parametres) {
+//     return undefined;
+//   }
+
+//   return {
+//     idParametre: parametres.idParametre,
+//     mappingChampsFormulaire: normalizeRecord(parametres.mappingChampsFormulaire),
+//     codeInterne: String(parametres.codeInterne ?? '').trim(),
+//     workflowAssocie: String(parametres.workflowAssocie ?? '').trim(),
+//     reglesControle: normalizeRecord(parametres.reglesControle),
+//     actif: parametres.actif !== false
+//   };
+// }
+
+export function normalizeGarantie(garantie: Partial<Garantie> | null | undefined): Garantie {
+  const couvertures = Array.isArray(garantie?.couvertures)
+    ? garantie?.couvertures.map((item) => normalizeCouverture(item))
+    : [];
+  const plafondsLimites = Array.isArray(garantie?.plafondsLimites)
+    ? garantie?.plafondsLimites.map((item) => normalizePlafond(item))
+    : [];
+  const tauxRemboursement = garantie?.tauxRemboursement ?? couvertures[0]?.tauxRemboursement ?? 0;
+  const plafondAnnuel = garantie?.plafondAnnuel ?? plafondsLimites[0]?.montantPlafond ?? 0;
+  const statut = garantie?.statut ?? (garantie?.actif === false ? 'INACTIF' : 'ACTIF');
+
+  return {
+    idGarantie: garantie?.idGarantie,
+    // codeGarantie: String(garantie?.codeGarantie ?? garantie?.idGarantie ?? '').trim(),
+    nomGarantie: String(garantie?.nomGarantie ?? '').trim(),
+    description: String(garantie?.description ?? '').trim(),
+    typeGarantie: garantie?.typeGarantie ?? undefined,
+    statut,
+    couvertures,
+    plafondsLimites,
+    conditionsEligibilite: normalizeConditionEligibilite(garantie?.conditionsEligibilite),
+    regleCalcul: normalizeRegleCalcul(garantie?.regleCalcul),
+    exclusions: normalizeExclusion(garantie?.exclusions),
+    // parametresTechniques: normalizeParametresTechniques(garantie?.parametresTechniques),
+    plafondAnnuel: Number(plafondAnnuel),
+    tauxRemboursement: Number(tauxRemboursement),
+    actif: statut === 'ACTIF',
+    dateCreation: String(garantie?.dateCreation ?? new Date().toISOString()),
+    dateModification: garantie?.dateModification ? String(garantie.dateModification) : undefined
+  };
+}
+
+export function normalizeGaranties(garanties: Garantie[]): Garantie[] {
+  return (garanties ?? []).map((garantie) => normalizeGarantie(garantie));
+}
+
+function normalizeLegacyPackGuarantees(
+  pack: Partial<Pack>,
+  garantieMap: Map<string, Garantie>
+): PackGarantie[] {
+  const incluses = (pack.garantiesInclusesIds ?? []).map((garantieId) => ({
+    garantieId,
+    tauxRemboursement: Number(garantieMap.get(garantieId)?.tauxRemboursement ?? 0),
+    plafondSpecifique: Number(garantieMap.get(garantieId)?.plafondAnnuel ?? 0),
+    estOptionnelle: false,
+    supplementPrix: 0,
+    garantie: garantieMap.get(garantieId)
+  }));
+
+  const optionnelles = (pack.garantiesOptionnellesIds ?? []).map((garantieId) => ({
+    garantieId,
+    tauxRemboursement: Number(garantieMap.get(garantieId)?.tauxRemboursement ?? 0),
+    plafondSpecifique: Number(garantieMap.get(garantieId)?.plafondAnnuel ?? 0),
+    estOptionnelle: true,
+    supplementPrix: 0,
+    garantie: garantieMap.get(garantieId)
+  }));
+
+  return [...incluses, ...optionnelles];
+}
+
+export function normalizePackGarantie(
+  packGarantie: Partial<PackGarantie> | null | undefined,
+  garantieMap?: Map<string, Garantie>
+): PackGarantie {
+  const idPack = String(packGarantie?.idPack ?? packGarantie?.packId ?? '').trim();
+  const garantieId = String(packGarantie?.idGarantie ?? packGarantie?.garantieId ?? '').trim();
+  const garantie = packGarantie?.garantie
+    ? normalizeGarantie(packGarantie.garantie)
+    : garantieMap?.get(garantieId);
+
+  return {
+    idPackGarantie: packGarantie?.idPackGarantie,
+    idPack: idPack || undefined,
+    packId: idPack || undefined,
+    idGarantie: garantieId,
+    garantieId,
+    garantie,
+    tauxRemboursement: Number(
+      packGarantie?.tauxRemboursement ?? garantie?.tauxRemboursement ?? 0
+    ),
+    plafondAnnuel: Number(
+      packGarantie?.plafondSpecifique ?? garantie?.plafondAnnuel ?? 0
+    ),
+    plafondParActe: 0,
+    delaiCarence: 0,
+    estOptionnelle: Boolean(packGarantie?.estOptionnelle),
+    supplementPrix: Number(packGarantie?.supplementPrix ?? 0),
+    niveauCouvertureSpecifique: packGarantie?.niveauCouvertureSpecifique
+      ? String(packGarantie.niveauCouvertureSpecifique)
+      : undefined,
+    // Champs requis par l'interface
+    nomGarantie: garantie?.nomGarantie || '',
+    plafond: Number(packGarantie?.plafondSpecifique ?? garantie?.plafondAnnuel ?? 0),
+    franchise: 0,
+    typeMontant: garantie?.typeMontant || 'FRAIS_REELS',
+    priorite: 1,
+    actif: true,
+    dateActivation: new Date().toISOString()
+  };
+}
+
+export function normalizePack(
+  pack: Partial<Pack> | null | undefined,
+  produitsMap?: Map<string, Produit>,
+  garantieMap?: Map<string, Garantie>,
+  packGarantiesByPackId?: Map<string, PackGarantie[]>
+): Pack {
+  const packId = String(pack?.idPack ?? '').trim();
+  const externalRelations = packId ? packGarantiesByPackId?.get(packId) ?? [] : [];
+  const garantiesRelations = Array.isArray(pack?.garanties) && pack?.garanties.length
+    ? pack.garanties.map((garantie) => normalizePackGarantie(garantie, garantieMap))
+    : externalRelations.length
+      ? externalRelations.map((garantie) => normalizePackGarantie(garantie, garantieMap))
+      : normalizeLegacyPackGuarantees(pack ?? {}, garantieMap ?? new Map()).map((garantie) =>
+        normalizePackGarantie(garantie, garantieMap)
+      );
+
+  const garantiesIncluses = garantiesRelations
+    .filter((garantie) => !garantie.estOptionnelle)
+    .map((garantie) => garantie.garantie)
+    .filter((garantie): garantie is Garantie => Boolean(garantie));
+  const garantiesOptionnelles = garantiesRelations
+    .filter((garantie) => garantie.estOptionnelle)
+    .map((garantie) => garantie.garantie)
+    .filter((garantie): garantie is Garantie => Boolean(garantie));
+
+  return {
+    idPack: pack?.idPack,
+    nomPack: String(pack?.nomPack ?? '').trim(),
+    description: String(pack?.description ?? '').trim(),
+    typeProduit: pack?.typeProduit,
+    produitId: String(pack?.produitId ?? '').trim(),
+    garanties: garantiesRelations,
+    garantiesInclusesIds: garantiesRelations
+      .filter((garantie) => !garantie.estOptionnelle)
+      .map((garantie) => garantie.garantieId)
+      .filter((garantieId): garantieId is string => Boolean(garantieId)),
+    garantiesIncluses,
+    garantiesOptionnellesIds: garantiesRelations
+      .filter((garantie) => garantie.estOptionnelle)
+      .map((garantie) => garantie.garantieId)
+      .filter((garantieId): garantieId is string => Boolean(garantieId)),
+    garantiesOptionnelles,
+    produit: pack?.produit ?? produitsMap?.get(String(pack?.produitId ?? '').trim()),
+    prixMensuel: Number(pack?.prixMensuel ?? 0),
+    dureeMinContrat: Number(pack?.dureeMinContrat ?? 0),
+    dureeMaxContrat: Number(pack?.dureeMaxContrat ?? 0),
+    niveauCouverture: (pack?.niveauCouverture ?? NiveauCouverture.BASIC) as Pack['niveauCouverture'],
+    actif: pack?.actif !== false,
+    dateCreation: pack?.dateCreation ? String(pack.dateCreation) : undefined,
+    dateModification: pack?.dateModification ? String(pack.dateModification) : undefined
+  };
+}
+
+export function normalizePacks(
+  packs: Pack[],
+  produits: Produit[] = [],
+  garanties: Garantie[] = [],
+  packGaranties: PackGarantie[] = []
+): Pack[] {
+  const produitsMap = new Map(
+    (produits ?? [])
+      .filter((produit) => Boolean(produit.idProduit))
+      .map((produit) => [produit.idProduit as string, produit])
+  );
+  const garantieMap = buildGarantieMap(normalizeGaranties(garanties));
+  const packGarantiesByPackId = buildPackGarantieMap(normalizePackGaranties(packGaranties, garantieMap));
+
+  return (packs ?? []).map((pack) => normalizePack(pack, produitsMap, garantieMap, packGarantiesByPackId));
+}
+
+export function normalizePackGaranties(
+  packGaranties: PackGarantie[],
+  garantieMap?: Map<string, Garantie>
+): PackGarantie[] {
+  return (packGaranties ?? []).map((relation) => normalizePackGarantie(relation, garantieMap));
+}
+
+export function normalizeProduit(produit: Partial<Produit> | null | undefined, packs: Pack[] = []): Produit {
+  const produitId = String(produit?.idProduit ?? '').trim();
+  const relatedPacks = (produit?.packs?.length ? produit.packs : packs).map((pack) => ({
+    ...pack,
+    produitId: pack.produitId || produitId
+  }));
+  const prixBaseDerive = relatedPacks.length
+    ? Math.min(...relatedPacks.map((pack) => Number(pack.prixMensuel ?? 0)))
+    : undefined;
+
+  return {
+    idProduit: produit?.idProduit,
+    nomProduit: String(produit?.nomProduit ?? '').trim(),
+    description: String(produit?.description ?? '').trim(),
+    prixBase: produit?.prixBase !== undefined
+      ? Number(produit.prixBase)
+      : prixBaseDerive,
+    ageMin: Number(produit?.ageMin ?? 0),
+    ageMax: Number(produit?.ageMax ?? 0),
+    garantiesIds: produit?.garantiesIds ?? [],
+    garanties: produit?.garanties?.map((garantie) => normalizeGarantie(garantie)) ?? [],
+    packs: relatedPacks,
+    maladieChroniqueAutorisee: Boolean(produit?.maladieChroniqueAutorisee),
+    diabetiqueAutorise: Boolean(produit?.diabetiqueAutorise),
+    actif: produit?.actif !== false,
+    type: (produit?.type ?? produit?.typeProduit ?? TypeProduit.SANTE) as Produit['type'],
+    typeProduit: (produit?.typeProduit ?? produit?.type ?? TypeProduit.SANTE) as Produit['typeProduit'],
+    couverture: produit?.couverture !== undefined ? Number(produit.couverture) : undefined,
+    dureeMax: produit?.dureeMax ? String(produit.dureeMax) : undefined,
+    conditions: produit?.conditions ? String(produit.conditions) : undefined,
+    dateCreation: String(produit?.dateCreation ?? new Date().toISOString()),
+    dateModification: produit?.dateModification ? String(produit.dateModification) : undefined
+  };
+}
+
+export function normalizeProduits(produits: Produit[], packs: Pack[] = []): Produit[] {
+  const packsByProduit = packs.reduce<Record<string, Pack[]>>((accumulator, pack) => {
+    const produitId = String(pack.produitId ?? '').trim();
+    if (!produitId) {
+      return accumulator;
+    }
+
+    accumulator[produitId] = [...(accumulator[produitId] ?? []), pack];
+    return accumulator;
+  }, {});
+
+  return (produits ?? []).map((produit) =>
+    normalizeProduit(produit, packsByProduit[String(produit.idProduit ?? '').trim()] ?? [])
+  );
+}
+
+export function buildGarantiePayload(garantie: Garantie): Garantie {
+  const normalized = normalizeGarantie(garantie);
+
+  return {
+    idGarantie: normalized.idGarantie,
+    // codeGarantie: normalized.codeGarantie,
+    nomGarantie: normalized.nomGarantie,
+    description: normalized.description,
+    typeGarantie: normalized.typeGarantie,
+    statut: normalized.statut,
+    couvertures: normalized.couvertures ?? [],
+    plafondsLimites: normalized.plafondsLimites ?? [],
+    conditionsEligibilite: normalized.conditionsEligibilite,
+    regleCalcul: normalized.regleCalcul,
+    exclusions: normalized.exclusions,
+    // parametresTechniques: normalized.parametresTechniques
+  };
+}
+
+export function buildPackPayload(pack: Pack, includeGaranties = true): Pack {
+  const normalized = normalizePack(pack);
+  const garantiesPayload = includeGaranties
+    ? (normalized.garanties ?? []).map((garantie) => ({
+        idPackGarantie: garantie.idPackGarantie,
+        idPack: garantie.idPack ?? garantie.packId,
+        idGarantie: garantie.idGarantie ?? garantie.garantieId,
+        tauxRemboursement: Number(garantie.tauxRemboursement ?? 0),
+        plafondAnnuel: Number(garantie.plafondAnnuel ?? garantie.plafondSpecifique ?? 0),
+        plafondParActe: garantie.plafondParActe || 0,
+        delaiCarence: garantie.delaiCarence || 0,
+        estOptionnelle: Boolean(garantie.estOptionnelle),
+        supplementPrix: Number(garantie.supplementPrix ?? 0),
+        tauxCouvertureSpecifique: garantie.tauxCouvertureSpecifique,
+        // Champs requis
+        nomGarantie: garantie.nomGarantie || '',
+        plafond: garantie.plafond || 0,
+        franchise: garantie.franchise || 0,
+        typeMontant: garantie.typeMontant || 'FRAIS_REELS',
+        priorite: garantie.priorite || 1,
+        actif: garantie.actif !== false,
+        dateActivation: garantie.dateActivation || new Date().toISOString()
+      }))
+    : undefined;
+
+  return {
+    idPack: normalized.idPack,
+    nomPack: normalized.nomPack,
+    description: normalized.description,
+    produitId: normalized.produitId,
+    prixMensuel: normalized.prixMensuel,
+    dureeMinContrat: normalized.dureeMinContrat,
+    dureeMaxContrat: normalized.dureeMaxContrat,
+    niveauCouverture: normalized.niveauCouverture,
+    actif: normalized.actif,
+    dateCreation: normalized.dateCreation,
+    dateModification: normalized.dateModification,
+    ...(garantiesPayload ? { garanties: garantiesPayload } : {})
+  };
+}
+
+export function buildPackGarantiePayload(packGarantie: PackGarantie, forcedPackId?: string): PackGarantie {
+  const normalized = normalizePackGarantie({
+    ...packGarantie,
+    packId: forcedPackId ?? packGarantie.packId
+  });
+  const packId = forcedPackId ?? normalized.packId;
+
+  return {
+    idPackGarantie: normalized.idPackGarantie,
+    packId: packId,
+    garantieId: normalized.garantieId,
+    tauxRemboursement: normalized.tauxRemboursement,
+    plafondAnnuel: normalized.plafondAnnuel,
+    plafondParActe: normalized.plafondParActe,
+    delaiCarence: normalized.delaiCarence,
+    estOptionnelle: normalized.estOptionnelle,
+    supplementPrix: normalized.supplementPrix,
+    conditionsSpecifiques: normalized.conditionsSpecifiques,
+    // Champs requis
+    nomGarantie: normalized.nomGarantie,
+    plafond: normalized.plafond,
+    franchise: normalized.franchise,
+    typeMontant: normalized.typeMontant,
+    priorite: normalized.priorite,
+    actif: normalized.actif,
+    dateActivation: normalized.dateActivation
+  };
+}
+
+export function buildProduitPayload(produit: Produit): Produit {
+  const normalized = normalizeProduit(produit);
+
+  return {
+    idProduit: normalized.idProduit,
+    nomProduit: normalized.nomProduit,
+    description: normalized.description,
+    typeProduit: normalized.typeProduit ?? TypeProduit.SANTE,
+    statut: normalized.statut ?? Statut.ACTIF,
+    dateCreation: normalized.dateCreation,
+    dateModification: normalized.dateModification,
+    // Champs legacy pour compatibilité
+    ageMin: normalized.ageMin,
+    ageMax: normalized.ageMax,
+    maladieChroniqueAutorisee: normalized.maladieChroniqueAutorisee,
+    diabetiqueAutorisee: normalized.diabetiqueAutorisee,
+    actif: normalized.actif
+  };
+}

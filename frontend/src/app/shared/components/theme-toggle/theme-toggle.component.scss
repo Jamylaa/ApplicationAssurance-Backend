@@ -1,0 +1,22 @@
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  
+  button {
+    min-width: 120px;
+    border-radius: var(--border-radius-full);
+    box-shadow: var(--shadow-md);
+    transition: var(--transition-normal);
+    
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    i {
+      margin-right: 8px;
+    }
+  }
+}
