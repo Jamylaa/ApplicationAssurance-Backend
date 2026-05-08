@@ -34,7 +34,8 @@ public class SouscriptionService {
      * 1. Récupère le client depuis GestionUser via Feign
      * 2. Récupère le produit depuis GestionProduit via Feign
      * 3. Vérifie l'éligibilité du client pour le produit
-     * 4. Crée un contrat enrichi avec snapshot des données
+     * 4. Calcule la prime dynamique
+     * 5. Crée un contrat enrichi avec snapshot des données
      */
     public Contrat creerSouscription(SouscriptionRequest request) {
         // 1. Récupérer le client via Feign
@@ -55,13 +56,17 @@ public class SouscriptionService {
         Date dateDebut = request.getDateDebut() != null ? request.getDateDebut() : new Date();
         int dureeMois = request.getDureeMois() > 0 ? request.getDureeMois() : 12;
         Date dateFin = new Date(dateDebut.getTime() + (long) dureeMois * 30L * 24 * 60 * 60 * 1000);
-        // 5. Calculer la prime
-        double prime = request.getPrimePersonnalisee() > 0 ? request.getPrimePersonnalisee() : produitDTO.getPrixBase();
+        // 5. Calculer la prime dynamique
+        StringBuilder calculLog = new StringBuilder();
+        double primeBase = (packDTO != null) ? packDTO.getPrixMensuel() * dureeMois : produitDTO.getPrixBase();
+        double primeFinale = calculerPrime(client, primeBase, dureeMois, calculLog);
         // 6. Créer le contrat enrichi avec snapshot
         Contrat contrat = new Contrat();
         // Snapshot client
         contrat.setClientId(client.getIdUser());
         contrat.setClientNom(client.getUserName());
+        contrat.setClientPrenom(client.getClientPrenom());
+        contrat.setClientCIN(client.getNumeroCIN());
         contrat.setClientEmail(client.getEmail());
         contrat.setClientPhone(client.getPhone());
         contrat.setClientAge(client.getAge());
@@ -74,6 +79,7 @@ public class SouscriptionService {
         contrat.setProduitDescription(produitDTO.getDescription());
         contrat.setProduitPrixBase(produitDTO.getPrixBase());
         contrat.setProduitGarantiesIds(produitDTO.getGarantiesIds());
+        
         // Snapshot pack
         if (packDTO != null) {
             contrat.setPackId(packDTO.getIdPack());
@@ -82,12 +88,47 @@ public class SouscriptionService {
         contrat.setDateDebut(dateDebut);
         contrat.setDateFin(dateFin);
         contrat.setDureeMois(dureeMois);
-        contrat.setPrimeTotale(prime);
+        contrat.setPrimeTotale(primeFinale);
         contrat.setStatut("ACTIF");
-        contrat.setDateCreation(new Date());
-        contrat.setOptionsSupplementaires(request.getOptionsSupplementaires());
+        contrat.setOptionsSupplementaires("Détails du calcul: " + calculLog.toString());
         return contratRepository.save(contrat);}
-     // Vérifie que le client est éligible pour le produit choisi.
+
+    private double calculerPrime(ClientDTO client, double base, int duree, StringBuilder log) {
+        double total = base;
+        log.append("Prix de base: ").append(base).append(" €; ");
+        // Facteur Âge
+        int age = client.getAge();
+        if (age < 25) {
+            total *= 1.10;
+            log.append("Moins de 25 ans (+10%); ");} else if (age > 50 && age <= 65) {
+            total *= 1.15;
+            log.append("Tranche 50-65 ans (+15%); ");} else if (age > 65) {
+            total *= 1.30;
+            log.append("Plus de 65 ans (+30%); ");}
+
+        // Facteur Profession
+        String prof = client.getProfession() != null ? client.getProfession().toLowerCase() : "";
+        if (prof.contains("pompier") || prof.contains("militaire") || prof.contains("police")) {
+            total *= 1.20;
+            log.append("Profession à risque (+20%); ");}
+        // Facteur Santé
+        if (client.isMaladieChronique()) {
+            total *= 1.25;
+            log.append("Maladie chronique (+25%); ");}
+        if (client.isDiabetique()) {
+            total *= 1.15;
+            log.append("Diabète (+15%); ");}
+        if (client.isTension()) {
+            total *= 1.10;
+            log.append("Hypertension (+10%); ");}
+        // Facteur Durée (Réduction pour engagement long)
+        if (duree >= 24) {
+            total *= 0.90;
+            log.append("Engagement >= 24 mois (-10%); "); }
+        log.append("Total: ").append(String.format("%.2f", total)).append(" €.");
+        return total;}
+
+    // Vérifie que le client est éligible pour le produit choisi.
     private void verifierEligibilite(ClientDTO client, ProduitDTO produit) {
         // Vérifier l'âge
         Integer age = client.getAge();
@@ -97,14 +138,14 @@ public class SouscriptionService {
             throw new RuntimeException("Le client n'est pas dans la tranche d'âge autorisée pour ce produit ("
                     + produit.getAgeMin() + "-" + produit.getAgeMax() + " ans)");}
         // Vérifier maladie chronique
-        boolean aMaladie = client.isMaladieChronique();
-        if (aMaladie && !produit.isMaladieChroniqueAutorisee()) {
+        if (client.isMaladieChronique() && !produit.isMaladieChroniqueAutorisee()) {
             throw new RuntimeException("Ce produit n'accepte pas les clients avec maladie chronique");}
         // Vérifier diabète
-        boolean estDiabetique = client.isDiabetique();
-        if (estDiabetique && !produit.isDiabetiqueAutorise()) {
+        if (client.isDiabetique() && !produit.isDiabetiqueAutorise()) {
             throw new RuntimeException("Ce produit n'accepte pas les clients diabétiques");}
         // Vérifier que le produit est actif
-        if (!produit.isActif()) {throw new RuntimeException("Le produit sélectionné n'est plus actif");}
+        if (!produit.isActif()) {
+            throw new RuntimeException("Le produit sélectionné n'est plus actif");}
     }
+
 }

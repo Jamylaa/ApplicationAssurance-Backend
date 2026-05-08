@@ -1,41 +1,100 @@
 package tn.vermeg.gestionproduit.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.vermeg.gestionproduit.entities.Produit;
+import tn.vermeg.gestionproduit.entities.Statut;
 import tn.vermeg.gestionproduit.entities.TypeProduit;
 import tn.vermeg.gestionproduit.services.ProduitService;
 
 import java.util.List;
+import java.util.Optional;
 
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/produits")
+@CrossOrigin(origins = "http://localhost:4200")
 public class ProduitController {
 
-    private final ProduitService produitService;
-    public ProduitController(ProduitService produitService) {this.produitService = produitService;}
+    @Autowired
+    private ProduitService produitService;
 
-    @PostMapping
-    public Produit createProduit(@RequestBody Produit produit) {
-        return produitService.createProduit(produit);}
-
-    @PutMapping("/{idProduit}")
-    public Produit updateProduit(@PathVariable String idProduit, @RequestBody Produit produit) {
-        return produitService.updateProduit(idProduit, produit);}
-
-    @DeleteMapping("/{idProduit}")
-    public void deleteProduit(@PathVariable String idProduit) {
-        produitService.deleteProduit(idProduit);}
-
-    @GetMapping("/{idProduit}")
-    public Produit getProduitById(@PathVariable String idProduit) {
-        return produitService.getProduitById(idProduit);}
+    // READ
 
     @GetMapping
-    public List<Produit> getAllProduits() {
-        return produitService.getAllProduits();}
+    public ResponseEntity<List<Produit>> getAllProduits() {
+        return ResponseEntity.ok(produitService.getAllProduits());
+    }
+
+    @GetMapping("/{idProduit}")
+    public ResponseEntity<Produit> getProduitById(@PathVariable String idProduit) {
+        try {
+            return ResponseEntity.ok(produitService.getProduitById(idProduit));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @GetMapping("/type/{typeProduit}")
-    public List<Produit> getProduitsByType(@PathVariable TypeProduit typeProduit) {
-        return produitService.getProduitsByType(typeProduit);
+    public ResponseEntity<List<Produit>> getProduitsByType(@PathVariable TypeProduit typeProduit) {
+        return ResponseEntity.ok(produitService.getProduitsByType(typeProduit));
+    }
+
+    @GetMapping("/statut/{statut}")
+    public ResponseEntity<List<Produit>> getProduitsByStatut(@PathVariable Statut statut) {
+        return ResponseEntity.ok(produitService.getProduitsByStatut(statut));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Produit>> searchProduits(@RequestParam String nom) {
+        return ResponseEntity.ok(produitService.searchProduits(nom));
+    }
+
+    // CREATE
+
+    @PostMapping
+    public ResponseEntity<Produit> createProduit(@RequestBody Produit produit) {
+        try {
+            Produit newProduit = produitService.createProduit(produit);
+            return ResponseEntity.status(HttpStatus.CREATED).body(newProduit);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // UPDATE
+
+    @PutMapping("/{idProduit}")
+    public ResponseEntity<Produit> updateProduit(
+            @PathVariable String idProduit,
+            @RequestBody Produit produitDetails) {
+        try {
+            return ResponseEntity.ok(produitService.updateProduit(idProduit, produitDetails));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PatchMapping("/{idProduit}/desactiver")
+    public ResponseEntity<Produit> desactiverProduit(@PathVariable String idProduit) {
+        try {
+            return ResponseEntity.ok(produitService.desactiverProduit(idProduit));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // DELETE
+    @DeleteMapping("/{idProduit}")
+    public ResponseEntity<Void> deleteProduit(@PathVariable String idProduit) {
+        try {
+            produitService.deleteProduit(idProduit);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

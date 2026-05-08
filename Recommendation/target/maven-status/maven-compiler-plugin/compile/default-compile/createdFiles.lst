@@ -1,0 +1,16 @@
+tn\vermeg\recommendation\config\SecurityConfig.class
+tn\vermeg\recommendation\repositories\QuestionnaireResponseRepository.class
+tn\vermeg\recommendation\config\CorsConfig.class
+tn\vermeg\recommendation\feign\ProduitServiceClient.class
+tn\vermeg\recommendation\util\JwtUtil.class
+tn\vermeg\recommendation\entities\ScoredPack.class
+tn\vermeg\recommendation\RecommendationApplication.class
+tn\vermeg\recommendation\dto\ProduitDTO.class
+tn\vermeg\recommendation\dto\PackDTO.class
+tn\vermeg\recommendation\repositories\RecommendationResultRepository.class
+tn\vermeg\recommendation\entities\QuestionnaireResponse.class
+tn\vermeg\recommendation\controllers\RecommendationController.class
+tn\vermeg\recommendation\config\JwtAuthenticationFilter.class
+tn\vermeg\recommendation\entities\RecommendationResult.class
+tn\vermeg\recommendation\services\RecommendationService.class
+tn\vermeg\recommendation\dto\GarantieDTO.class

@@ -7,14 +7,12 @@ public class GarantieDTO {
     private String idGarantie;
     private String nomGarantie;
     private String description;
-    private String typeGarantie; // MALADIE_LEGERE, MALADIE_CHRONIQUE, OPHTALMOLOGIE, etc.
+    private String typeGarantie;
     private double plafondAnnuel;
     private double tauxCouverture;
     private boolean actif;
     private Date dateCreation;
-
     public GarantieDTO() {}
-
     public GarantieDTO(String idGarantie, String nomGarantie,
                        String description, String typeGarantie,
                        double plafondAnnuel, double tauxCouverture,
@@ -26,9 +24,7 @@ public class GarantieDTO {
         this.plafondAnnuel = plafondAnnuel;
         this.tauxCouverture = tauxCouverture;
         this.actif = actif;
-        this.dateCreation = dateCreation;
-    }
-
+        this.dateCreation = dateCreation;}
     public String getIdGarantie() { return idGarantie; }
     public void setIdGarantie(String idGarantie) { this.idGarantie = idGarantie; }
     public String getNomGarantie() { return nomGarantie; }

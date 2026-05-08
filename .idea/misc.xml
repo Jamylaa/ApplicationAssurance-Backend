@@ -13,10 +13,18 @@
         <option value="$PROJECT_DIR$/GestionProduit/pom.xml" />
         <option value="$PROJECT_DIR$/GestionSouscription/pom.xml" />
         <option value="$PROJECT_DIR$/Recommendation/pom.xml" />
+        <option value="$PROJECT_DIR$/common-security/pom.xml" />
+        <option value="$PROJECT_DIR$/common-securityy/pom.xml" />
+        <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/common-jwt-utils/pom.xml" />
+      </set>
+    </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_21">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_23" default="true" project-jdk-name="openjdk-23 (2)" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>

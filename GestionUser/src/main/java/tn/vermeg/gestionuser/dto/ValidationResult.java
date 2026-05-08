@@ -2,10 +2,9 @@ package tn.vermeg.gestionuser.dto;
 public class ValidationResult {
     private boolean isValid;
     private String message;
-    public ValidationResult(boolean isValid, String message) {
+    public ValidationResult(boolean isValid, String message){
         this.isValid = isValid;
-        this.message = message;
-    }
+        this.message = message;}
     public ValidationResult() {}
     public boolean isValid() {
         return isValid;

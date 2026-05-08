@@ -1,41 +1,123 @@
 package tn.vermeg.gestionproduit.controllers;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.vermeg.gestionproduit.entities.NiveauCouverture;
 import tn.vermeg.gestionproduit.entities.Pack;
-import tn.vermeg.gestionproduit.entities.TypeProduit;
+import tn.vermeg.gestionproduit.entities.Statut;
+import tn.vermeg.gestionproduit.entities.TypeClient;
 import tn.vermeg.gestionproduit.services.PackService;
+
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/packs")
+@CrossOrigin(origins = "http://localhost:4200")
 public class PackController {
 
-    private final PackService packService;
-    public PackController(PackService packService) {this.packService = packService;}
+    @Autowired
+    private PackService packService;
 
-    @PostMapping
-    public Pack createPack(@RequestBody Pack pack) {
-        return packService.createPack(pack);}
-
-    @GetMapping("/type/{typeProduit}")
-    public List<Pack> getPacksByType(@PathVariable String typeProduit) {
-        try {
-            TypeProduit type = TypeProduit.valueOf(typeProduit.toUpperCase());
-            return packService.getPacksByType(type);
-        } catch (IllegalArgumentException e) {
-            return List.of();
-        }
+    // READ
+    @GetMapping
+    public ResponseEntity<List<Pack>> getAllPacks() {
+        return ResponseEntity.ok(packService.getAllPacks());
     }
-    @PutMapping("/{idPack}")
-    public Pack updatePack(@PathVariable String idPack, @RequestBody Pack pack) {
-        return packService.updatePack(idPack, pack);}
-
-    @DeleteMapping("/{idPack}")
-    public void deletePack(@PathVariable String idPack) {packService.deletePack(idPack);}
 
     @GetMapping("/{idPack}")
-    public Pack getPackById(@PathVariable String idPack) {return packService.getPackById(idPack);}
+    public ResponseEntity<Pack> getPackById(@PathVariable String idPack) {
+        try {
+            return ResponseEntity.ok(packService.getPackById(idPack));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
-    @GetMapping
-    public List<Pack> getAllPacks() {return packService.getAllPacks();}
+    @GetMapping("/produit/{produitId}")
+    public ResponseEntity<List<Pack>> getPacksByProduit(@PathVariable String produitId) {
+        return ResponseEntity.ok(packService.getPacksByProduit(produitId));
+    }
+
+    @GetMapping("/statut/{statut}")
+    public ResponseEntity<List<Pack>> getPacksByStatut(@PathVariable Statut statut) {
+        return ResponseEntity.ok(packService.getPacksByStatut(statut));
+    }
+
+    @GetMapping("/niveau/{niveauCouverture}")
+    public ResponseEntity<List<Pack>> getPacksByNiveau(
+            @PathVariable NiveauCouverture niveauCouverture) {
+        return ResponseEntity.ok(packService.getPacksByNiveauCouverture(niveauCouverture));
+    }
+
+    @GetMapping("/type-client/{typeClient}")
+    public ResponseEntity<List<Pack>> getPacksByTypeClient(
+            @PathVariable TypeClient typeClient) {
+        return ResponseEntity.ok(packService.getPacksByTypeClient(typeClient));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Pack>> searchPacks(@RequestParam String nomPack) {
+        return ResponseEntity.ok(packService.searchPacks(nomPack));
+    }
+
+    @GetMapping("/prix-range")
+    public ResponseEntity<List<Pack>> getPacksByPrixRange(
+            @RequestParam double prixMin,
+            @RequestParam double prixMax) {
+        try {
+            return ResponseEntity.ok(packService.getPacksByPrixRange(prixMin, prixMax));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // CREATE
+
+    @PostMapping
+    public ResponseEntity<Pack> createPack(@RequestBody Pack pack) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(packService.createPack(pack));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // UPDATE
+
+    @PutMapping("/{idPack}")
+    public ResponseEntity<Pack> updatePack(
+            @PathVariable String idPack,
+            @RequestBody Pack packDetails) {
+        try {
+            return ResponseEntity.ok(packService.updatePack(idPack, packDetails));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PatchMapping("/{idPack}/desactiver")
+    public ResponseEntity<Pack> desactiverPack(@PathVariable String idPack) {
+        try {
+            return ResponseEntity.ok(packService.desactiverPack(idPack));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // DELETE
+
+    @DeleteMapping("/{idPack}")
+    public ResponseEntity<Void> deletePack(@PathVariable String idPack) {
+        try {
+            packService.deletePack(idPack);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

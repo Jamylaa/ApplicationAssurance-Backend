@@ -1,15 +1,28 @@
 # Ignorer le dossier frontend
-frontend/
-
+#frontend/
+.env
+ai-service
+GestionSouscription
 # Ignorer le fichier DIAGRAMMES_UML_GLOBAL.md
-DIAGRAMMES_UML_GLOBAL.md
-CORRECTION_VALIDATION_IMPORT.md
-FRONTEND_CHANGES.md
-README_VALIDATIONS.md
-README_ARCHITECTURE.md
-README.md
-diagramme_classes.md
+
 **/application.properties
 #README_ARCHITECTURE.md
 # Ignorer les fichiers de configuration IDE
 .idea/
+application.properties
+**/pom.xml
+build-all.ps1
+build-all.sh
+start-all.ps1
+start-gestionproduit.ps1
+start-gestionuser.ps1
+start-recommendation.ps1
+start-gateway.ps1
+start-souscription.ps1
+External Libraries
+create-test-user.http
+
+# Ignorer les fichiers de configuration Docker
+docker-compose.yml
+Dockerfile
+

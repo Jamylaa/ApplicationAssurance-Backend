@@ -26,8 +26,7 @@ public class RecommendationService {
                                   RecommendationResultRepository recommendationRepo) {
         this.produitServiceClient = produitServiceClient;
         this.questionnaireRepo = questionnaireRepo;
-        this.recommendationRepo = recommendationRepo;
-    }
+        this.recommendationRepo = recommendationRepo;}
 
     /**
      * Évalue les packs d'assurance pour un questionnaire donné.
@@ -76,33 +75,27 @@ public class RecommendationService {
                         questionnaire.getAge() > produit.getAgeMax()) {
                         eligible = false;
                         raisons.add("Âge hors limites pour le produit " + produit.getNomProduit());
-                        break;
-                    }
+                        break;}
 
                     // Vérification maladie chronique
                     if (questionnaire.isMaladieChronique() && !produit.isMaladieChroniqueAutorisee()) {
                         eligible = false;
                         raisons.add("Maladie chronique non autorisée pour " + produit.getNomProduit());
-                        break;
-                    }
+                        break;}
 
                     // Vérification diabète
                     if (questionnaire.isDiabetique() && !produit.isDiabetiqueAutorise()) {
                         eligible = false;
                         raisons.add("Diabète non autorisé pour " + produit.getNomProduit());
-                        break;
-                    }
+                        break;}
 
                     // Collecter les types de garanties couverts
                     if (produit.getGarantiesIds() != null) {
                         for (String gId : produit.getGarantiesIds()) {
                             GarantieDTO g = garantiesMap.get(gId);
                             if (g != null && g.isActif()) {
-                                typesGaranties.add(g.getTypeGarantie());
-                            }
-                        }
-                    }
-                }
+                                typesGaranties.add(g.getTypeGarantie());}
+                        }}}
             }
 
             if (!eligible) continue;
@@ -111,37 +104,29 @@ public class RecommendationService {
             // Score basé sur la couverture des besoins santé
             if (questionnaire.isMaladieChronique() && typesGaranties.contains("MALADIE_CHRONIQUE")) {
                 score += 25;
-                raisons.add("+25 : Couvre les maladies chroniques");
-            }
+                raisons.add("+25 : Couvre les maladies chroniques");}
             if (questionnaire.isDiabetique() && typesGaranties.contains("MALADIE_CHRONIQUE")) {
                 score += 15;
-                raisons.add("+15 : Couvre le diabète via garantie chronique");
-            }
+                raisons.add("+15 : Couvre le diabète via garantie chronique");}
             if (questionnaire.isTension() && typesGaranties.contains("MALADIE_CHRONIQUE")) {
                 score += 10;
-                raisons.add("+10 : Couvre la tension artérielle");
-            }
+                raisons.add("+10 : Couvre la tension artérielle");}
             if (questionnaire.isMaladiesLegeres() && typesGaranties.contains("MALADIE_LEGERE")) {
                 score += 15;
-                raisons.add("+15 : Couvre les maladies légères");
-            }
+                raisons.add("+15 : Couvre les maladies légères");}
             // Bonus pour ophtalmologie (besoin fréquent)
             if (typesGaranties.contains("OPHTALMOLOGIE")) {
                 score += 10;
-                raisons.add("+10 : Inclut l'ophtalmologie");
-            }
-
+                raisons.add("+10 : Inclut l'ophtalmologie");}
             // Bonus pour couverture dentaire
             if (typesGaranties.contains("DENTAIRE")) {
                 score += 5;
-                raisons.add("+5 : Inclut le dentaire");
-            }
+                raisons.add("+5 : Inclut le dentaire");}
 
             // Bonus pour hospitalisation
             if (typesGaranties.contains("HOSPITALISATION")) {
                 score += 10;
-                raisons.add("+10 : Inclut l'hospitalisation");
-            }
+                raisons.add("+10 : Inclut l'hospitalisation");}
 
             // Bonus pour maternité si situation familiale pertinente
             if (typesGaranties.contains("MATERNITE") &&
@@ -149,17 +134,14 @@ public class RecommendationService {
                  "marié".equalsIgnoreCase(questionnaire.getSituationFamiliale()) ||
                  "mariée".equalsIgnoreCase(questionnaire.getSituationFamiliale()))) {
                 score += 10;
-                raisons.add("+10 : Inclut maternité (pertinent pour situation familiale)");
-            }
+                raisons.add("+10 : Inclut maternité (pertinent pour situation familiale)");}
 
             // Score basé sur le niveau de couverture
             if ("gold".equalsIgnoreCase(pack.getNiveauCouverture())) {
                 score += 5;
-                raisons.add("+5 : Niveau de couverture Gold");
-            } else if ("premium".equalsIgnoreCase(pack.getNiveauCouverture())) {
+                raisons.add("+5 : Niveau de couverture Gold");} else if ("premium".equalsIgnoreCase(pack.getNiveauCouverture())) {
                 score += 3;
-                raisons.add("+3 : Niveau de couverture Premium");
-            }
+                raisons.add("+3 : Niveau de couverture Premium");}
 
             // Score basé sur l'adéquation du prix au budget
             if (questionnaire.getBudgetMensuel() > 0 && pack.getPrixMensuel() > 0) {
@@ -167,13 +149,9 @@ public class RecommendationService {
                     double ratio = pack.getPrixMensuel() / questionnaire.getBudgetMensuel();
                     if (ratio >= 0.5 && ratio <= 1.0) {
                         score += 10;
-                        raisons.add("+10 : Prix dans le budget");
-                    } else if (ratio < 0.5) {
+                        raisons.add("+10 : Prix dans le budget");} else if (ratio < 0.5) {
                         score += 5;
-                        raisons.add("+5 : Prix bien en dessous du budget");
-                    }
-                } else {
-                    score -= 10;
+                        raisons.add("+5 : Prix bien en dessous du budget");}} else {score -= 10;
                     raisons.add("-10 : Prix supérieur au budget");
                 }
             }
@@ -183,22 +161,17 @@ public class RecommendationService {
                 if (questionnaire.getDureeContratSouhaitee() >= pack.getDureeMinContrat() &&
                     questionnaire.getDureeContratSouhaitee() <= pack.getDureeMaxContrat()) {
                     score += 5;
-                    raisons.add("+5 : Durée souhaitée compatible");
-                }
+                    raisons.add("+5 : Durée souhaitée compatible");}
             }
-
             // Normaliser le score entre 0 et 100
             score = Math.max(0, Math.min(100, score));
-
             // Ajouter seulement si le score est > 0
             if (score > 0) {
-                scoredPacks.add(new ScoredPack(pack.getIdPack(), pack.getNomPack(), score, raisons));
-            }
+                scoredPacks.add(new ScoredPack(pack.getIdPack(), pack.getNomPack(), score, raisons));}
         }
 
         // 5. Trier par score décroissant
         scoredPacks.sort((a, b) -> Double.compare(b.getScore(), a.getScore()));
-
         // Sauvegarder et retourner le résultat
         RecommendationResult result = new RecommendationResult();
         result.setQuestionnaireId(saved.getId());
@@ -206,18 +179,15 @@ public class RecommendationService {
         result.setScoredPacks(scoredPacks);
         result.setDateRecommendation(new Date());
 
-        return recommendationRepo.save(result);
-    }
+        return recommendationRepo.save(result);}
     // Récupérer un résultat de recommandation par son ID.
     public RecommendationResult getById(String id) {
         return recommendationRepo.findById(id).orElse(null);
     }
      // Récupérer l'historique des recommandations d'un client.
     public List<RecommendationResult> getByClientId(String clientId) {
-        return recommendationRepo.findByClientId(clientId);
-    }
+        return recommendationRepo.findByClientId(clientId);}
      // Récupérer tous les questionnaires d'un client.
     public List<QuestionnaireResponse> getQuestionnairesByClientId(String clientId) {
-        return questionnaireRepo.findByClientId(clientId);
-    }
+        return questionnaireRepo.findByClientId(clientId);}
 }

@@ -13,10 +13,8 @@ class ChatState(Enum):
     COMPLETED = "completed"
 
 class BaseChatbot:
-    """
-    Classe de base pour les chatbots de création d'entités.
-    Gère la state machine, le parsing, la correction et les erreurs API de manière uniforme.
-    """
+    """ Classe de base pour les chatbots de création d'entités.
+    Gère la state machine, le parsing, la correction et les erreurs API de manière uniforme."""
     
     def __init__(self, fields: List[Dict], service_url: str, entity_name: str):
         self.fields = fields
@@ -38,8 +36,9 @@ class BaseChatbot:
         self.correction_field = None
         self.has_api_error = False
 
-    def process_message(self, message: str) -> Dict[str, Any]:
+    def process_message(self, message: str, auth_token: Optional[str] = None) -> Dict[str, Any]:
         """Dispatche le message selon l'état actuel"""
+        self.auth_token = auth_token
         message = message.strip()
         
         if self.state == ChatState.WELCOME:
@@ -76,7 +75,7 @@ class BaseChatbot:
         parsed_value = self._smart_parse(message, field)
         if parsed_value is None or not self._validate_field(parsed_value, field):
             return {
-                "response": f"❌ {field.get('error_message', 'Valeur invalide')}\n\n{field['question']}",
+                "response": f" {field.get('error_message', 'Valeur invalide')}\n\n{field['question']}",
                 "state": self.state.value,
                 "is_complete": False,
                 "current_field": field["key"],
@@ -91,7 +90,7 @@ class BaseChatbot:
             return self._move_to_validation()
 
         return {
-            "response": f"✅ Bien enregistré.\n\n{next_field['question']}",
+            "response": f" Bien enregistré.\n\n{next_field['question']}",
             "state": self.state.value,
             "is_complete": False,
             "current_field": next_field["key"],
@@ -110,7 +109,7 @@ class BaseChatbot:
             self.state = ChatState.CONFIRMATION # Pour demander si on veut corriger
             error_list = "\n".join([f"• {e}" for e in errors])
             return {
-                "response": f"⚠️ Des erreurs ont été détectées :\n{error_list}\n\nVoulez-vous corriger ? (Oui/Non)",
+                "response": f" Des erreurs ont été détectées :\n{error_list}\n\nVoulez-vous corriger ? (Oui/Non)",
                 "state": self.state.value,
                 "is_complete": False
             }
@@ -170,7 +169,7 @@ class BaseChatbot:
             self.correction_field = None
             return self._handle_validation("") # Re-valider tout
         
-        return {"response": f"❌ Invalide. {self.correction_field['error_message']}\n{self.correction_field['question']}", "state": self.state.value}
+        return {"response": f" Invalide. {self.correction_field['error_message']}\n{self.correction_field['question']}", "state": self.state.value}
 
     def _perform_create(self) -> Dict[str, Any]:
         """À implémenter par les classes filles pour l'appel API spécifique"""
@@ -180,7 +179,7 @@ class BaseChatbot:
         """Gère les réponses API de manière intelligente, notamment le 400"""
         if response.status_code in [200, 201]:
             self.state = ChatState.COMPLETED
-            return {"response": f"✅ {self.entity_name} créé(e) avec succès !", "is_complete": True}
+            return {"response": f" {self.entity_name} créé(e) avec succès !", "is_complete": True}
         
         if response.status_code == 400:
             try:
@@ -188,7 +187,7 @@ class BaseChatbot:
                 msg = error_data.get("message", "Données invalides")
                 self.has_api_error = True # Verrouiller l'état d'erreur
                 return {
-                    "response": f"❌ L'API a rejeté la demande : {msg}\n\nSouhaitez-vous corriger un champ ? (Oui/Non)",
+                    "response": f" L'API a rejeté la demande : {msg}\n\nSouhaitez-vous corriger un champ ? (Oui/Non)",
                     "state": ChatState.CONFIRMATION.value,
                     "is_complete": False,
                     "has_api_error": True
@@ -196,7 +195,7 @@ class BaseChatbot:
             except:
                 pass
         
-        return {"response": f"❌ Erreur serveur (HTTP {response.status_code}).", "is_complete": False}
+        return {"response": f" Erreur serveur (HTTP {response.status_code}).", "is_complete": False}
 
     # --- Utils ---
     def _get_current_field(self) -> Optional[Dict]:
