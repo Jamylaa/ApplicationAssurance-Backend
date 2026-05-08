@@ -11,7 +11,6 @@ export const authGuard: CanActivateFn = (route, state) => {
     return true;
   }
   
-  console.log('❌ Accès refusé - Utilisateur non authentifié');
   router.navigate(['/auth/login']);
   return false;
 };

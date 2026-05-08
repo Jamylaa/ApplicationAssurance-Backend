@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 @EnableMongoAuditing
 @EnableMongoRepositories(basePackages = "tn.vermeg.gestionproduit.repositories")
-@ComponentScan(basePackages = {"tn.vermeg.gestionproduit", "tn.vermeg.common"})
+//@ComponentScan(basePackages = {"tn.vermeg.gestionproduit"})
 @SpringBootApplication
 public class GestionProduitApplication {
 

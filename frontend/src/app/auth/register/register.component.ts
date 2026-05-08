@@ -1,61 +1,73 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AdminService, Admin } from '../../core/services/admin.service';
-import { Router, RouterLink } from '@angular/router';
-import { DividerModule } from 'primeng/divider';
-import { ButtonDirective } from 'primeng/button';
-import { MessageModule } from 'primeng/message';
-import { PasswordModule } from 'primeng/password';
-import { NgIf } from '@angular/common';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { GestionUserService, RegisterRequest } from '../../services/gestion-user.service';
 import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { ButtonModule } from 'primeng/button';
+import { MessageModule } from 'primeng/message';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
-    selector: 'app-register',
-    templateUrl: './register.component.html',
-    styleUrls: ['./register.component.css'],
-    standalone: true,
-    imports: [FormsModule, ReactiveFormsModule, InputTextModule, NgIf, PasswordModule, MessageModule, ButtonDirective, DividerModule, RouterLink]
+  selector: 'app-register',
+  templateUrl: './register.component.html',
+  styleUrls: ['./register.component.css'],
+  standalone: true,
+  imports: [
+    InputTextModule,
+    PasswordModule,
+    ButtonModule,
+    MessageModule,
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule
+  ]
 })
 export class RegisterComponent {
   registerForm: FormGroup;
-  error: string = '';
+  error = '';
+  loading = false;
 
   constructor(
-    private fb: FormBuilder,
-    private adminService: AdminService,
-    private router: Router
+    private readonly fb: FormBuilder,
+    private readonly userService: GestionUserService,
+    private readonly router: Router
   ) {
     this.registerForm = this.fb.group({
       username: ['', [Validators.required, Validators.pattern('^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$')]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(7)]],
       phone: ['', Validators.required],
-      departement: ['IT', Validators.required] 
+      departement: ['IT', Validators.required]
     });
   }
 
   onSubmit(): void {
-    if (this.registerForm.valid) {
-      // Créer un admin avec les données du formulaire
-      const adminData: Admin = {
-        username: this.registerForm.value.username,
-        email: this.registerForm.value.email,
-        password: this.registerForm.value.password,
-        phone: this.registerForm.value.phone,
-        departement: this.registerForm.value.departement,
-        role: 'ADMIN'
-      };
-      
-      this.adminService.createAdmin(adminData).subscribe({
-        next: () => {
-          console.log('â£ Admin crÃ©Ã© avec succÃ¨s');
-          this.router.navigate(['/auth/login']);
-        },
-        error: (error: any) => {
-          console.error('â Erreur crÃ©ation admin:', error);
-          this.error = 'Erreur lors de la crÃ©ation administrateur';
-        }
-      });
+    if (!this.registerForm.valid) {
+      return;
     }
+
+    this.loading = true;
+    this.error = '';
+
+    const payload: RegisterRequest = {
+      username: String(this.registerForm.value.username ?? ''),
+      email: String(this.registerForm.value.email ?? ''),
+      password: String(this.registerForm.value.password ?? ''),
+      phone: Number(this.registerForm.value.phone ?? 0),
+      departement: String(this.registerForm.value.departement ?? 'IT')
+    };
+
+    this.userService.register(payload).subscribe({
+      next: () => {
+        this.loading = false;
+        this.router.navigate(['/auth/login']);
+      },
+      error: () => {
+        this.loading = false;
+        this.error = 'Erreur lors de la création du compte';
+      }
+    });
   }
 }

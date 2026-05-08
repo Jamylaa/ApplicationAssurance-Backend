@@ -2,6 +2,7 @@ import os
 import requests
 from typing import Dict, List, Any
 from .base_chatbot import BaseChatbot
+from services.assurance_nlp_service import AssuranceNLPService
 
 class UnifiedPackChatbot(BaseChatbot):
     """
@@ -10,6 +11,7 @@ class UnifiedPackChatbot(BaseChatbot):
     """
     
     def __init__(self):
+        self.nlp_service = AssuranceNLPService()
         # Définir les champs pour la création et la configuration
         fields = [
             {
@@ -228,6 +230,133 @@ class UnifiedPackChatbot(BaseChatbot):
         # Stocker les champs conditionnels séparément
         self.condition_fields = condition_fields
     
+    def extract_pack_data(self, text: str) -> Dict[str, Any]:
+        """Extrait les données du pack en utilisant le service NLP"""
+        data = {}
+        try:
+            nlp_result = self.nlp_service.analyze_request(text)
+            action = nlp_result.get("action")
+            if action in ["CREATE_PACK", "CREATE_PACK_WITH_GARANTIES"]:
+                extracted_raw = nlp_result.get("data", {})
+                
+                # Si c'est CREATE_PACK_WITH_GARANTIES, les données du pack sont imbriquées
+                if action == "CREATE_PACK_WITH_GARANTIES" and "pack" in extracted_raw:
+                    extracted = extracted_raw["pack"]
+                else:
+                    extracted = extracted_raw
+                
+                if extracted.get("nomPack"): data["nom_pack"] = extracted["nomPack"]
+                if extracted.get("description"): data["description"] = extracted["description"]
+                if extracted.get("produitId"): data["produit_id"] = extracted["produitId"]
+                if extracted.get("prixMensuel") is not None: data["prix_mensuel"] = extracted["prixMensuel"]
+                if extracted.get("dureeMinContrat") is not None: data["duree_min_contrat"] = extracted["dureeMinContrat"]
+                if extracted.get("dureeMaxContrat") is not None: data["duree_max_contrat"] = extracted["dureeMaxContrat"]
+                if extracted.get("niveauCouverture"): data["niveau_couverture"] = extracted["niveauCouverture"]
+                if extracted.get("statut"): data["statut"] = extracted["statut"]
+                if extracted.get("ageMinimum") is not None: data["age_minimum"] = extracted["ageMinimum"]
+                if extracted.get("ageMaximum") is not None: data["age_maximum"] = extracted["ageMaximum"]
+                if extracted.get("typeClients"): data["type_clients"] = [extracted["typeClients"]] # Chatbot attends list
+                if extracted.get("ancienneteContratMois") is not None: data["anciennete_contrat_mois"] = extracted["ancienneteContratMois"]
+                if extracted.get("couvertureGeographique"): data["couverture_geographique"] = extracted["couvertureGeographique"]
+                
+                data["action_type"] = "creer"
+                data["createur"] = "Assistant IA"
+        except Exception as e:
+            print(f"Erreur NLP extraction pack: {e}")
+        return data
+
+    def _has_sufficient_data(self, data: Dict[str, Any]) -> bool:
+        required_fields = ['nom_pack', 'produit_id', 'prix_mensuel']
+        for field in required_fields:
+            if field not in data or data[field] is None:
+                return False
+        return True
+
+    def _create_pack_direct(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Crée directement le pack avec toutes les données"""
+        try:
+            data['action_type'] = 'creer'
+            return self._create_pack(data)
+        except Exception as e:
+            return {
+                "response": f"❌ Erreur technique: {str(e)}",
+                "state": "COLLECTING", 
+                "is_complete": False
+            }
+
+    def _handle_welcome(self, message: str) -> Dict[str, Any]:
+        if message and message.strip():
+            lower_message = message.lower()
+            if 'créer' in lower_message and 'pack' in lower_message:
+                try:
+                    # Utiliser le vrai NLP service !
+                    nlp_result = self.nlp_service.analyze_request(message)
+                    action = nlp_result.get("action")
+                    is_valid = nlp_result.get("validation", {}).get("isValid")
+                    
+                    if action in ["CREATE_PACK", "CREATE_PACK_WITH_GARANTIES"] and is_valid:
+                        extracted_data = self.extract_pack_data(message)
+                        if self._has_sufficient_data(extracted_data):
+                            self.collected_data = extracted_data
+                            self.collected_data['action_type'] = 'creer'
+                            return self._create_pack_direct(extracted_data)
+                        else:
+                            self.collected_data = extracted_data
+                            self.collected_data['action_type'] = 'creer'
+                            from .base_chatbot import ChatState
+                            self.state = ChatState.COLLECTING
+                            self.current_field_index = -1
+                            next_field = self._get_next_field()
+                            if not next_field: return self._handle_validation("")
+                            return {
+                                "response": f"✅ J'ai extrait les informations de votre demande de pack. Il me manque quelques détails pour finaliser :\n\n{next_field['question']}",
+                                "state": self.state.value,
+                                "is_complete": False,
+                                "current_field": next_field["key"],
+                                "progress": self._calculate_progress()
+                            }
+                    elif action == "CREATE_GARANTIE" and is_valid:
+                        # Intelligence artificielle : Délégation au service Garantie !
+                        import sys
+                        import os
+                        sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+                        from services.assurance_integration_service import AssuranceIntegrationService
+                        
+                        integration_service = AssuranceIntegrationService("http://localhost:9093")
+                        garantie_data = nlp_result.get("data", {})
+                        
+                        auth_token = getattr(self, 'auth_token', None)
+                        res = integration_service.create_garantie(garantie_data, auth_token)
+                            
+                        from .base_chatbot import ChatState
+                        if res.get("success"):
+                            self.state = ChatState.COMPLETED
+                            return {
+                                "response": f"✅ J'ai détecté que vous souhaitiez créer une Garantie au lieu d'un Pack. C'est fait avec succès ! 🎉\n\nDétails :\nNom : {res.get('data', {}).get('nomGarantie', garantie_data.get('nomGarantie'))}",
+                                "state": self.state.value,
+                                "is_complete": True
+                            }
+                        else:
+                            return {
+                                "response": f"❌ J'ai bien compris que vous vouliez créer une Garantie, mais une erreur est survenue lors de la création : {res.get('error')} - {res.get('details')}",
+                                "state": self.state.value,
+                                "is_complete": False
+                            }
+                except Exception as e:
+                    print(f"Erreur extraction pack welcome: {e}")
+        
+        from .base_chatbot import ChatState
+        self.state = ChatState.COLLECTING
+        self.current_field_index = 0
+        field = self._get_current_field()
+        return {
+            "response": f"Bonjour ! Je vais vous aider à créer un(e) {self.entity_name}.\n\n{field['question']}",
+            "state": self.state.value,
+            "is_complete": False,
+            "current_field": field["key"],
+            "progress": 0
+        }
+    
     def _should_ask_field(self, field_key: str, data: Dict) -> bool:
         """Détermine si un champ doit être demandé selon les conditions"""
         field = next((f for f in self.fields if f["key"] == field_key), None)
@@ -249,8 +378,8 @@ class UnifiedPackChatbot(BaseChatbot):
             if i <= self.current_field_index:
                 continue
                 
-            # Vérifier si ce champ doit être demandé
-            if self._should_ask_field(field["key"], data):
+            # Vérifier si ce champ doit être demandé et n'est pas déjà rempli
+            if self._should_ask_field(field["key"], data) and (field["key"] not in data or data[field["key"]] is None):
                 self.current_field_index = i
                 return field
         
@@ -258,6 +387,54 @@ class UnifiedPackChatbot(BaseChatbot):
     
     def _handle_collecting(self, message: str) -> Dict[str, Any]:
         """Gère la collecte des données avec champs conditionnels"""
+        # Intelligence IA globale : Délégation ou ONE SHOT si la phrase est complète !
+        try:
+            nlp_result = self.nlp_service.analyze_request(message)
+            action = nlp_result.get("action")
+            is_valid = nlp_result.get("validation", {}).get("isValid")
+            
+            if is_valid:
+                if action in ["CREATE_PACK", "CREATE_PACK_WITH_GARANTIES"]:
+                    extracted_data = self.extract_pack_data(message)
+                    if self._has_sufficient_data(extracted_data):
+                        self.collected_data.update(extracted_data)
+                        return self._create_pack_direct(self.collected_data)
+                elif action == "CREATE_GARANTIE":
+                    import sys, os
+                    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+                    from services.assurance_integration_service import AssuranceIntegrationService
+                    integration_service = AssuranceIntegrationService("http://localhost:9093")
+                    auth_token = getattr(self, 'auth_token', None)
+                    res = integration_service.create_garantie(nlp_result.get("data", {}), auth_token)
+                    from .base_chatbot import ChatState
+                    if res.get("success"):
+                        self.state = ChatState.COMPLETED
+                        return {
+                            "response": f"✅ J'ai détecté que vous souhaitiez créer une Garantie au lieu d'un Pack. C'est fait avec succès ! 🎉",
+                            "state": self.state.value,
+                            "is_complete": True
+                        }
+                    else:
+                        return {
+                            "response": f"❌ Erreur lors de la création de la Garantie (délégation) : {res.get('error')}",
+                            "state": self.state.value,
+                            "is_complete": False
+                        }
+        except Exception as e:
+            print(f"Erreur délégation pack collecting: {e}")
+
+        # 🔥 TOUJOURS parser le message pour extraire des données
+        try:
+            extracted_data = self.extract_pack_data(message)
+            for key, value in extracted_data.items():
+                if value is not None and key not in self.collected_data:
+                    self.collected_data[key] = value
+        except Exception as e:
+            print(f"Erreur extraction pack: {e}")
+            
+        if self._has_sufficient_data(self.collected_data):
+            return self._create_pack_direct(self.collected_data)
+
         data = self.collected_data
         current_field = self._get_current_field()
         
@@ -265,6 +442,20 @@ class UnifiedPackChatbot(BaseChatbot):
             return self._handle_welcome(message)
         
         field_key = current_field["key"]
+        
+        # Si le champ est déjà rempli par l'extraction, on passe au suivant
+        if field_key in self.collected_data:
+            self.current_field_index += 1
+            next_field = self._get_current_field()
+            if not next_field:
+                return self._handle_validation("")
+            return {
+                "response": f"✅ J'ai extrait cette information automatiquement.\n\n{next_field['question']}",
+                "state": self.state.value,
+                "is_complete": False,
+                "current_field": next_field["key"],
+                "progress": self._calculate_progress()
+            }
         
         # Vérifier si ce champ doit être traité
         if not self._should_ask_field(field_key, data):
@@ -331,14 +522,14 @@ class UnifiedPackChatbot(BaseChatbot):
     def _create_pack(self, data: Dict) -> Dict[str, Any]:
         """Crée un nouveau pack"""
         pack_data = {
-            "nomPack": data["nom_pack"],
-            "description": data["description"],
-            "produitId": data["produit_id"],
-            "prixMensuel": data["prix_mensuel"],
-            "dureeMinContrat": data["duree_min_contrat"],
-            "dureeMaxContrat": data["duree_max_contrat"],
-            "niveauCouverture": data["niveau_couverture"],
-            "statut": data["statut"]
+            "nomPack": data.get("nom_pack"),
+            "description": data.get("description"),
+            "produitId": data.get("produit_id"),
+            "prixMensuel": data.get("prix_mensuel"),
+            "dureeMinContrat": data.get("duree_min_contrat"),
+            "dureeMaxContrat": data.get("duree_max_contrat"),
+            "niveauCouverture": data.get("niveau_couverture"),
+            "statut": data.get("statut", "ACTIF")
         }
         
         # Ajouter les conditions d'éligibilité si présentes
@@ -351,7 +542,11 @@ class UnifiedPackChatbot(BaseChatbot):
                 "couvertureGeographique": data.get("couverture_geographique")
             })
         
-        response = requests.post(f"{self.service_url}/api/packs", json=pack_data, timeout=10)
+        headers = {"Content-Type": "application/json"}
+        if hasattr(self, 'auth_token') and self.auth_token:
+            headers["Authorization"] = self.auth_token
+
+        response = requests.post(f"{self.service_url}/api/packs", json=pack_data, headers=headers, timeout=10)
         
         if response.status_code == 201:
             pack = response.json()

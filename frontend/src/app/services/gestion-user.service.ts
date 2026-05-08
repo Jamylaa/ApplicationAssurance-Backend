@@ -1,95 +1,110 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface User {
   idUser?: string;
-  userName: string;
+  username: string;
   email: string;
   password?: string;
   phone?: number;
-  dateCreation?: Date;
+  dateCreation?: string;
   departement?: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  utilisateur: User;
+}
+
+export interface RegisterRequest {
+  username: string;
+  password: string;
+  email: string;
+  phone: number;
+  departement: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class GestionUserService {
-  private readonly apiUrl = environment.apiUser;
+  private readonly apiUrl = `${environment.apiUser}`;
+  private readonly tokenStorageKey = 'token';
+  private readonly currentUserStorageKey = 'currentUser';
+
+  private readonly currentUserSubject = new BehaviorSubject<User | null>(this.readStoredUser());
+  readonly currentUser$ = this.currentUserSubject.asObservable();
+
 
   constructor(private http: HttpClient) {}
 
-  private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    });
-  }
 
   // Authentification
-  login(credentials: { userName: string; password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/api/auth/login`, credentials);
+  login(credentials: { username: string; password: string }): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, credentials).pipe(
+      tap((response) => {
+        if (response?.token && response?.utilisateur) {
+          this.setSession(response.token, response.utilisateur);
+        }
+      })
+    );
   }
 
   refreshToken(refreshToken: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/api/auth/refresh`, { refreshToken });
+    return this.http.post(`${this.apiUrl}/auth/refresh`, { refreshToken });
+  }
+
+  register(request: RegisterRequest): Observable<User> {
+    return this.http.post<User>(`${this.apiUrl}/auth/register`, request);
+  }
+
+  logout(): void {
+    localStorage.removeItem(this.tokenStorageKey);
+    localStorage.removeItem(this.currentUserStorageKey);
+    localStorage.removeItem('refreshToken');
+    this.currentUserSubject.next(null);
+  }
+
+  get currentUserValue(): User | null {
+    return this.currentUserSubject.value;
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(this.tokenStorageKey);
+  }
+
+  private setSession(token: string, user: User): void {
+    localStorage.setItem(this.tokenStorageKey, token);
+    localStorage.setItem(this.currentUserStorageKey, JSON.stringify(user));
+    this.currentUserSubject.next(user);
+  }
+
+  private readStoredUser(): User | null {
+    const raw = localStorage.getItem(this.currentUserStorageKey);
+    if (!raw) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(raw) as User;
+    } catch {
+      return null;
+    }
   }
 
   // Gestion des utilisateurs
   getAllUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/api/users`, {
-      headers: this.getAuthHeaders()
-    });
+    return this.http.get<User[]>(`${this.apiUrl}/users`);
   }
 
-  getUserById(id: string): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/api/users/${id}`, {
-      headers: this.getAuthHeaders()
-    });
+  getUserById(idUser: string): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/users/${idUser}`);
   }
 
-  createUser(user: User): Observable<User> {
-    return this.http.post<User>(`${this.apiUrl}/api/users`, user, {
-      headers: this.getAuthHeaders()
-    });
+  deleteUser(idUser: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/users/${idUser}`);
   }
 
-  updateUser(id: string, user: User): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/api/users/${id}`, user, {
-      headers: this.getAuthHeaders()
-    });
-  }
-
-  deleteUser(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/api/users/${id}`, {
-      headers: this.getAuthHeaders()
-    });
-  }
-
-  getUserByEmail(email: string): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/api/users/email/${email}`, {
-      headers: this.getAuthHeaders()
-    });
-  }
-
-  getUserByUserName(userName: string): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/api/users/username/${userName}`, {
-      headers: this.getAuthHeaders()
-    });
-  }
-
-  existsByEmail(email: string): Observable<boolean> {
-    return this.http.get<boolean>(`${this.apiUrl}/api/users/exists/email/${email}`, {
-      headers: this.getAuthHeaders()
-    });
-  }
-
-  existsByUserName(userName: string): Observable<boolean> {
-    return this.http.get<boolean>(`${this.apiUrl}/api/users/exists/username/${userName}`, {
-      headers: this.getAuthHeaders()
-    });
-  }
 }

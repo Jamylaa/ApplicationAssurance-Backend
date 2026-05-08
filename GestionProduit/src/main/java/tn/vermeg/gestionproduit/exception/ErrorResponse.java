@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.Map;
 
- // Classe de réponse d'erreur standardisée :Utilisée pour toutes les réponses d'erreur de l'API
-
 @Data
 @Builder
 @NoArgsConstructor

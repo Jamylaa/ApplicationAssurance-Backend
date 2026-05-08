@@ -1,12 +1,9 @@
-# 📊 STRUCTURE GLOBALE DU PROJET VERMEG
+#  STRUCTURE GLOBALE DU PROJET VERMEG
 
-## 🎯 VUE D'ENSEMBLE
-
+## VUE D'ENSEMBLE
 Projet de microservices pour la gestion d'assurances avec architecture Spring Boot + Angular.
-
 ---
-
-## 🏗️ ARCHITECTURE COMPLÈTE
+##  ARCHITECTURE COMPLÈTE
 
 ### **Services Backend (Spring Boot)**
 ```
@@ -17,9 +14,7 @@ ProjtVermeg/
 ├── GestionProduit/           # Service Produits (Port: 9093)
 ├── GestionSouscription/       # Service Souscriptions (Port: 9094)
 ├── Recommendation/           # Service Recommandations (Port: 9095)
-└── ai-service/              # Service AI (Port: 5000)
 ```
-
 ### **Frontend (Angular)**
 ```
 frontend/                     # Application Angular (Port: 4200)
@@ -39,9 +34,9 @@ frontend/                     # Application Angular (Port: 4200)
 
 ---
 
-## 📋 DÉTAIL DES SERVICES
+##  DÉTAIL DES SERVICES
 
-### **1. 🔐 GestionUser (Port: 9092)**
+### **1.  GestionUser (Port: 9092)**
 **Fonction:** Authentification et gestion des utilisateurs
 
 #### **Structure**
@@ -89,7 +84,7 @@ GestionUser/src/main/java/tn/vermeg/gestionuser/
 
 ---
 
-### **2. 📦 GestionProduit (Port: 9093)**
+### **2.  GestionProduit (Port: 9093)**
 **Fonction:** Gestion des produits d'assurance
 
 #### **Structure**
@@ -115,7 +110,7 @@ GestionProduit/src/main/java/tn/vermeg/gestionproduit/
 
 ---
 
-### **3. 📝 GestionSouscription (Port: 9094)**
+### **3.  GestionSouscription (Port: 9094)**
 **Fonction:** Gestion des souscriptions aux contrats
 
 #### **Structure**
@@ -134,7 +129,7 @@ GestionSouscription/src/main/java/tn/vermeg/gestionsouscription/
 
 ---
 
-### **4. 🤖 Recommendation (Port: 9095)**
+### **4.  Recommendation (Port: 9095)**
 **Fonction:** Service de recommandations AI
 
 #### **Structure**
@@ -153,7 +148,7 @@ Recommendation/src/main/java/tn/vermeg/recommendation/
 
 ---
 
-### **5. 🌐 Gateway (Port: 9091)**
+### **5.  Gateway (Port: 9091)**
 **Fonction:** Point d'entrée unique et routage
 
 #### **Structure**
@@ -168,7 +163,7 @@ Gateway/src/main/java/tn/vermeg/gateway/
 
 ---
 
-### **6. 🔍 Eureka (Port: 8761)**
+### **6.  Eureka (Port: 8761)**
 **Fonction:** Service Discovery
 
 #### **Structure**
@@ -181,7 +176,7 @@ Eureka/src/main/java/tn/vermeg/eureka/
 
 ---
 
-## 🎨 FRONTEND ANGULAR
+##  FRONTEND ANGULAR
 
 ### **Structure Complète**
 ```
@@ -218,49 +213,6 @@ frontend/src/app/
 └── app.component.ts
 ```
 
----
-
-## 🗑️ FICHIERS INUTILES À SUPPRIMER
-
-### **Documentation Redondante (61 fichiers .md)**
-```bash
-# 📄 Documentation technique à supprimer
-✅ AUDIT_GLOBAL_PROJET_VERMEG.md
-✅ CHECKLIST_FINALE.md
-✅ CORRECTION_CONSTRUCTEUR_ADMIN_NETTOYAGE.md
-✅ CORRECTION_DIRECTE_FINALE.md
-✅ CORRECTION_ERREURS_CRITIQUES.md
-✅ CORRECTION_ERREURS_LOGIN_400_403.md
-✅ CORRECTION_ERREUR_RACINE_INJECTION.md
-✅ CORRECTION_FINALE_JWT_PROPERTIES.md
-✅ CORRECTION_FRONTEND_CLIENT_AGENT.md
-✅ CORRECTION_JWT_GESTIONUSER.md
-✅ CORRECTION_JWT_METHODS.md
-✅ CORRECTION_SERVICES_GUIDE.md
-✅ DIAGNOSTIC_CRUD_COMPLETE.md
-✅ DIAGNOSTIC_CRUD_PROBLEMES.md
-✅ FRONTEND_JWT_TEST_GUIDE.md
-✅ INSOMNIA_TEST_GUIDE.md
-✅ NAVIGATION_CLEANUP_SUMMARY.md
-✅ NETTOYAGE_COMPLET_ROLES_SIMPLIFICATION.md
-✅ RAPPORT_CRUD_FINAL.md
-✅ RAPPORT_PFE_FINAL.md
-✅ SECURITY_FIX_COMPLETE.md
-✅ SECURITY_REFACTOR_SUMMARY.md
-✅ SUPPRESSION_COMPLETE_CLIENT.md
-```
-
-### **Fichiers de Test et Configuration**
-```bash
-# 🧪 Tests et scripts à supprimer
-✅ test-auth-config.js
-✅ test-complete-security.js
-✅ test_crud.py
-✅ test_crud_detailed.py
-✅ insomnia-api-tests.json
-✅ INSTRUCTIONS_TEST.md
-```
-
 ### **Fichiers de Build et Dépendances**
 ```bash
 # 📦 Fichiers build inutiles
@@ -279,34 +231,9 @@ frontend/src/app/
 ✅ .idea/                   # Configuration IntelliJ
 ✅ .git/                    # Garder pour version control
 ```
-
 ---
 
-## 📊 STATISTIQUES ACTUELLES
-
-### **Taille du Projet**
-```
-Services Backend: 6 services
-Frontend Angular: 1 application
-Documentation: 61 fichiers .md
-Tests: 8 fichiers
-Total estimé: ~50MB (avec node_modules)
-```
-
-### **Après Nettoyage**
-```
-Services Backend: 6 services (inchangés)
-Frontend Angular: 1 application (inchangée)
-Documentation: 1 fichier global
-Tests: 0 fichier
-Total estimé: ~10MB (sans node_modules)
-```
-
----
-
-## 🎯 STRUCTURE FINALE OPTIMISÉE
-
-### **Après Suppression**
+##  STRUCTURE FINALE OPTIMISÉE
 ```
 ProjtVermeg/
 ├── README.md                 # Documentation unique
@@ -325,42 +252,10 @@ ProjtVermeg/
 ### **Documentation Unique**
 ```
 README.md
-├── 📋 Vue d'ensemble
-├── 🏗️ Architecture
-├── 🚀 Démarrage rapide
-├── 📚 Documentation API
-├── 🔧 Configuration
-└── 🧪 Tests
+├──  Vue d'ensemble
+├── ️ Architecture
+├── Démarrage rapide
+├──  Documentation API
+├──  Configuration
+└──  Tests
 ```
-
----
-
-## 🚀 BÉNÉFICES DU NETTOYAGE
-
-### **✅ Avantages**
-- 🗂️ **Structure claire** et maintenable
-- 📦 **Taille réduite** de 80%
-- 🔍 **Navigation facile** dans le projet
-- 📚 **Documentation unifiée**
-- 🚀 **Build plus rapide**
-- 🎯 **Focus sur l'essentiel**
-
-### **📈 Impact**
-- **Moins de confusion** pour les développeurs
-- **Documentation centralisée** et à jour
-- **Projet professionnel** et présentable
-- **Maintenance simplifiée**
-
----
-
-## 🎉 CONCLUSION
-
-Le projet Vermeg a une architecture de microservices robuste mais est encombré par une documentation excessive et des fichiers inutiles.
-
-**Après nettoyage, le projet sera:**
-- ✅ **Plus léger** (80% de réduction)
-- ✅ **Plus clair** (structure logique)
-- ✅ **Plus maintenable** (documentation unifiée)
-- ✅ **Plus professionnel** (présentable pour PFE)
-
-**Le nettoyage rendra le projet idéal pour une démonstration PFE et un développement futur.** 🚀

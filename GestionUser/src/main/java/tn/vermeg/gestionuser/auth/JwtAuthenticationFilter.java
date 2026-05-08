@@ -30,27 +30,50 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                         FilterChain filterChain)
                 throws ServletException, IOException {
 
+            String path = request.getServletPath();
+
+            // 🔥 EXCLUSION DES ENDPOINTS AUTH
+            if (path.startsWith("/api/auth")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             String header = request.getHeader("Authorization");
 
             if (header != null && header.startsWith("Bearer ")) {
 
                 String token = header.substring(7);
-                String username = jwtUtil.extractUsername(token);
+                
+                try {
+                    String username = jwtUtil.extractUsername(token);
 
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                    UserDetails userDetails = userService.loadUserByUsername(username);
+                        UserDetails userDetails = userService.loadUserByUsername(username);
 
-                    if (jwtUtil.validateToken(token, username)) {
+                        if (jwtUtil.validateToken(token, username)) {
 
-                        UsernamePasswordAuthenticationToken auth =
-                                new UsernamePasswordAuthenticationToken(
-                                        userDetails,
-                                        null,
-                                        userDetails.getAuthorities()
-                                );
+                            UsernamePasswordAuthenticationToken auth =
+                                    new UsernamePasswordAuthenticationToken(
+                                            userDetails,
+                                            null,
+                                            userDetails.getAuthorities()
+                                    );
 
-                        SecurityContextHolder.getContext().setAuthentication(auth);
+                            SecurityContextHolder.getContext().setAuthentication(auth);
+                        }
+                    }
+                } catch (RuntimeException e) {
+                    if (e.getMessage().contains("Token expired")) {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.getWriter().write("\"Token expiré - Veuillez vous reconnecter\"");
+                        response.setContentType("application/json");
+                        return;
+                    } else if (e.getMessage().contains("Invalid token")) {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.getWriter().write("\"Token invalide\"");
+                        response.setContentType("application/json");
+                        return;
                     }
                 }
             }

@@ -79,7 +79,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorResponse);
     }
 
-     // Gère les exceptions d'entité non trouvée (ResourceNotFoundException personnalisée)
+     // Gère les exceptions d'entité non trouvée
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(

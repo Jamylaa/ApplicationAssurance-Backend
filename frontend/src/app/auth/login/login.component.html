@@ -1,45 +1,176 @@
-<div class="login-container flex align-items-center justify-content-center min-vh-100">
-  <p-card
-    class="login-card p-5 shadow-4 border-round-xl surface-card"
-    [style]="{ width: '100%', 'max-width': '450px' }">
-    <div class="login-header text-center mb-5">
-      <h2 class="text-900 font-bold mb-2">Bienvenue</h2>
-      <p class="text-600">Connectez-vous à votre espace Assurance</p>
-    </div>
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-3">
-      <div class="field flex flex-column gap-2">
-        <label for="username" class="text-900 font-medium">Nom d'utilisateur</label>
-        <div class="p-input-icon-left">
-          <i class="pi pi-user"></i>
-          <input pInputText id="username" formControlName="username" placeholder="Utilisateur" class="w-full" />
+<div class="auth-wrapper">
+
+  <!-- LEFT PANEL — Brand & Feature Showcase -->
+  <div class="auth-left">
+    <div class="auth-left-inner">
+
+      <!-- Logo -->
+      <div class="auth-brand">
+        <div class="brand-logo-icon">
+          <i class="bi bi-shield-fill-check"></i>
         </div>
-        <small class="p-error" *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.invalid">
-          Nom d'utilisateur requis ou format invalide.
-        </small>
+        <span class="brand-logo-text">Vermeg</span>
       </div>
-      <div class="field flex flex-column gap-2">
-        <label for="password" class="text-900 font-medium">Mot de passe</label>
-        <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false"
-                    styleClass="w-full" inputStyleClass="w-full" placeholder="••••••••">
-        </p-password>
-        <small class="p-error" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('minlength')">
-          Le mot de passe doit contenir au moins 7 caractères.
-        </small>
+
+      <!-- Headline -->
+      <div class="auth-hero">
+        <h2 class="auth-hero-title">Gérez votre assurance<br><span class="highlight">en toute sérénité</span></h2>
+        <p class="auth-hero-desc">Plateforme complète de gestion de produits, packs et garanties d'assurance, conçue pour les professionnels.</p>
       </div>
-      <div *ngIf="error">
-        <p-message severity="error" [text]="error" styleClass="w-full"></p-message>
+
+      <!-- Feature Cards -->
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-icon"><i class="bi bi-shield-fill-check"></i></div>
+          <div class="feature-text">
+            <span class="feature-title">Garanties avancées</span>
+            <span class="feature-desc">Gérez vos garanties avec précision</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon"><i class="bi bi-collection-fill"></i></div>
+          <div class="feature-text">
+            <span class="feature-title">Packs personnalisables</span>
+            <span class="feature-desc">Créez des offres sur mesure</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon"><i class="bi bi-graph-up-arrow"></i></div>
+          <div class="feature-text">
+            <span class="feature-title">Tableau de bord intelligent</span>
+            <span class="feature-desc">Visualisez vos KPIs en temps réel</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon"><i class="bi bi-people-fill"></i></div>
+          <div class="feature-text">
+            <span class="feature-title">Gestion multi-utilisateurs</span>
+            <span class="feature-desc">Contrôle d'accès granulaire</span>
+          </div>
+        </div>
       </div>
-      <button pButton type="submit" label="Se connecter" icon="pi pi-sign-in" 
-              [disabled]="loginForm.invalid" class="w-full p-3 font-bold mt-3"></button>
-    </form>
-    <p-divider align="center" styleClass="my-4">
-      <span class="text-600 font-medium">OU</span>
-    </p-divider>
-    <div class="login-footer text-center">
-      <p class="text-600">
-        Pas encore de compte ?
-        <a routerLink="/auth/register" class="text-primary font-bold no-underline hover:underline">S'inscrire</a>
-      </p>
+
+      <!-- Floating Stats -->
+      <div class="stat-cards-row">
+        <div class="stat-chip">
+          <span class="stat-chip-value">500+</span>
+          <span class="stat-chip-label">Clients</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip-value">99.9%</span>
+          <span class="stat-chip-label">Disponibilité</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip-value">24/7</span>
+          <span class="stat-chip-label">Support</span>
+        </div>
+      </div>
+
     </div>
-  </p-card>
+
+    <!-- Decorative blobs -->
+    <div class="left-blob blob-1"></div>
+    <div class="left-blob blob-2"></div>
+    <div class="left-blob blob-3"></div>
+  </div>
+
+  <!-- RIGHT PANEL — Login Form -->
+  <div class="auth-right">
+    <div class="auth-form-wrapper">
+
+      <div class="form-header">
+        <h1>Bon retour </h1>
+        <p>Connectez-vous à votre espace</p>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+
+        <!-- Username -->
+        <div class="form-field">
+          <label class="field-label" for="username">
+            <i class="bi bi-person"></i> Nom d'utilisateur
+          </label>
+          <div class="input-wrap" [class.focused]="usernameFocused" [class.has-error]="loginForm.get('username')?.touched && loginForm.get('username')?.invalid">
+            <input
+              pInputText
+              id="username"
+              formControlName="username"
+              placeholder="Entrez votre nom d'utilisateur"
+              class="auth-input"
+              (focus)="usernameFocused=true"
+              (blur)="usernameFocused=false" />
+          </div>
+          <div class="field-error" *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.invalid">
+            <i class="bi bi-exclamation-circle"></i> Nom d'utilisateur invalide
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-field">
+          <label class="field-label" for="password">
+            <i class="bi bi-lock"></i> Mot de passe
+          </label>
+          <div class="input-wrap" [class.focused]="passwordFocused" [class.has-error]="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('minlength')">
+            <p-password
+              id="password"
+              formControlName="password"
+              toggleMask="true"
+              styleClass="auth-password"
+              inputStyleClass="auth-input"
+              placeholder="Entrez votre mot de passe"
+              (onFocus)="passwordFocused=true"
+              (onBlur)="passwordFocused=false">
+            </p-password>
+          </div>
+          <div class="field-error" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('minlength')">
+            <i class="bi bi-exclamation-circle"></i> Minimum 7 caractères
+          </div>
+        </div>
+
+        <!-- Options -->
+        <div class="form-options">
+          <label class="custom-check">
+            <input type="checkbox">
+            <span class="check-box"><i class="bi bi-check2"></i></span>
+            <span class="check-label">Se souvenir de moi</span>
+          </label>
+          <a href="#" class="forgot-link">Mot de passe oublié ?</a>
+        </div>
+
+        <!-- Error -->
+        <div class="auth-error" *ngIf="error">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <span>{{ error }}</span>
+        </div>
+
+        <!-- Submit -->
+        <button pButton type="submit" [disabled]="loginForm.invalid || loading" class="auth-submit-btn" [class.is-loading]="loading">
+          <span *ngIf="!loading" class="btn-content">
+            <i class="bi bi-box-arrow-in-right"></i> Se connecter
+          </span>
+          <span *ngIf="loading" class="btn-content">
+            <i class="pi pi-spinner pi-spin"></i> Connexion...
+          </span>
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="auth-divider"><span>OU</span></div>
+
+      <!-- Social -->
+      <!-- <div class="social-row">
+        <button class="social-btn"><i class="bi bi-google"></i> Google</button>
+        <button class="social-btn"><i class="bi bi-microsoft"></i> Microsoft</button>
+      </div> -->
+
+      <!-- Register Link -->
+      <div class="auth-footer">
+        <p>Nouveau sur la plateforme ?</p>
+        <a routerLink="/auth/register" class="auth-link">
+          Créer un compte <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+
+    </div>
+  </div>
 </div>

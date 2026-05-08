@@ -1,77 +1,123 @@
-<div class="produits-container">
-  <p-toast></p-toast>
-  
-  <p-card header="Gestion des Produits" class="produits-card">
-    <div class="card-header">
-      <div class="header-actions">
-        <p-button 
-          label="Actualiser" 
-          icon="pi pi-refresh" 
-          (click)="refreshProduits()"
-          [loading]="loading">
-        </p-button>
-        <p-button 
-          label="Ajouter un produit" 
-          icon="pi pi-plus" 
-          class="p-button-outlined">
-        </p-button>
+<div class="page-container">
+  <p-toast position="top-right"></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="header-icon"><i class="bi bi-box-seam-fill"></i></div>
+      <div>
+        <h1>Gestion des Produits</h1>
+        <p>Gérez tous les produits d'assurance de la plateforme</p>
+      </div>
+    </div>
+    <div class="page-header-actions">
+      <p-button
+        label="Actualiser"
+        icon="pi pi-refresh"
+        [loading]="loading"
+        (click)="refreshProduits()"
+        styleClass="p-button-outlined">
+      </p-button>
+      <p-button
+        label="Ajouter"
+        icon="pi pi-plus"
+        (click)="addProduit()"
+        styleClass="p-button-primary">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="table-card">
+    <div class="table-toolbar">
+      <div class="toolbar-left">
+        <div class="table-title">
+          <i class="bi bi-list-ul"></i>
+          <span>Produits</span>
+          <span class="count-badge">{{ produits.length }}</span>
+        </div>
+      </div>
+      <div class="toolbar-right">
+        <div class="search-box">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Rechercher un produit..." (input)="onGlobalFilter($event)" [value]="globalFilterValue">
+        </div>
       </div>
     </div>
 
-    <div class="search-section">
-      <span class="p-input-icon-left">
-        <i class="pi pi-search"></i>
-        <input 
-          type="text" 
-          pInputText 
-          placeholder="Rechercher..." 
-          (input)="onGlobalFilter($event)"
-          [value]="globalFilterValue">
-      </span>
-    </div>
-
-    <p-table 
-      [value]="produits" 
+    <p-table
+      [value]="produits"
       [loading]="loading"
       [paginator]="true"
       [rows]="10"
-      [rowsPerPageOptions]="[5, 10, 20, 50]"
+      [rowsPerPageOptions]="[5,10,20,50]"
       [showCurrentPageReport]="true"
-      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-      emptyMessage="'Aucun produit trouvé'"
-      responsiveLayout="scroll"
-      styleClass="p-datatable-striped p-datatable-hoverable-rows">
-      
-      <ng-template pTemplate="caption">
-        <div class="table-caption">
-          <h5>Liste des produits ({{ produits.length }})</h5>
-        </div>
-      </ng-template>
+      currentPageReportTemplate="Affichage {first} – {last} sur {totalRecords}"
+      sortMode="single"
+      styleClass="custom-table"
+      responsiveLayout="scroll">
 
       <ng-template pTemplate="header">
         <tr>
-          <th pSortableColumn="nom">Nom <p-sortIcon field="nom"></p-sortIcon></th>
+          <th pSortableColumn="nomProduit">Nom <p-sortIcon field="nomProduit"></p-sortIcon></th>
           <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
-          <th pSortableColumn="prix">Prix <p-sortIcon field="prix"></p-sortIcon></th>
-          <th pSortableColumn="type">Type <p-sortIcon field="type"></p-sortIcon></th>
-          <th>Actions</th>
+          <th pSortableColumn="typeProduit">Type <p-sortIcon field="typeProduit"></p-sortIcon></th>
+          <th pSortableColumn="statut">Statut <p-sortIcon field="statut"></p-sortIcon></th>
+          <th style="width:100px;text-align:center;">Actions</th>
         </tr>
       </ng-template>
 
       <ng-template pTemplate="body" let-produit>
-        <tr>
-          <td>{{ produit.nom }}</td>
-          <td>{{ produit.description || 'Non spécifiée' }}</td>
-          <td>{{ produit.prix ? produit.prix + ' €' : 'Non spécifié' }}</td>
-          <td><p-badge [value]="produit.type || 'Non spécifié'"></p-badge></td>
+        <tr class="table-row">
           <td>
-            <div class="action-buttons">
-              <p-button icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-info"></p-button>
-              <p-button icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"></p-button>
+            <div class="product-cell">
+              <div class="product-icon"><i class="bi bi-box-seam-fill"></i></div>
+              <span class="cell-primary">{{ produit.nomProduit }}</span>
+            </div>
+          </td>
+          <td><span class="cell-text">{{ produit.description || '—' }}</span></td>
+          <td>
+            <span class="type-badge">{{ produit.typeProduit || 'N/A' }}</span>
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(produit.statut)">
+              <span class="status-dot"></span>
+              {{ produit.statut || 'INCONNU' }}
+            </span>
+          </td>
+          <td>
+            <div class="action-btns">
+              <p-button
+                icon="pi pi-pencil"
+                pTooltip="Modifier"
+                tooltipPosition="top"
+                styleClass="p-button-rounded p-button-text p-button-info"
+                (click)="editProduit(produit)">
+              </p-button>
+              <p-button
+                icon="pi pi-trash"
+                pTooltip="Supprimer"
+                tooltipPosition="top"
+                styleClass="p-button-rounded p-button-text p-button-danger"
+                (click)="deleteProduit(produit)">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5">
+            <div class="empty-state">
+              <div class="empty-icon"><i class="bi bi-box-seam"></i></div>
+              <h3>Aucun produit trouvé</h3>
+              <p>Commencez par ajouter un produit d'assurance</p>
             </div>
           </td>
         </tr>
       </ng-template>
     </p-table>
-  </p-card>
+  </div>
 </div>

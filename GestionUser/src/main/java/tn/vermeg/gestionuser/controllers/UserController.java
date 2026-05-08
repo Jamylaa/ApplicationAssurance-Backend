@@ -99,11 +99,3 @@ public class UserController {
 //        boolean exists = userService.existsByUserName(userName);
 //        return ResponseEntity.ok(exists);
 //    }
-
-
-
-
-
-
-
-

@@ -174,8 +174,8 @@ class UnifiedProductChatbot(BaseChatbot):
             if i <= self.current_field_index:
                 continue
                 
-            # Vérifier si ce champ doit être demandé
-            if self._should_ask_field(field["key"], data):
+            # Vérifier si ce champ doit être demandé et n'est pas déjà rempli
+            if self._should_ask_field(field["key"], data) and (field["key"] not in data or data[field["key"]] is None):
                 self.current_field_index = i
                 return field
         
@@ -219,9 +219,8 @@ class UnifiedProductChatbot(BaseChatbot):
         data[field_key] = parsed_value
         
         # Passer au champ suivant
-        self.current_field_index += 1
-        
-        # Vérifier si la collecte est terminée
+        self.state = ChatState.COLLECTING
+        self.current_field_index = -1
         next_field = self._get_next_field()
         if not next_field:
             return self._handle_validation("")

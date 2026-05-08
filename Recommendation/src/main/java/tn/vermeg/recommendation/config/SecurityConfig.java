@@ -44,11 +44,11 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         
         // Autoriser les origines depuis localhost:4200 (Angular dev server) et Gateway
-        configuration.setAllowedOrigins(List.of("http://localhost:4200", "http://127.0.0.1:4200", "http://localhost:9091"));
+        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
         
         // Autoriser les méthodes HTTP nécessaires
         configuration.setAllowedMethods(Arrays.asList(
-                "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
+                "GET", "POST", "PUT", "DELETE"
         ));
         
         // Autoriser tous les headers nécessaires
