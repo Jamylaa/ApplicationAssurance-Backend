@@ -9,6 +9,7 @@ GestionSouscription
 #README_ARCHITECTURE.md
 # Ignorer les fichiers de configuration IDE
 .idea/
+.env
 application.properties
 **/pom.xml
 build-all.ps1
