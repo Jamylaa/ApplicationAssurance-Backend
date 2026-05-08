@@ -1,10 +1,13 @@
 # Ignorer le dossier frontend
 #frontend/
-.env
 ai-service
 GestionSouscription
 # Ignorer le fichier DIAGRAMMES_UML_GLOBAL.md
-
+*.env
+application-local.properties
+target/
+node_modules/
+create-test-user.http
 **/application.properties
 #README_ARCHITECTURE.md
 # Ignorer les fichiers de configuration IDE
