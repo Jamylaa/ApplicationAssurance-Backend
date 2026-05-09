@@ -31,6 +31,7 @@ export class BreadcrumbComponent implements OnInit, OnDestroy {
       (items: BreadcrumbItem[]) => {
         this.breadcrumbItems = items.map(item => ({
           label: item.label,
+          routerLink: item.routerLink,
           url: item.url,
           icon: item.icon
         }));

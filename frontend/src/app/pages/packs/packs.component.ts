@@ -56,7 +56,7 @@ export class PacksComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        console.error('Erreur chargement packs:', err);
+        // Erreur chargement packs handled
         this.loading = false;
         this.toastService.showLoadError('packs');
       }
@@ -75,7 +75,7 @@ export class PacksComponent implements OnInit {
             this.loadPacks();
           },
           error: (err) => {
-            console.error('Erreur suppression pack:', err);
+            // Erreur suppression pack handled
             this.toastService.showDeleteError('pack');
           }
         });

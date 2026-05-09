@@ -45,24 +45,24 @@ export class GestionProduitService {
     return this.http.get<Produit[]>(`${this.apiUrl}/produits/statut/${statut}`);
   }
 
-  searchProduits(nom: string): Observable<Produit[]> {
-    return this.http.get<Produit[]>(`${this.apiUrl}/produits/search?nom=${nom}`);
+  searchProduits(nomProduit: string): Observable<Produit[]> {
+    return this.http.get<Produit[]>(`${this.apiUrl}/produits/search?nom=${nomProduit}`);
   }
 
   createProduit(produit: Produit): Observable<Produit> {
     return this.http.post<Produit>(`${this.apiUrl}/produits`, produit);
   }
 
-  updateProduit(id: string, produit: Produit): Observable<Produit> {
-    return this.http.put<Produit>(`${this.apiUrl}/produits/${id}`, produit);
+  updateProduit(idProduit: string, produit: Produit): Observable<Produit> {
+    return this.http.put<Produit>(`${this.apiUrl}/produits/${idProduit}`, produit);
   }
 
-  desactiverProduit(id: string): Observable<Produit> {
-    return this.http.patch<Produit>(`${this.apiUrl}/produits/${id}/desactiver`, {});
+  desactiverProduit(idProduit: string): Observable<Produit> {
+    return this.http.patch<Produit>(`${this.apiUrl}/produits/${idProduit}/desactiver`, {});
   }
 
-  deleteProduit(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/produits/${id}`);
+  deleteProduit(idProduit: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/produits/${idProduit}`);
   }
 
   // Gestion des packs 

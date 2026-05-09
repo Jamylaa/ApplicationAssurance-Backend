@@ -1,0 +1,137 @@
+<div class="unified-chatbot-container">
+  <p-toast position="top-right"></p-toast>
+
+  <!-- Header -->
+  <div class="chatbot-header">
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+      <div class="chatbot-info">
+        <h1 class="chatbot-title">
+          <i class="bi bi-robot"></i>
+          {{ chatbotConfig.title }}
+        </h1>
+        <p class="chatbot-subtitle">{{ chatbotConfig.subtitle }}</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="clear-btn" (click)="clearChat()">
+        <i class="bi bi-trash3"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Features Banner -->
+  <div class="features-banner">
+    <div class="features-grid">
+      <div *ngFor="let feature of chatbotConfig.features" class="feature-item">
+        <i class="bi bi-check-circle-fill"></i>
+        <span>{{ feature }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages Container -->
+  <div class="chat-messages" #messagesContainer>
+    <div
+      *ngFor="let message of messages; trackBy: trackByMessageId"
+      class="message"
+      [class.user-message]="message.sender === 'user'"
+      [class.bot-message]="message.sender === 'bot'"
+    >
+      <!-- Avatar -->
+      <div class="message-avatar">
+        <i *ngIf="message.sender === 'user'" class="bi bi-person-fill"></i>
+        <i *ngIf="message.sender === 'bot'" class="bi bi-robot"></i>
+      </div>
+
+      <!-- Message Content -->
+      <div class="message-content">
+        <!-- Message Header for Bot -->
+        <div *ngIf="message.sender === 'bot' && message.intent" class="message-header">
+          <p-tag [value]="getIntentBadge(message.intent)" [styleClass]="getIntentBadge(message.intent)"></p-tag>
+          <i class="bi {{ getIntentIcon(message.intent) }}"></i>
+        </div>
+
+        <!-- Message Text -->
+        <div class="message-text" [innerHTML]="formatMessage(message.text)"></div>
+
+        <!-- Message Time -->
+        <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+
+        <!-- Actions -->
+        <div *ngIf="message.actions && message.actions.length > 0" class="message-actions">
+          <div class="actions-container">
+            <button
+              *ngFor="let action of message.actions; trackBy: trackByActionLabel"
+              class="action-btn"
+              (click)="executeAction(action)"
+              [class.primary]="action.type === 'CREATE' || action.type === 'NAVIGATE'"
+              [class.secondary]="action.type === 'LIST'"
+            >
+              <i class="bi" [ngClass]="getActionIcon(action.type)"></i>
+              {{ action.label }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class="message bot-message">
+      <div class="message-avatar">
+        <i class="bi bi-robot"></i>
+      </div>
+      <div class="message-content">
+        <div class="typing-indicator">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="chat-input-container">
+    <div class="input-wrapper">
+      <textarea
+        pInputTextarea
+        [(ngModel)]="currentMessage"
+        (keydown)="onKeyDown($event)"
+        placeholder="Tapez votre message ici..."
+        [autoResize]="true"
+        rows="1"
+        [disabled]="isLoading"
+      ></textarea>
+      <button
+        class="send-btn"
+        (click)="sendMessage()"
+        [disabled]="!currentMessage.trim() || isLoading"
+      >
+        <i *ngIf="!isLoading" class="bi bi-send-fill"></i>
+        <i *ngIf="isLoading" class="bi bi-hourglass-split"></i>
+      </button>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <div class="quick-actions-title">
+        <i class="bi bi-lightning-charge-fill"></i>
+        Actions rapides
+      </div>
+      <div class="quick-actions-grid">
+        <button
+          *ngFor="let intent of chatbotConfig.intents; trackBy: trackByIntentLabel"
+          class="quick-action-btn"
+          (click)="currentMessage = getIntentExample(intent.label); sendMessage()"
+          [disabled]="isLoading"
+        >
+          <i class="bi {{ intent.icon }}"></i>
+          <span>{{ intent.description }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

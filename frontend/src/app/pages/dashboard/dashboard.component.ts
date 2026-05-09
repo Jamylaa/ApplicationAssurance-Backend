@@ -10,7 +10,6 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
 import { CommonModule } from '@angular/common';
-import { ChatbotButtonsComponent } from '../../shared/chatbot-buttons/chatbot-buttons.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,8 +22,7 @@ import { ChatbotButtonsComponent } from '../../shared/chatbot-buttons/chatbot-bu
     ButtonModule,
     CardModule,
     ChartModule,
-    CommonModule,
-    ChatbotButtonsComponent
+    CommonModule
   ]
 })
 export class DashboardComponent implements OnInit, OnDestroy {
@@ -331,4 +329,5 @@ export class DashboardComponent implements OnInit, OnDestroy {
   navigateToProduits(): void { this.router.navigate(['/produits']); }
   navigateToPacks(): void { this.router.navigate(['/packs']); }
   navigateToGaranties(): void { this.router.navigate(['/garanties']); }
+  navigateToChatbot(): void { this.router.navigate(['/chatbot']); }
 }

@@ -60,7 +60,7 @@ export class ProduitsComponent implements OnInit {
       },
       error: (error) => {
         this.loading = false;
-        console.error('Error loading produits:', error);
+        // Error loading produits handled
         this.toastService.showLoadError('produits');
       }
     });
@@ -120,7 +120,7 @@ export class ProduitsComponent implements OnInit {
             this.loadProduits();
           },
           error: (err) => {
-            console.error('Erreur suppression produit:', err);
+            // Erreur suppression produit handled
             this.toastService.showDeleteError('produit');
           }
         });

@@ -1,5 +1,3 @@
-# Ignorer le dossier frontend
-#frontend/
 ai-service
 GestionSouscription
 # Ignorer le fichier DIAGRAMMES_UML_GLOBAL.md
@@ -29,4 +27,33 @@ create-test-user.http
 # Ignorer les fichiers de configuration Docker
 docker-compose.yml
 Dockerfile
+test_business.json
+test_premium.json
+test_prompt.json
+start-all.ps1
 
+
+# Build
+target/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+
+# Node
+node_modules/
+
+# Env
+.env
+
+# Logs
+*.log
+
+# PowerShell scripts
+*.ps1
+
+# Markdown docs temporaires
+DOCKER_DEPLOYMENT.md
+NETTOYAGE_FICHIERS_INUTILES.md

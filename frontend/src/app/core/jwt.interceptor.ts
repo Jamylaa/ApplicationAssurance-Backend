@@ -6,7 +6,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const token = localStorage.getItem('token');
   const router = inject(Router);
 
-  // 🔥 NE PAS ENVOYER TOKEN SUR LOGIN/REGISTER
+  // NE PAS ENVOYER TOKEN SUR LOGIN/REGISTER
   if (req.url.includes('/auth')) {
     return next(req);
   }

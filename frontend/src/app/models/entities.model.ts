@@ -153,21 +153,7 @@ export interface PaginatedResponse<T> {
 }
 
 //  INTERFACES CHATBOT SIMPLIFIÉES 
-
-export interface ChatbotRequest {
-  prompt: string;
-}
-
-export interface ChatbotApiResponse {
-  success: boolean;
-  action?: string;
-  entity?: Garantie | Pack | Produit | PackGarantie;
-  message?: string;
-  id?: string;
-  error?: string;
-  details?: string;
-  timestamp?: number;
-}
+// Les interfaces chatbot sont maintenant définies dans chatbot.service.ts
 
 //  FILTRES 
 

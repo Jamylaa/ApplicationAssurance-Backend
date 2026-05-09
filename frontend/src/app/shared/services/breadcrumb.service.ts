@@ -4,7 +4,8 @@ import { BehaviorSubject } from 'rxjs';
 
 export interface BreadcrumbItem {
   label: string;
-  url?: string;
+  routerLink?: string[];
+  url?: string; // Maintained for backward compatibility
   icon?: string;
 }
 
@@ -24,45 +25,45 @@ export class BreadcrumbService {
   // Méthodes prédéfinies pour les pages communes
   setHomeBreadcrumb(): void {
     this.setBreadcrumb([
-      { label: 'Accueil', url: '/dashboard' }
+      { label: 'Accueil', routerLink: ['/dashboard'] }
     ]);
   }
 
   setUsersBreadcrumb(): void {
     this.setBreadcrumb([
-      { label: 'Accueil', url: '/dashboard', icon: 'pi pi-home' },
+      { label: 'Accueil', routerLink: ['/dashboard'], icon: 'pi pi-home' },
       { label: 'Gestion', icon: 'pi pi-cog' },
-      { label: 'Utilisateurs', url: '/users', icon: 'pi pi-users' }
+      { label: 'Utilisateurs', routerLink: ['/users'], icon: 'pi pi-users' }
     ]);
   }
 
   setProduitsBreadcrumb(): void {
     this.setBreadcrumb([
-      { label: 'Accueil', url: '/dashboard', icon: 'pi pi-home' },
+      { label: 'Accueil', routerLink: ['/dashboard'], icon: 'pi pi-home' },
       { label: 'Gestion', icon: 'pi pi-cog' },
-      { label: 'Produits', url: '/produits', icon: 'pi pi-box' }
+      { label: 'Produits', routerLink: ['/produits'], icon: 'pi pi-box' }
     ]);
   }
 
   setPacksBreadcrumb(): void {
     this.setBreadcrumb([
-      { label: 'Accueil', url: '/dashboard', icon: 'pi pi-home' },
+      { label: 'Accueil', routerLink: ['/dashboard'], icon: 'pi pi-home' },
       { label: 'Gestion', icon: 'pi pi-cog' },
-      { label: 'Packs', url: '/packs', icon: 'pi pi-collection' }
+      { label: 'Packs', routerLink: ['/packs'], icon: 'pi pi-collection' }
     ]);
   }
 
   setGarantiesBreadcrumb(): void {
     this.setBreadcrumb([
-      { label: 'Accueil', url: '/dashboard', icon: 'pi pi-home' },
+      { label: 'Accueil', routerLink: ['/dashboard'], icon: 'pi pi-home' },
       { label: 'Gestion', icon: 'pi pi-cog' },
-      { label: 'Garanties', url: '/garanties', icon: 'pi pi-shield' }
+      { label: 'Garanties', routerLink: ['/garanties'], icon: 'pi pi-shield' }
     ]);
   }
 
   setDashboardBreadcrumb(): void {
     this.setBreadcrumb([
-      { label: 'Dashboard', url: '/dashboard', icon: 'pi pi-home' }
+      { label: 'Dashboard', routerLink: ['/dashboard'], icon: 'pi pi-home' }
     ]);
   }
 

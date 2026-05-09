@@ -103,7 +103,8 @@
 
 /* ── Dark Mode ── */
 :root[data-bs-theme='dark'],
-:root[data-theme='dark'] {
+:root[data-theme='dark'],
+.my-app-dark {
   color-scheme: dark;
 
   --app-bg: #0B0F1A;

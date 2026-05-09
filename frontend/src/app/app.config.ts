@@ -25,7 +25,7 @@ const errorInterceptor: HttpInterceptorFn = (req, next) => {
         // Check if it's a token expiration message
         const errorMessage = error.error?.message || error.message || '';
         if (errorMessage.includes('expiré') || errorMessage.includes('expired')) {
-          console.log('Token expiré - Redirection vers login');
+          // Token expiré - Redirection vers login
         }
         
         // Clear all auth data

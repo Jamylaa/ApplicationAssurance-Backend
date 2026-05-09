@@ -56,8 +56,42 @@
           <span>Voir tous <i class="bi bi-arrow-right"></i></span>
         </div>
       </div> -->
-<!-- Chatbot Section -->
-    <app-chatbot-buttons></app-chatbot-buttons>
+<!-- Unified Chatbot Section -->
+    <div class="unified-chatbot-card" (click)="navigateToChatbot()">
+      <div class="chatbot-card-header">
+        <div class="chatbot-icon">
+          <i class="bi bi-robot"></i>
+        </div>
+        <div class="chatbot-info">
+          <h3>Assistant IA Assurance</h3>
+          <p>Votre assistant intelligent pour gérer produits, garanties, packs et configurations</p>
+        </div>
+      </div>
+      <div class="chatbot-features">
+        <div class="feature-item">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Création de garanties</span>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Gestion des packs</span>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Configuration des produits</span>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Recommandations intelligentes</span>
+        </div>
+      </div>
+      <div class="chatbot-card-footer">
+        <button class="chatbot-action-btn">
+          <i class="bi bi-chat-square-text"></i>
+          Démarrer l'assistant
+        </button>
+      </div>
+    </div>
     
       <!-- Produits -->
       <div class="stat-card produits-card" (click)="navigateToProduits()">
@@ -189,9 +223,7 @@
         </div>
       </div>
     </div>
-    <!-- Chatbot Section -->
-    <app-chatbot-buttons></app-chatbot-buttons>
-    <!-- Quick Actions -->
+        <!-- Quick Actions -->
     <div class="quick-actions-card">
       <div class="section-header">
         <!--<div class="section-icon">

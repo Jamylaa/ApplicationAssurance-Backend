@@ -54,7 +54,7 @@ export const routes: Routes = [
       },
       {
         path: 'chatbot',
-        loadComponent: () => import('./pages/chatbot/chatbot.component').then(m => m.ChatbotComponent),
+        loadComponent: () => import('./pages/unified-chatbot/unified-chatbot.component').then(m => m.UnifiedChatbotComponent),
         title: 'Assistant IA Assurance'
       },
       {

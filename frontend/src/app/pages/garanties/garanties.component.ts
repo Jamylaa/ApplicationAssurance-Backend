@@ -57,7 +57,7 @@ export class GarantiesComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        console.error('Erreur chargement garanties:', err);
+        // Erreur chargement garanties handled
         this.loading = false;
         this.toastService.showLoadError('garanties');
       }
@@ -76,7 +76,7 @@ export class GarantiesComponent implements OnInit {
             this.loadGaranties();
           },
           error: (err) => {
-            console.error('Erreur suppression garantie:', err);
+            // Erreur suppression garantie handled
             this.toastService.showDeleteError('garantie');
           }
         });
