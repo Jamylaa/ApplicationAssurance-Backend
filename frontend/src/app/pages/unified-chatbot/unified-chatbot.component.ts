@@ -58,7 +58,7 @@ export class UnifiedChatbotComponent implements OnInit, OnDestroy {
   // Configuration du chatbot
   chatbotConfig = {
     title: 'Assistant IA Assurance',
-    subtitle: 'Votre assistant intelligent pour gérer produits, garanties, packs et configurations d\'assurance.',
+    subtitle: 'Votre assistant intelligent pour configurer des produits, garanties, packs.',
     features: [
       'Création de garanties',
       'Gestion des packs',
@@ -74,6 +74,12 @@ export class UnifiedChatbotComponent implements OnInit, OnDestroy {
     ]
   };
 
+  readonly suggestionPrompts = [
+    'Créer une garantie hospitalisation avec 90% de remboursement',
+    'Créer un produit d\'assurance santé nommé Produit Santé Plus',
+    'Créer un pack Gold lié au produit Santé Premium'
+  ];
+
   private chatbotSubscription?: Subscription;
 
   constructor(
@@ -85,38 +91,20 @@ export class UnifiedChatbotComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    console.log('ChatbotComponent: ngOnInit started');
-    
     try {
-      this.breadcrumbService.setBreadcrumb([
-        { label: 'Accueil', routerLink: ['/dashboard'], icon: 'pi pi-home' },
-        { label: 'Assistant IA', icon: 'pi pi-robot' }
-      ]);
-
-      console.log('ChatbotComponent: breadcrumb set');
+      this.breadcrumbService.setChatbotBreadcrumb();
 
       // Message de bienvenue
-      const welcomeMessage = `🤖 **${this.chatbotConfig.title}**
+      const welcomeMessage = `**${this.chatbotConfig.title}**
 
 ${this.chatbotConfig.subtitle}
 
-**Fonctionnalités disponibles :**
-${this.chatbotConfig.features.map(f => `✅ ${f}`).join('\n')}
-
-**Comment m'utiliser :**
-- Soyez précis dans votre demande
-- Mentionnez les caractéristiques souhaitées (prix, couverture, durée)
-- Je détecterai automatiquement votre intention
-
-**Exemples :**
-- "Crée une garantie hospitalisation avec 90% de remboursement"
-- "Je veux un pack santé à 50€ par mois"
-- "Recommande-moi le meilleur produit pour une famille"
+Fonctionnalités disponibles :
+${this.chatbotConfig.features.map(f => `• ${f}`).join('\n')}
 
 Comment puis-je vous aider aujourd'hui ?`;
       
       this.addBotMessage(welcomeMessage);
-      console.log('ChatbotComponent: welcome message added');
     } catch (error) {
       console.error('ChatbotComponent: Error in ngOnInit', error);
     }
@@ -129,30 +117,22 @@ Comment puis-je vous aider aujourd'hui ?`;
   }
 
   sendMessage(): void {
-    console.log('ChatbotComponent: sendMessage called', { message: this.currentMessage, isLoading: this.isLoading });
-    
     if (!this.currentMessage.trim() || this.isLoading) {
-      console.log('ChatbotComponent: sendMessage early return');
       return;
     }
 
     const userMessage = this.currentMessage.trim();
-    console.log('ChatbotComponent: Adding user message', userMessage);
     this.addUserMessage(userMessage);
     this.currentMessage = '';
     this.isLoading = true;
 
-    // Traiter le message avec le chatbot unifié
-    console.log('ChatbotComponent: Calling chatbot service');
     this.chatbotService.processPrompt({ prompt: userMessage }).subscribe({
       next: (response) => {
-        console.log('ChatbotComponent: Chatbot response received', response);
         this.handleChatbotResponse(response);
         this.isLoading = false;
       },
-      error: (error) => {
-        console.error('ChatbotComponent: Chatbot service error', error);
-        this.addBotMessage('❌ Erreur de communication avec l\'assistant. Veuillez réessayer.');
+      error: () => {
+        this.addBotMessage('Erreur de communication avec l\'assistant. Veuillez réessayer.');
         this.toastService.showError('Erreur chatbot', 'Communication impossible');
         this.isLoading = false;
       }
@@ -165,10 +145,10 @@ Comment puis-je vous aider aujourd'hui ?`;
     // Ajouter les informations de validation si présentes
     if (response.validation) {
       if (response.validation.errors.length > 0) {
-        message += '\n\n❌ **Erreurs :**\n' + response.validation.errors.map(e => `• ${e}`).join('\n');
+        message += '\n\n Erreurs : \n' + response.validation.errors.map(e => `• ${e}`).join('\n');
       }
       if (response.validation.warnings.length > 0) {
-        message += '\n\n⚠️ **Avertissements :**\n' + response.validation.warnings.map(w => `• ${w}`).join('\n');
+        message += '\n\n Avertissements :\n' + response.validation.warnings.map(w => `• ${w}`).join('\n');
       }
     }
 
@@ -187,7 +167,7 @@ Comment puis-je vous aider aujourd'hui ?`;
 
     if (data.produit) {
       const produit = data.produit as { nomProduit: string; description: string; typeProduit: string; statut: string };
-      formatted += `📦 **Produit proposé :**\n`;
+      formatted += `Produit proposé :\n`;
       formatted += `• Nom : ${produit.nomProduit}\n`;
       formatted += `• Description : ${produit.description}\n`;
       formatted += `• Type : ${produit.typeProduit}\n`;
@@ -195,18 +175,18 @@ Comment puis-je vous aider aujourd'hui ?`;
     }
 
     if (data.garantie) {
-      const garantie = data.garantie as { nomGarantie: string; description: string; typeGarantie: string; tauxRemboursement: number; statut: string };
-      formatted += `🛡️ **Garantie proposée :**\n`;
+      const garantie = data.garantie as { nomGarantie: string; description: string; type?: string; tauxRemboursement: number; statut: string };
+      formatted += `Garantie proposée :\n`;
       formatted += `• Nom : ${garantie.nomGarantie}\n`;
       formatted += `• Description : ${garantie.description}\n`;
-      formatted += `• Type : ${garantie.typeGarantie}\n`;
+      formatted += `• Type : ${garantie.type ?? '—'}\n`;
       formatted += `• Taux : ${(garantie.tauxRemboursement * 100).toFixed(0)}%\n`;
       formatted += `• Statut : ${garantie.statut}\n`;
     }
 
     if (data.pack) {
       const pack = data.pack as { nomPack: string; description: string; prixMensuel: number; niveauCouverture: string; statut: string };
-      formatted += `📦 **Pack proposé :**\n`;
+      formatted += `Pack proposé :\n`;
       formatted += `• Nom : ${pack.nomPack}\n`;
       formatted += `• Description : ${pack.description}\n`;
       formatted += `• Prix : ${pack.prixMensuel}€/mois\n`;
@@ -214,11 +194,20 @@ Comment puis-je vous aider aujourd'hui ?`;
       formatted += `• Statut : ${pack.statut}\n`;
     }
 
+    if (data.packGarantie) {
+      const pg = data.packGarantie as { packId: string; garantieId: string; tauxRemboursement: number; plafond: number };
+      formatted += `Association pack–garantie :\n`;
+      formatted += `• Pack : ${pg.packId}\n`;
+      formatted += `• Garantie : ${pg.garantieId}\n`;
+      formatted += `• Taux : ${(Number(pg.tauxRemboursement) * 100).toFixed(0)}%\n`;
+      formatted += `• Plafond : ${pg.plafond}\n`;
+    }
+
     if (data.recommendations) {
-      formatted += `💡 **Recommandations :**\n`;
+      formatted += `Recommandations :\n`;
       data.recommendations.forEach((rec: unknown, index: number) => {
         const recObj = rec as { title: string; type: string; description: string; price?: number; features?: string[] };
-        formatted += `\n**${index + 1}. ${recObj.title}**\n`;
+        formatted += `\n${index + 1}. ${recObj.title}\n`;
         formatted += `• Type : ${recObj.type}\n`;
         formatted += `• Description : ${recObj.description}\n`;
         if (recObj.price) formatted += `• Prix : ${recObj.price}€\n`;
@@ -260,7 +249,7 @@ Comment puis-je vous aider aujourd'hui ?`;
       },
       error: (error) => {
         const errorMessage = error?.message || 'Erreur de communication';
-        this.addBotMessage(`❌ **Erreur de communication**\n\n${errorMessage}`);
+        this.addBotMessage(`Erreur de communication\n\n${errorMessage}`);
         this.toastService.showError('Erreur communication', errorMessage);
         this.isLoading = false;
       }
@@ -287,11 +276,21 @@ Comment puis-je vous aider aujourd'hui ?`;
 
   clearChat(): void {
     this.messages = [];
-    this.ngOnInit();
+    this.addBotMessage(
+      `**${this.chatbotConfig.title}**\n\nConversation effacée. Vous pouvez poser une nouvelle question.`
+    );
   }
 
   goBack(): void {
     this.router.navigate(['/dashboard']);
+  }
+
+  applySuggestion(text: string): void {
+    if (this.isLoading) {
+      return;
+    }
+    this.currentMessage = text;
+    this.sendMessage();
   }
 
   private addUserMessage(text: string): void {
@@ -348,27 +347,54 @@ Comment puis-je vous aider aujourd'hui ?`;
     return icons[intent || ChatbotIntent.UNKNOWN] || 'bi-question';
   }
 
-  getIntentBadge(intent?: ChatbotIntent): string {
-    const badges: Record<ChatbotIntent, string> = {
-      [ChatbotIntent.CREATE_PRODUIT]: 'p-tag-info',
-      [ChatbotIntent.CREATE_GARANTIE]: 'p-tag-success',
-      [ChatbotIntent.CREATE_PACK]: 'p-tag-warning',
-      [ChatbotIntent.CONFIGURE_PACK]: 'p-tag-danger',
-      [ChatbotIntent.CREATE_PACK_WITH_GARANTIES]: 'p-tag-primary',
-      [ChatbotIntent.UPDATE_PRODUIT]: 'p-tag-info',
-      [ChatbotIntent.UPDATE_GARANTIE]: 'p-tag-success',
-      [ChatbotIntent.UPDATE_PACK]: 'p-tag-warning',
-      [ChatbotIntent.DELETE_PRODUIT]: 'p-tag-danger',
-      [ChatbotIntent.DELETE_GARANTIE]: 'p-tag-danger',
-      [ChatbotIntent.DELETE_PACK]: 'p-tag-danger',
-      [ChatbotIntent.LIST_PRODUITS]: 'p-tag-secondary',
-      [ChatbotIntent.LIST_GARANTIES]: 'p-tag-secondary',
-      [ChatbotIntent.LIST_PACKS]: 'p-tag-secondary',
-      [ChatbotIntent.RECOMMENDATION]: 'p-tag-secondary',
-      [ChatbotIntent.HELP]: 'p-tag-help',
-      [ChatbotIntent.UNKNOWN]: 'p-tag-contrast'
+  getIntentLabel(intent?: ChatbotIntent): string {
+    if (!intent) {
+      return 'Assistant';
+    }
+    const labels: Record<ChatbotIntent, string> = {
+      [ChatbotIntent.CREATE_PRODUIT]: 'Création produit',
+      [ChatbotIntent.CREATE_GARANTIE]: 'Création garantie',
+      [ChatbotIntent.CREATE_PACK]: 'Création pack',
+      [ChatbotIntent.CONFIGURE_PACK]: 'Configuration pack',
+      [ChatbotIntent.CREATE_PACK_WITH_GARANTIES]: 'Pack + garanties',
+      [ChatbotIntent.UPDATE_PRODUIT]: 'Mise à jour produit',
+      [ChatbotIntent.UPDATE_GARANTIE]: 'Mise à jour garantie',
+      [ChatbotIntent.UPDATE_PACK]: 'Mise à jour pack',
+      [ChatbotIntent.DELETE_PRODUIT]: 'Suppression produit',
+      [ChatbotIntent.DELETE_GARANTIE]: 'Suppression garantie',
+      [ChatbotIntent.DELETE_PACK]: 'Suppression pack',
+      [ChatbotIntent.LIST_PRODUITS]: 'Liste produits',
+      [ChatbotIntent.LIST_GARANTIES]: 'Liste garanties',
+      [ChatbotIntent.LIST_PACKS]: 'Liste packs',
+      [ChatbotIntent.RECOMMENDATION]: 'Recommandation',
+      [ChatbotIntent.HELP]: 'Aide',
+      [ChatbotIntent.UNKNOWN]: 'Général'
     };
-    return badges[intent || ChatbotIntent.UNKNOWN] || 'p-tag-contrast';
+    return labels[intent] || intent.replace(/_/g, ' ');
+  }
+
+  getIntentSeverity(intent?: ChatbotIntent): 'success' | 'info' | 'warning' | 'danger' | 'secondary' | 'contrast' {
+    switch (intent) {
+      case ChatbotIntent.CREATE_GARANTIE:
+      case ChatbotIntent.CREATE_PRODUIT:
+      case ChatbotIntent.CREATE_PACK:
+        return 'success';
+      case ChatbotIntent.CONFIGURE_PACK:
+      case ChatbotIntent.CREATE_PACK_WITH_GARANTIES:
+        return 'info';
+      case ChatbotIntent.UPDATE_PRODUIT:
+      case ChatbotIntent.UPDATE_GARANTIE:
+      case ChatbotIntent.UPDATE_PACK:
+        return 'warning';
+      case ChatbotIntent.DELETE_PRODUIT:
+      case ChatbotIntent.DELETE_GARANTIE:
+      case ChatbotIntent.DELETE_PACK:
+        return 'danger';
+      case ChatbotIntent.RECOMMENDATION:
+        return 'contrast';
+      default:
+        return 'secondary';
+    }
   }
 
   formatMessage(text: string): string {

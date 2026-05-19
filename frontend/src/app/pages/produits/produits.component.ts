@@ -103,6 +103,14 @@ export class ProduitsComponent implements OnInit {
     }
   }
 
+  viewProduit(produit: Produit): void {
+    if (!produit?.idProduit) {
+      this.toastService.showWarning('Aucun produit sélectionné', 'Veuillez sélectionner un produit à afficher');
+      return;
+    }
+    this.router.navigate(['/produits', produit.idProduit]);
+  }
+
   deleteProduit(produit: Produit): void {
     if (!produit || !produit.idProduit) {
       this.toastService.showWarning('Aucun produit sélectionné', 'Veuillez sélectionner un produit à supprimer');

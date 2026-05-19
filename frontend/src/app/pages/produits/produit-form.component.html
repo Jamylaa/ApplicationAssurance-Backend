@@ -1,6 +1,8 @@
 <div class="page-container">
   <p-toast position="top-right"></p-toast>
 
+  <form [formGroup]="produitForm" (ngSubmit)="onSubmit()" class="auth-form">
+
   <!-- Page Header -->
   <div class="page-header">
     <div class="page-header-left">
@@ -15,6 +17,7 @@
         label="Annuler" 
         icon="pi pi-times" 
         [loading]="loading" 
+        type="button"
         (click)="onCancel()" 
         styleClass="p-button-outlined">
       </p-button>
@@ -31,7 +34,6 @@
 
   <!-- Form Card -->
   <div class="form-card">
-    <form [formGroup]="produitForm" (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-grid">
         <!-- Nom du produit -->
         <div class="form-field">
@@ -113,6 +115,7 @@
           </div>
         </div>
       </div>
-    </form>
   </div>
+
+  </form>
 </div>

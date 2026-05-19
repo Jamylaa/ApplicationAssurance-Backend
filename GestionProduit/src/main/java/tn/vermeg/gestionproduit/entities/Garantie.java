@@ -4,7 +4,13 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 
 @Document(collection = "garanties")
@@ -16,8 +22,18 @@ public class Garantie {
     private String nomGarantie;
     private String description;
 
+    @NotNull(message = "Le statut est obligatoire")
     private Statut statut;
-    private TypeGarantie typeGarantie;
+    
+    /**
+     * Type de garantie flexible (String) - remplace l'enum rigide
+     * Accepte toutes les valeurs : "HOSPITALISATION", "DENTAIRE_PREMIUM", etc.
+     */
+    @NotBlank(message = "Le type de garantie est obligatoire")
+    @Size(min = 2, max = 50, message = "Le type doit contenir entre 2 et 50 caractères")
+    @Field("type")
+    @JsonAlias({"typeGarantie", "type_garantie"})
+    private String type;
 
     // PARAMÈTRES FINANCIERS
 
@@ -69,7 +85,7 @@ public class Garantie {
     public Garantie() {}
 
     public Garantie(String idGarantie, String nomGarantie, String description,
-                    Statut statut, TypeGarantie typeGarantie,
+                    Statut statut, String type,
                     double tauxRemboursement, TypeMontant typeMontant,
                     TypePlafond typePlafond,
                     double plafondAnnuel, double plafondMensuel,
@@ -86,7 +102,7 @@ public class Garantie {
         this.nomGarantie = nomGarantie;
         this.description = description;
         this.statut = statut;
-        this.typeGarantie = typeGarantie;
+        this.type = normalizeType(type);
         this.tauxRemboursement = tauxRemboursement;
         this.typeMontant = typeMontant;
         this.typePlafond = typePlafond;
@@ -118,8 +134,30 @@ public class Garantie {
     public Statut getStatut() { return statut; }
     public void setStatut(Statut statut) { this.statut = statut; }
 
-    public TypeGarantie getTypeGarantie() { return typeGarantie; }
-    public void setTypeGarantie(TypeGarantie typeGarantie) { this.typeGarantie = typeGarantie; }
+    public String getType() { return type; }
+    public void setType(String type) { 
+        this.type = normalizeType(type); 
+    }
+    
+    /**
+     * Normalise le type de garantie pour assurer la cohérence
+     * @param type Le type à normaliser
+     * @return Le type normalisé (trim, uppercase si nécessaire)
+     */
+    private String normalizeType(String type) {
+        if (type == null) {
+            return null;
+        }
+        return type.trim().toUpperCase();
+    }
+    
+    /**
+     * Vérifie si le type de garantie est valide
+     * @return true si le type n'est pas null et n'est pas vide
+     */
+    public boolean hasValidType() {
+        return type != null && !type.trim().isEmpty();
+    }
 
     public double getTauxRemboursement() { return tauxRemboursement; }
     public void setTauxRemboursement(double tauxRemboursement) { this.tauxRemboursement = tauxRemboursement; }

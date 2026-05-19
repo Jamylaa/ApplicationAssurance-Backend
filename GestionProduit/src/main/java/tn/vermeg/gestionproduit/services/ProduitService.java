@@ -18,7 +18,6 @@ public class ProduitService {
     }
 
     // READ
-
     public List<Produit> getAllProduits() {
         return produitRepository.findAll();
     }
@@ -42,7 +41,6 @@ public class ProduitService {
     }
 
     // CREATE
-
     public Produit createProduit(Produit produit) {
 
         validateProduit(produit);
@@ -57,7 +55,6 @@ public class ProduitService {
     }
 
     // UPDATE
-
     public Produit updateProduit(String idProduit, Produit produitDetails) {
 
         Produit produit = getProduitById(idProduit);
@@ -81,7 +78,6 @@ public class ProduitService {
     }
 
     // DELETE
-
     public void deleteProduit(String idProduit) {
 
         if (!produitRepository.existsById(idProduit)) {
@@ -92,7 +88,6 @@ public class ProduitService {
     }
 
     // DÉSACTIVATION
-
     public Produit desactiverProduit(String idProduit) {
 
         Produit produit = getProduitById(idProduit);
@@ -107,7 +102,6 @@ public class ProduitService {
     }
 
     // VALIDATION MÉTIER
-
     private void validateProduit(Produit produit) {
 
         if (produit.getNomProduit() == null || produit.getNomProduit().isBlank()) {

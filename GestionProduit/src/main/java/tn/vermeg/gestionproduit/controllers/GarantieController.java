@@ -6,9 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.vermeg.gestionproduit.entities.Garantie;
 import tn.vermeg.gestionproduit.entities.Statut;
-import tn.vermeg.gestionproduit.entities.TypeGarantie;
+import tn.vermeg.gestionproduit.exceptions.TypeGarantieException;
 import tn.vermeg.gestionproduit.services.GarantieService;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -29,15 +30,21 @@ public class GarantieController {
     public ResponseEntity<Garantie> getGarantieById(@PathVariable String idGarantie) {
         try {
             return ResponseEntity.ok(garantieService.getGarantieById(idGarantie));
-        } catch (IllegalArgumentException e) {
+        } catch (TypeGarantieException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    @GetMapping("/type/{typeGarantie}")
+    @GetMapping("/type/{type}")
     public ResponseEntity<List<Garantie>> getGarantiesByType(
-            @PathVariable TypeGarantie typeGarantie) {
-        return ResponseEntity.ok(garantieService.getGarantiesByType(typeGarantie));
+            @PathVariable String type) {
+        try {
+            return ResponseEntity.ok(garantieService.getGarantiesByType(type));
+        } catch (TypeGarantieException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/statut/{statut}")
@@ -56,7 +63,7 @@ public class GarantieController {
         try {
             return ResponseEntity.ok(
                     garantieService.getGarantiesByTauxRemboursementMin(tauxMin));
-        } catch (IllegalArgumentException e) {
+        } catch (TypeGarantieException e) {
             return ResponseEntity.badRequest().build();
         }
     }
@@ -67,55 +74,62 @@ public class GarantieController {
         try {
             return ResponseEntity.ok(
                     garantieService.getGarantiesByPlafondMin(plafondMin));
-        } catch (IllegalArgumentException e) {
+        } catch (TypeGarantieException e) {
             return ResponseEntity.badRequest().build();
         }
     }
-    // CREATE
 
+     // Crée une nouvelle garantie avec validation robuste
     @PostMapping
-    public ResponseEntity<Garantie> createGarantie(@RequestBody Garantie garantie) {
+    public ResponseEntity<Garantie> createGarantie(@Valid @RequestBody Garantie garantie) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(garantieService.createGarantie(garantie));
-        } catch (IllegalArgumentException e) {
+        } catch (TypeGarantieException e) {
             return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    // UPDATE
-
+    // UPDATE avec validation
     @PutMapping("/{idGarantie}")
     public ResponseEntity<Garantie> updateGarantie(
             @PathVariable String idGarantie,
-            @RequestBody Garantie garantieDetails) {
+            @Valid @RequestBody Garantie garantieDetails) {
         try {
             return ResponseEntity.ok(
                     garantieService.updateGarantie(idGarantie, garantieDetails));
-        } catch (IllegalArgumentException e) {
+        } catch (TypeGarantieException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
     }
 
+  //   Désactive une garantie
     @PatchMapping("/{idGarantie}/desactiver")
     public ResponseEntity<Garantie> desactiverGarantie(@PathVariable String idGarantie) {
         try {
             return ResponseEntity.ok(garantieService.desactiverGarantie(idGarantie));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
+        } catch (TypeGarantieException e) {
+            return ResponseEntity.badRequest().build();
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
         }
     }
 
     // DELETE
-
     @DeleteMapping("/{idGarantie}")
     public ResponseEntity<Void> deleteGarantie(@PathVariable String idGarantie) {
         try {
             garantieService.deleteGarantie(idGarantie);
             return ResponseEntity.noContent().build();
-        } catch (IllegalArgumentException e) {
+        } catch (TypeGarantieException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
     }

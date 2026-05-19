@@ -9,18 +9,18 @@ export const AUTH_ROUTES: Routes = [
     component: AuthLayoutComponent,
     children: [
       {
-        path: 'login',
+        path: 'Connexion',
         component: LoginComponent,
         title: 'Se connecter - Plateforme d\'Assurance'
       },
       {
-        path: 'register',
+        path: 'Inscription',
         component: RegisterComponent,
         title: 'S\'inscrire - Plateforme d\'Assurance'
       },
       {
         path: '',
-        redirectTo: 'login',
+        redirectTo: 'Connexion',
         pathMatch: 'full'
       }
     ]

@@ -32,6 +32,21 @@
     </div>
   </div>
 
+  <div class="chat-suggestions" *ngIf="suggestionPrompts.length">
+    <span class="chat-suggestions-label">Exemples</span>
+    <div class="chat-suggestions-chips">
+      <button
+        type="button"
+        class="suggestion-chip"
+        *ngFor="let s of suggestionPrompts"
+        (click)="applySuggestion(s)"
+        [disabled]="isLoading"
+      >
+        {{ s }}
+      </button>
+    </div>
+  </div>
+
   <!-- Messages Container -->
   <div class="chat-messages" #messagesContainer>
     <div
@@ -50,7 +65,7 @@
       <div class="message-content">
         <!-- Message Header for Bot -->
         <div *ngIf="message.sender === 'bot' && message.intent" class="message-header">
-          <p-tag [value]="getIntentBadge(message.intent)" [styleClass]="getIntentBadge(message.intent)"></p-tag>
+          <p-tag [value]="getIntentLabel(message.intent)" [severity]="getIntentSeverity(message.intent)"></p-tag>
           <i class="bi {{ getIntentIcon(message.intent) }}"></i>
         </div>
 
@@ -116,7 +131,7 @@
     </div>
 
     <!-- Quick Actions -->
-    <div class="quick-actions">
+    <!--<div class="quick-actions">
       <div class="quick-actions-title">
         <i class="bi bi-lightning-charge-fill"></i>
         Actions rapides
@@ -133,5 +148,5 @@
         </button>
       </div>
     </div>
-  </div>
+  </div>-->
 </div>

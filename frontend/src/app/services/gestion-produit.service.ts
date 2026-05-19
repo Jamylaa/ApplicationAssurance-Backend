@@ -24,167 +24,171 @@ export type Garantie = GarantieModel;
 })
 export class GestionProduitService {
   private readonly apiUrl = `${environment.apiProduit}`;
+  private readonly packsUrl = `${this.apiUrl}/packs`;
+  private readonly produitsUrl = `${this.apiUrl}/produits`;
+  private readonly garantiesUrl = `${this.apiUrl}/garanties`;
 
   constructor(private http: HttpClient) {}
 
 
   // Gestion des produits
   getAllProduits(): Observable<Produit[]> {
-    return this.http.get<Produit[]>(`${this.apiUrl}/produits`);
+    return this.http.get<Produit[]>(this.produitsUrl);
   }
 
   getProduitById(idProduit: string): Observable<Produit> {
-    return this.http.get<Produit>(`${this.apiUrl}/produits/${ idProduit }`);
+    return this.http.get<Produit>(`${this.produitsUrl}/${idProduit}`);
   }
 
   getProduitsByType(typeProduit: TypeProduit | string): Observable<Produit[]> {
-    return this.http.get<Produit[]>(`${this.apiUrl}/produits/type/${typeProduit}`);
+    return this.http.get<Produit[]>(`${this.produitsUrl}/type/${typeProduit}`);
   }
 
   getProduitsByStatut(statut: Statut | string): Observable<Produit[]> {
-    return this.http.get<Produit[]>(`${this.apiUrl}/produits/statut/${statut}`);
+    return this.http.get<Produit[]>(`${this.produitsUrl}/statut/${statut}`);
   }
 
   searchProduits(nomProduit: string): Observable<Produit[]> {
-    return this.http.get<Produit[]>(`${this.apiUrl}/produits/search?nom=${nomProduit}`);
+    return this.http.get<Produit[]>(`${this.produitsUrl}/search?nom=${encodeURIComponent(nomProduit)}`);
   }
 
   createProduit(produit: Produit): Observable<Produit> {
-    return this.http.post<Produit>(`${this.apiUrl}/produits`, produit);
+    return this.http.post<Produit>(this.produitsUrl, produit);
   }
 
   updateProduit(idProduit: string, produit: Produit): Observable<Produit> {
-    return this.http.put<Produit>(`${this.apiUrl}/produits/${idProduit}`, produit);
+    return this.http.put<Produit>(`${this.produitsUrl}/${idProduit}`, produit);
   }
 
   desactiverProduit(idProduit: string): Observable<Produit> {
-    return this.http.patch<Produit>(`${this.apiUrl}/produits/${idProduit}/desactiver`, {});
+    return this.http.patch<Produit>(`${this.produitsUrl}/${idProduit}/desactiver`, {});
   }
 
   deleteProduit(idProduit: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/produits/${idProduit}`);
+    return this.http.delete<void>(`${this.produitsUrl}/${idProduit}`);
   }
 
   // Gestion des packs 
   getAllPacks(): Observable<Pack[]> {
-    return this.http.get<Pack[]>(`${this.apiUrl}/packs`);
+    return this.http.get<Pack[]>(this.packsUrl);
   }
 
   getPackById(idPack: string): Observable<Pack> {
-    return this.http.get<Pack>(`${this.apiUrl}/packs/${idPack}`);
+    return this.http.get<Pack>(`${this.packsUrl}/${idPack}`);
   }
 
   getPacksByProduit(produitId: string): Observable<Pack[]> {
-    return this.http.get<Pack[]>(`${this.apiUrl}/packs/produit/${produitId}`);
+    // Backend expose les deux routes : /produit/{produitId} (alias) et /by-produit/{produitId}
+    return this.http.get<Pack[]>(`${this.packsUrl}/produit/${produitId}`);
   }
 
   getPacksByStatut(statut: Statut | string): Observable<Pack[]> {
-    return this.http.get<Pack[]>(`${this.apiUrl}/packs/statut/${statut}`);
+    return this.http.get<Pack[]>(`${this.packsUrl}/statut/${statut}`);
   }
 
   getPacksByNiveau(niveauCouverture: NiveauCouverture | string): Observable<Pack[]> {
-    return this.http.get<Pack[]>(`${this.apiUrl}/packs/niveau/${niveauCouverture}`);
+    return this.http.get<Pack[]>(`${this.packsUrl}/niveau/${niveauCouverture}`);
   }
 
   getPacksByTypeClient(typeClient: TypeClient | string): Observable<Pack[]> {
-    return this.http.get<Pack[]>(`${this.apiUrl}/packs/type-client/${typeClient}`);
+    return this.http.get<Pack[]>(`${this.packsUrl}/type-client/${typeClient}`);
   }
 
   searchPacks(nomPack: string): Observable<Pack[]> {
-    return this.http.get<Pack[]>(`${this.apiUrl}/packs/search?nomPack=${nomPack}`);
+    return this.http.get<Pack[]>(`${this.packsUrl}/search?nomPack=${encodeURIComponent(nomPack)}`);
   }
 
   getPacksByPrixRange(prixMin: number, prixMax: number): Observable<Pack[]> {
-    return this.http.get<Pack[]>(`${this.apiUrl}/packs/prix-range?prixMin=${prixMin}&prixMax=${prixMax}`);
+    return this.http.get<Pack[]>(`${this.packsUrl}/prix-range?prixMin=${prixMin}&prixMax=${prixMax}`);
   }
 
   createPack(pack: Pack): Observable<Pack> {
-    return this.http.post<Pack>(`${this.apiUrl}/packs`, pack);
+    return this.http.post<Pack>(this.packsUrl, pack);
   }
 
   updatePack(idPack: string, pack: Pack): Observable<Pack> {
-    return this.http.put<Pack>(`${this.apiUrl}/packs/${idPack}`, pack);
+    return this.http.put<Pack>(`${this.packsUrl}/${idPack}`, pack);
   }
 
   desactiverPack(idPack: string): Observable<Pack> {
-    return this.http.patch<Pack>(`${this.apiUrl}/packs/${idPack}/desactiver`, {});
+    return this.http.patch<Pack>(`${this.packsUrl}/${idPack}/desactiver`, {});
   }
 
   deletePack(idPack: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/packs/${idPack}`);
+    return this.http.delete<void>(`${this.packsUrl}/${idPack}`);
   }
 
   // Gestion des garanties 
   getAllGaranties(): Observable<Garantie[]> {
-    return this.http.get<Garantie[]>(`${this.apiUrl}/garanties`);
+    return this.http.get<Garantie[]>(this.garantiesUrl);
   }
 
   getGarantieById(idGarantie: string): Observable<Garantie> {
-    return this.http.get<Garantie>(`${this.apiUrl}/garanties/${idGarantie}`);
+    return this.http.get<Garantie>(`${this.garantiesUrl}/${idGarantie}`);
   }
 
   getGarantiesByType(typeGarantie: TypeGarantie | string): Observable<Garantie[]> {
-    return this.http.get<Garantie[]>(`${this.apiUrl}/garanties/type/${typeGarantie}`);
+    return this.http.get<Garantie[]>(`${this.garantiesUrl}/type/${typeGarantie}`);
   }
 
   getGarantiesByStatut(statut: Statut | string): Observable<Garantie[]> {
-    return this.http.get<Garantie[]>(`${this.apiUrl}/garanties/statut/${statut}`);
+    return this.http.get<Garantie[]>(`${this.garantiesUrl}/statut/${statut}`);
   }
 
   searchGaranties(nomGarantie: string): Observable<Garantie[]> {
-    return this.http.get<Garantie[]>(`${this.apiUrl}/garanties/search?nomGarantie=${nomGarantie}`);
+    return this.http.get<Garantie[]>(`${this.garantiesUrl}/search?nomGarantie=${encodeURIComponent(nomGarantie)}`);
   }
 
   getGarantiesByTauxMin(tauxMin: number): Observable<Garantie[]> {
-    return this.http.get<Garantie[]>(`${this.apiUrl}/garanties/taux-min/${tauxMin}`);
+    return this.http.get<Garantie[]>(`${this.garantiesUrl}/taux-min/${tauxMin}`);
   }
 
   getGarantiesByPlafondMin(plafondMin: number): Observable<Garantie[]> {
-    return this.http.get<Garantie[]>(`${this.apiUrl}/garanties/plafond-min/${plafondMin}`);
+    return this.http.get<Garantie[]>(`${this.garantiesUrl}/plafond-min/${plafondMin}`);
   }
 
   createGarantie(garantie: Garantie): Observable<Garantie> {
-    return this.http.post<Garantie>(`${this.apiUrl}/garanties`, garantie);
+    return this.http.post<Garantie>(this.garantiesUrl, garantie);
   }
 
   updateGarantie(idGarantie: string, garantie: Garantie): Observable<Garantie> {
-    return this.http.put<Garantie>(`${this.apiUrl}/garanties/${idGarantie}`, garantie);
+    return this.http.put<Garantie>(`${this.garantiesUrl}/${idGarantie}`, garantie);
   }
 
   desactiverGarantie(idGarantie: string): Observable<Garantie> {
-    return this.http.patch<Garantie>(`${this.apiUrl}/garanties/${idGarantie}/desactiver`, {});
+    return this.http.patch<Garantie>(`${this.garantiesUrl}/${idGarantie}/desactiver`, {});
   }
 
   deleteGarantie(idGarantie: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/garanties/${idGarantie}`);
+    return this.http.delete<void>(`${this.garantiesUrl}/${idGarantie}`);
   }
 
   // Gestion de la configuration des packs (Pack-Garantie)
   
   // READ
   getGarantiesDuPack(packId: string): Observable<PackGarantie[]> {
-    return this.http.get<PackGarantie[]>(`${this.apiUrl}/pack-configuration/${packId}/garanties`);
+    return this.http.get<PackGarantie[]>(`${this.packsUrl}/${packId}/garanties`);
   }
 
   getGarantiesInclusesDuPack(packId: string): Observable<PackGarantie[]> {
-    return this.http.get<PackGarantie[]>(`${this.apiUrl}/pack-configuration/${packId}/garanties/incluses`);
+    return this.http.get<PackGarantie[]>(`${this.packsUrl}/${packId}/garanties/incluses`);
   }
 
   getGarantiesOptionnellesDuPack(packId: string): Observable<PackGarantie[]> {
-    return this.http.get<PackGarantie[]>(`${this.apiUrl}/pack-configuration/${packId}/garanties/optionnelles`);
+    return this.http.get<PackGarantie[]>(`${this.packsUrl}/${packId}/garanties/optionnelles`);
   }
 
   getGarantiesDisponiblesPourPack(packId: string): Observable<Garantie[]> {
-    return this.http.get<Garantie[]>(`${this.apiUrl}/pack-configuration/${packId}/garanties-disponibles`);
+    return this.http.get<Garantie[]>(`${this.packsUrl}/${packId}/garanties-disponibles`);
   }
 
   calculerPrixTotalPack(packId: string): Observable<number> {
-    return this.http.get<number>(`${this.apiUrl}/pack-configuration/${packId}/prix-total`);
+    return this.http.get<number>(`${this.packsUrl}/${packId}/prix-total`);
   }
 
   // CREATE
   ajouterGarantieAuPack(packId: string, garantieId: string, packGarantie: PackGarantie): Observable<PackGarantie> {
-    return this.http.post<PackGarantie>(`${this.apiUrl}/pack-configuration/${packId}/garanties/${garantieId}`, packGarantie);
+    return this.http.post<PackGarantie>(`${this.packsUrl}/${packId}/garanties/${garantieId}`, packGarantie);
   }
 
   // creerPackAvecGaranties(request: CreatePackWithGarantiesRequest): Observable<Pack> {
@@ -192,12 +196,37 @@ export class GestionProduitService {
   // }
 
   // UPDATE
-  modifierGarantieDansPack(packId: string, packGarantieId: string, details: PackGarantie): Observable<PackGarantie> {
-    return this.http.put<PackGarantie>(`${this.apiUrl}/pack-configuration/${packId}/garanties/${packGarantieId}`, details);
+  modifierGarantieDansPack(_packId: string, packGarantieId: string, details: PackGarantie): Observable<PackGarantie> {
+    return this.http.put<PackGarantie>(`${this.packsUrl}/associations/${packGarantieId}`, details);
   }
 
   // DELETE
-  supprimerGarantieDuPack(packId: string, packGarantieId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/pack-configuration/${packId}/garanties/${packGarantieId}`);
+  supprimerGarantieDuPack(_packId: string, packGarantieId: string): Observable<void> {
+    return this.http.delete<void>(`${this.packsUrl}/associations/${packGarantieId}`);
+  }
+
+  // Endpoints additionnels exposés par PackUnifiedController
+  getAllPackGaranties(): Observable<PackGarantie[]> {
+    return this.http.get<PackGarantie[]>(`${this.packsUrl}/associations`);
+  }
+
+  toggleGarantieActivation(packGarantieId: string, active: boolean): Observable<PackGarantie> {
+    return this.http.patch<PackGarantie>(`${this.packsUrl}/associations/${packGarantieId}/activation?active=${active}`, {});
+  }
+
+  associatePackToProduit(packId: string, produitId: string): Observable<Pack> {
+    return this.http.post<Pack>(`${this.packsUrl}/${packId}/associate-produit/${produitId}`, {});
+  }
+
+  dissociatePackFromProduit(packId: string): Observable<Pack> {
+    return this.http.delete<Pack>(`${this.packsUrl}/${packId}/dissociate-produit`);
+  }
+
+  packsHealth(): Observable<Record<string, unknown>> {
+    return this.http.get<Record<string, unknown>>(`${this.packsUrl}/health`);
+  }
+
+  packsStatistics(): Observable<Record<string, unknown>> {
+    return this.http.get<Record<string, unknown>>(`${this.packsUrl}/statistics`);
   }
 }

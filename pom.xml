@@ -15,7 +15,6 @@
         <module>Gateway</module>
         <module>GestionUser</module>
         <module>GestionProduit</module>
-        <module>GestionSouscription</module>
         <module>eureka</module>
         <module>recommendation</module>
     </modules>

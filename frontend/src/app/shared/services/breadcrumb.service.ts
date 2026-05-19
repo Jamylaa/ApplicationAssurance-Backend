@@ -73,6 +73,13 @@ export class BreadcrumbService {
     ]);
   }
 
+  setChatbotBreadcrumb(): void {
+    this.setBreadcrumb([
+      { label: 'Accueil', routerLink: ['/dashboard'], icon: 'pi pi-home' },
+      { label: 'Assistant IA', routerLink: ['/chatbot'], icon: 'pi pi-robot' }
+    ]);
+  }
+
   // Méthode générique basée sur l'URL actuelle
   updateBreadcrumbFromUrl(): void {
     const url = this.router.url;
@@ -85,6 +92,8 @@ export class BreadcrumbService {
       this.setPacksBreadcrumb();
     } else if (url.includes('/garanties')) {
       this.setGarantiesBreadcrumb();
+    } else if (url.includes('/chatbot')) {
+      this.setChatbotBreadcrumb();
     } else if (url.includes('/dashboard')) {
       this.setDashboardBreadcrumb();
     } else if (url.includes('/auth')) {

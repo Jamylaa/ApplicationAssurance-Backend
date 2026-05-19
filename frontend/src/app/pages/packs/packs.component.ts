@@ -63,13 +63,21 @@ export class PacksComponent implements OnInit {
     });
   }
 
-  deletePack(packId: string): void {
+  viewPack(packId: string): void {
+    if (!packId) {
+      this.toastService.showWarning('Aucun pack sélectionné', 'Veuillez sélectionner un pack à afficher');
+      return;
+    }
+    this.router.navigate(['/packs', packId]);
+  }
+
+  deletePack(idPack: string): void {
     this.confirmationService.confirm({
       message: 'Êtes-vous sûr de vouloir supprimer ce pack ?',
       header: 'Confirmation de suppression',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.packService.deletePack(packId).subscribe({
+        this.packService.deletePack(idPack).subscribe({
           next: () => {
             this.toastService.showDeleteSuccess('Pack');
             this.loadPacks();

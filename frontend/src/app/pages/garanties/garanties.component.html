@@ -56,7 +56,7 @@
         <tr>
           <th pSortableColumn="nomGarantie">Nom <p-sortIcon field="nomGarantie"></p-sortIcon></th>
           <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
-          <th pSortableColumn="typeGarantie">Type <p-sortIcon field="typeGarantie"></p-sortIcon></th>
+          <th pSortableColumn="type">Type <p-sortIcon field="type"></p-sortIcon></th>
           <th pSortableColumn="tauxRemboursement">Taux <p-sortIcon field="tauxRemboursement"></p-sortIcon></th>
           <th pSortableColumn="statut">Statut <p-sortIcon field="statut"></p-sortIcon></th>
           <th style="width:100px;text-align:center;">Actions</th>
@@ -73,7 +73,7 @@
           </td>
           <td><span class="cell-text">{{ garantie.description || '—' }}</span></td>
           <td>
-            <span class="type-badge">{{ garantie.typeGarantie || 'N/A' }}</span>
+            <span class="type-badge">{{ garantie.type || 'N/A' }}</span>
           </td>
           <td>
             <div class="taux-cell">
@@ -91,6 +91,13 @@
           </td>
           <td>
             <div class="action-btns">
+              <p-button
+                icon="pi pi-eye"
+                pTooltip="Détails"
+                tooltipPosition="top"
+                styleClass="p-button-rounded p-button-text"
+                (click)="viewGarantie(garantie)">
+              </p-button>
               <p-button
                 icon="pi pi-pencil"
                 pTooltip="Modifier"

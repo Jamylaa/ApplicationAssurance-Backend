@@ -21,7 +21,6 @@ public class ProduitController {
     private ProduitService produitService;
 
     // READ
-
     @GetMapping
     public ResponseEntity<List<Produit>> getAllProduits() {
         return ResponseEntity.ok(produitService.getAllProduits());
@@ -52,7 +51,6 @@ public class ProduitController {
     }
 
     // CREATE
-
     @PostMapping
     public ResponseEntity<Produit> createProduit(@RequestBody Produit produit) {
         try {
@@ -64,7 +62,6 @@ public class ProduitController {
     }
 
     // UPDATE
-
     @PutMapping("/{idProduit}")
     public ResponseEntity<Produit> updateProduit(
             @PathVariable String idProduit,

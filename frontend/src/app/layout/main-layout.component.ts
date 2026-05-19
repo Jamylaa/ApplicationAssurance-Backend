@@ -1,8 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { SidebarComponent } from '../shared/components/sidebar.component';
 import { BreadcrumbComponent } from '../shared/components/breadcrumb.component';
 import { BreadcrumbService } from '../shared/services/breadcrumb.service';
@@ -25,6 +27,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   searchQuery = '';
 
   private resizeHandler = () => this.checkMobileView();
+  private routerSub?: Subscription;
 
   constructor(
     private router: Router,
@@ -36,11 +39,15 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.breadcrumbService.updateBreadcrumbFromUrl();
+    this.routerSub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.breadcrumbService.updateBreadcrumbFromUrl());
     this.checkMobileView();
     window.addEventListener('resize', this.resizeHandler);
   }
 
   ngOnDestroy(): void {
+    this.routerSub?.unsubscribe();
     window.removeEventListener('resize', this.resizeHandler);
   }
 
@@ -68,6 +75,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     if (url.includes('/produits')) return 'Produits';
     if (url.includes('/packs')) return 'Packs';
     if (url.includes('/garanties')) return 'Garanties';
+    if (url.includes('/chatbot')) return 'Assistant IA';
     return 'Dashboard';
   }
 
@@ -78,6 +86,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     if (url.includes('/produits')) return 'bi-box-seam-fill';
     if (url.includes('/packs')) return 'bi-collection-fill';
     if (url.includes('/garanties')) return 'bi-shield-fill-check';
+    if (url.includes('/chatbot')) return 'bi-robot';
     return 'bi-grid-1x2-fill';
   }
 

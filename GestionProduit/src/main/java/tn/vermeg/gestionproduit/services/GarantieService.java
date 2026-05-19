@@ -1,14 +1,17 @@
 package tn.vermeg.gestionproduit.services;
 
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import tn.vermeg.gestionproduit.entities.Garantie;
 import tn.vermeg.gestionproduit.entities.Statut;
-import tn.vermeg.gestionproduit.entities.TypeGarantie;
+import tn.vermeg.gestionproduit.exceptions.ResourceNotFoundException;
 import tn.vermeg.gestionproduit.repositories.GarantieRepository;
+import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
 
 @Service
+@Validated
 public class GarantieService {
 
     private final GarantieRepository garantieRepository;
@@ -18,7 +21,6 @@ public class GarantieService {
     }
 
     // READ
-
     public List<Garantie> getAllGaranties() {
         return garantieRepository.findAll();
     }
@@ -26,15 +28,20 @@ public class GarantieService {
     public Garantie getGarantieById(String idGarantie) {
         return garantieRepository.findById(idGarantie)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Garantie non trouvée avec l'ID: " + idGarantie));
+                        new ResourceNotFoundException("Garantie", idGarantie, "Garantie non trouvée avec l'ID: " + idGarantie));
     }
 
     public List<Garantie> getGarantiesByStatut(Statut statut) {
         return garantieRepository.findByStatut(statut);
     }
 
-    public List<Garantie> getGarantiesByType(TypeGarantie typeGarantie) {
-        return garantieRepository.findByTypeGarantie(typeGarantie);
+    public List<Garantie> getGarantiesByType(String type) {
+        if (type == null || type.trim().isEmpty()) {
+            throw new IllegalArgumentException("Le type de garantie ne peut pas être null ou vide");
+        }
+        
+        String normalizedType = type.trim().toUpperCase();
+        return garantieRepository.findByType(normalizedType);
     }
 
     public List<Garantie> searchGaranties(String nom) {
@@ -59,22 +66,7 @@ public class GarantieService {
         return garantieRepository.findByPlafondAnnuelGreaterThanEqual(plafondMin);
     }
 
-    // CREATE
-
-    public Garantie createGarantie(Garantie garantie) {
-
-        validateGarantie(garantie);
-
-        if (garantieRepository.existsByNomGarantieIgnoreCase(garantie.getNomGarantie())) {
-            throw new IllegalArgumentException("Une garantie avec ce nom existe déjà.");
-        }
-
-        garantie.setStatut(Statut.ACTIF);
-        return garantieRepository.save(garantie);
-    }
-
     // UPDATE
-
     public Garantie updateGarantie(String idGarantie, Garantie details) {
 
         Garantie garantie = getGarantieById(idGarantie);
@@ -90,7 +82,7 @@ public class GarantieService {
 
         garantie.setNomGarantie(details.getNomGarantie());
         garantie.setDescription(details.getDescription());
-        garantie.setTypeGarantie(details.getTypeGarantie());
+        garantie.setType(details.getType());
         garantie.setTauxRemboursement(details.getTauxRemboursement());
         garantie.setTypeMontant(details.getTypeMontant());
         garantie.setTypePlafond(details.getTypePlafond());
@@ -108,7 +100,6 @@ public class GarantieService {
     }
 
     // DELETE / DESACTIVATION
-
     public void deleteGarantie(String idGarantie) {
 
         if (!garantieRepository.existsById(idGarantie)) {
@@ -132,20 +123,30 @@ public class GarantieService {
         return garantieRepository.save(garantie);
     }
 
-    // VALIDATION
-
-    private void validateGarantie(Garantie garantie) {
-
+     private void validateGarantie(@Valid Garantie garantie) {
         if (garantie.getNomGarantie() == null || garantie.getNomGarantie().isBlank()) {
-            throw new IllegalArgumentException("Nom obligatoire.");
+            throw new IllegalArgumentException("Le nom de la garantie est obligatoire.");
         }
 
-        if (garantie.getTypeGarantie() == null) {
-            throw new IllegalArgumentException("Type de garantie obligatoire.");
+        if (!garantie.hasValidType()) {
+            throw new IllegalArgumentException("Le type de garantie est obligatoire et ne peut pas être vide.");
         }
 
         if (!garantie.estValide()) {
             throw new IllegalArgumentException("Paramètres financiers invalides.");
         }
+    }
+
+    public Garantie createGarantie(@Valid Garantie garantie) {
+        validateGarantie(garantie);
+
+        if (garantieRepository.existsByNomGarantieIgnoreCase(garantie.getNomGarantie())) {
+            throw new IllegalArgumentException("Une garantie avec ce nom existe déjà: " + garantie.getNomGarantie());
+        }
+
+        garantie.setStatut(Statut.ACTIF);
+        garantie.setCreePar("system");
+        
+        return garantieRepository.save(garantie);
     }
 }

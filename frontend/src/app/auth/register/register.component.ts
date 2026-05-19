@@ -1,72 +1,138 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { GestionUserService, RegisterRequest } from '../../services/gestion-user.service';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { ButtonModule } from 'primeng/button';
-import { MessageModule } from 'primeng/message';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder,FormGroup,ReactiveFormsModule,Validators} from '@angular/forms';
+import { Router,RouterModule} from '@angular/router';
+import { InputTextModule} from 'primeng/inputtext';
+import {  PasswordModule} from 'primeng/password';
+import { ButtonModule} from 'primeng/button';
+import {  MessageModule} from 'primeng/message';
+import {GestionUserService,  RegisterRequest} from '../../services/gestion-user.service';
+
 
 @Component({
   selector: 'app-register',
+  standalone: true,
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
-  standalone: true,
+
   imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
     InputTextModule,
     PasswordModule,
     ButtonModule,
-    MessageModule,
-    CommonModule,
-    ReactiveFormsModule,
-    RouterModule
+    MessageModule
   ]
 })
+
 export class RegisterComponent {
+
   registerForm: FormGroup;
-  error = '';
+
   loading = false;
+
+  error = '';
+
+  success = '';
+
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly userService: GestionUserService,
     private readonly router: Router
   ) {
+
     this.registerForm = this.fb.group({
-      username: ['', [Validators.required, Validators.pattern('^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$')]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(7)]],
-      phone: ['', Validators.required],
-      departement: ['IT', Validators.required]
+
+      username: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(3)
+        ]
+      ],
+
+      email: [
+        '',
+        [
+          Validators.required,
+          Validators.email
+        ]
+      ],
+
+      password: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(7)
+        ]
+      ],
+
+      phone: [
+        '',
+        Validators.required
+      ],
+
+      departement: [
+        'IT',
+        Validators.required
+      ]
     });
   }
 
+
   onSubmit(): void {
-    if (!this.registerForm.valid) {
+
+    if (this.registerForm.invalid) {
+      this.registerForm.markAllAsTouched();
       return;
     }
 
     this.loading = true;
+
     this.error = '';
 
+    this.success = '';
+
     const payload: RegisterRequest = {
-      username: String(this.registerForm.value.username ?? ''),
-      email: String(this.registerForm.value.email ?? ''),
-      password: String(this.registerForm.value.password ?? ''),
-      phone: Number(this.registerForm.value.phone ?? 0),
-      departement: String(this.registerForm.value.departement ?? 'IT')
+
+      username: this.registerForm.value.username,
+
+      email: this.registerForm.value.email,
+
+      password: this.registerForm.value.password,
+
+      phone: Number(this.registerForm.value.phone),
+
+      departement: this.registerForm.value.departement
     };
 
     this.userService.register(payload).subscribe({
+
       next: () => {
+
         this.loading = false;
-        this.router.navigate(['/auth/login']);
+
+        this.success =
+          'Compte créé avec succès';
+
+        setTimeout(() => {
+
+          this.router.navigate([
+            '/auth/login'
+          ]);
+
+        }, 1500);
       },
-      error: () => {
+
+      error: (err) => {
+
         this.loading = false;
-        this.error = 'Erreur lors de la création du compte';
+
+        this.error =
+          err?.error?.message ||
+          'Erreur lors de la création du compte';
       }
     });
   }

@@ -64,6 +64,14 @@ export class GarantiesComponent implements OnInit {
     });
   }
 
+  viewGarantie(garantie: Garantie): void {
+    if (!garantie?.idGarantie) {
+      this.toastService.showWarning('Aucune garantie sélectionnée', 'Veuillez sélectionner une garantie à afficher');
+      return;
+    }
+    this.router.navigate(['/garanties', garantie.idGarantie]);
+  }
+
   deleteGarantie(garantieId: string): void {
     this.confirmationService.confirm({
       message: 'Êtes-vous sûr de vouloir supprimer cette garantie ?',

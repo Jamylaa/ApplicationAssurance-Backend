@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { GestionProduitService, Garantie } from '../../services/gestion-produit.service';
 import { TypeGarantie, Statut, TypeMontant, TypePlafond } from '../../models/entities.model';
@@ -37,6 +37,8 @@ import { RouterModule } from '@angular/router';
 export class GarantieFormComponent implements OnInit {
   garantieForm: FormGroup;
   loading = false;
+  isEdit = false;
+  garantieId?: string;
 
   typeGarantieOptions = [
     { label: 'Hospitalisation', value: TypeGarantie.HOSPITALISATION },
@@ -67,6 +69,7 @@ export class GarantieFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private garantieService: GestionProduitService,
+    private route: ActivatedRoute,
     private router: Router,
     private toastService: ToastService,
     private breadcrumbService: BreadcrumbService
@@ -74,7 +77,7 @@ export class GarantieFormComponent implements OnInit {
     this.garantieForm = this.fb.group({
       nomGarantie: ['', [Validators.required]],
       description: ['', [Validators.required]],
-      typeGarantie: [null, [Validators.required]],
+      type: [null, [Validators.required]],
       statut: [Statut.ACTIF, [Validators.required]],
       tauxRemboursement: [0, [Validators.required, Validators.min(0), Validators.max(1)]],
       typeMontant: [null, [Validators.required]],
@@ -94,10 +97,43 @@ export class GarantieFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.garantieId = this.route.snapshot.paramMap.get('idGarantie') || undefined;
+    this.isEdit = !!this.garantieId;
+
     this.breadcrumbService.setBreadcrumb([
       { label: 'Garanties', url: '/garanties' },
-      { label: 'Nouvelle garantie', url: '/garanties/add' }
+      { label: this.isEdit ? 'Modifier garantie' : 'Nouvelle garantie', url: this.isEdit ? `/garanties/edit/${this.garantieId}` : '/garanties/add' }
     ]);
+
+    if (this.isEdit && this.garantieId) {
+      this.loading = true;
+      this.garantieService.getGarantieById(this.garantieId).subscribe({
+        next: (g) => {
+          this.garantieForm.patchValue({
+            nomGarantie: g.nomGarantie,
+            description: g.description,
+            type: g.type,
+            statut: g.statut,
+            tauxRemboursement: g.tauxRemboursement,
+            typeMontant: g.typeMontant,
+            typePlafond: g.typePlafond,
+            plafondAnnuel: g.plafondAnnuel,
+            plafondMensuel: g.plafondMensuel,
+            plafondParActe: g.plafondParActe,
+            franchise: g.franchise,
+            coutMoyenParSinistre: g.coutMoyenParSinistre,
+            dureeMinContrat: g.dureeMinContrat,
+            dureeMaxContrat: g.dureeMaxContrat,
+            resiliableAnnuellement: g.resiliableAnnuellement
+          });
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+          this.toastService.showError('Erreur', 'Impossible de charger la garantie');
+        }
+      });
+    }
   }
 
   onSubmit(): void {
@@ -110,17 +146,23 @@ export class GarantieFormComponent implements OnInit {
 
     this.loading = true;
     const garantieData = this.garantieForm.value;
+    const request$ = this.isEdit && this.garantieId
+      ? this.garantieService.updateGarantie(this.garantieId, { ...garantieData, idGarantie: this.garantieId } as unknown as Garantie)
+      : this.garantieService.createGarantie(garantieData);
 
-    this.garantieService.createGarantie(garantieData).subscribe({
+    request$.subscribe({
       next: () => {
         this.loading = false;
-        this.toastService.showSuccess('Garantie créée', 'La garantie a été créée avec succès');
+        this.toastService.showSuccess(
+          this.isEdit ? 'Garantie modifiée' : 'Garantie créée',
+          this.isEdit ? 'La garantie a été modifiée avec succès' : 'La garantie a été créée avec succès'
+        );
         this.router.navigate(['/garanties']);
       },
       error: (error) => {
         this.loading = false;
-        this.toastService.showError('Erreur', 'Impossible de créer la garantie');
-        console.error('Error creating garantie:', error);
+        this.toastService.showError('Erreur', this.isEdit ? 'Impossible de modifier la garantie' : 'Impossible de créer la garantie');
+        console.error('Error saving garantie:', error);
       }
     });
   }

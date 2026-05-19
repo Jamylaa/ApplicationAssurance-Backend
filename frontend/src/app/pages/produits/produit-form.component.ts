@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { GestionProduitService, Produit } from '../../services/gestion-produit.service';
 import { TypeProduit, Statut } from '../../models/entities.model';
@@ -54,6 +54,7 @@ export class ProduitFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private produitService: GestionProduitService,
+    private route: ActivatedRoute,
     private router: Router,
     private toastService: ToastService,
     private breadcrumbService: BreadcrumbService
@@ -70,10 +71,35 @@ export class ProduitFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.produitId = this.route.snapshot.paramMap.get('idProduit') || undefined;
+    this.isEdit = !!this.produitId;
+
     this.breadcrumbService.setBreadcrumb([
       { label: 'Produits', url: '/produits' },
-      { label: 'Nouveau produit', url: '/produits/add' }
+      {
+        label: this.isEdit ? 'Modifier produit' : 'Nouveau produit',
+        url: this.isEdit ? `/produits/edit/${this.produitId}` : '/produits/add'
+      }
     ]);
+
+    if (this.isEdit && this.produitId) {
+      this.loading = true;
+      this.produitService.getProduitById(this.produitId).subscribe({
+        next: (produit) => {
+          this.produitForm.patchValue({
+            nomProduit: produit.nomProduit,
+            description: produit.description,
+            typeProduit: produit.typeProduit,
+            statut: produit.statut
+          });
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+          this.toastService.showError('Erreur', 'Impossible de charger le produit');
+        }
+      });
+    }
   }
 
   onSubmit(): void {
@@ -86,17 +112,23 @@ export class ProduitFormComponent implements OnInit {
 
     this.loading = true;
     const produitData = this.produitForm.value;
+    const request$ = this.isEdit && this.produitId
+      ? this.produitService.updateProduit(this.produitId, { ...produitData, idProduit: this.produitId } as unknown as Produit)
+      : this.produitService.createProduit(produitData);
 
-    this.produitService.createProduit(produitData).subscribe({
+    request$.subscribe({
       next: () => {
         this.loading = false;
-        this.toastService.showSuccess('Produit créé', 'Le produit a été créé avec succès');
+        this.toastService.showSuccess(
+          this.isEdit ? 'Produit modifié' : 'Produit créé',
+          this.isEdit ? 'Le produit a été modifié avec succès' : 'Le produit a été créé avec succès'
+        );
         this.router.navigate(['/produits']);
       },
       error: (error) => {
         this.loading = false;
-        this.toastService.showError('Erreur', 'Impossible de créer le produit');
-        console.error('Error creating produit:', error);
+        this.toastService.showError('Erreur', this.isEdit ? 'Impossible de modifier le produit' : 'Impossible de créer le produit');
+        console.error('Error saving produit:', error);
       }
     });
   }

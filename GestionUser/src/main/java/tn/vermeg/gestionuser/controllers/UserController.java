@@ -2,9 +2,10 @@ package tn.vermeg.gestionuser.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tn.vermeg.gestionuser.entities.User;
-import tn.vermeg.gestionuser.services.UserService;
+import tn.vermeg.gestionuser.services.impl.UserServiceImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,88 +15,75 @@ import java.util.Optional;
 @CrossOrigin(origins = "http://localhost:4200")
 public class UserController {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
-    public UserController(UserService userService) {
+    public UserController(UserServiceImpl userService) {
         this.userService = userService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{idUser}")
     public ResponseEntity<User> getUserById(@PathVariable String idUser) {
+
         Optional<User> user = userService.getUserById(idUser);
+
         return user.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
         try {
-            User createdUser = userService.createUser(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(userService.createUser(user));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{idUser}")
-    public ResponseEntity<User> updateUser(@PathVariable String idUser, @RequestBody User user) {
+    public ResponseEntity<User> updateUser(@PathVariable String idUser,
+                                           @RequestBody User user) {
         try {
-            User updatedUser = userService.updateUser(idUser, user);
-            return ResponseEntity.ok(updatedUser);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.ok(userService.updateUser(idUser, user));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{idUser}")
     public ResponseEntity<Void> deleteUser(@PathVariable String idUser) {
         try {
             userService.deleteUser(idUser);
             return ResponseEntity.noContent().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.notFound().build();
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/email/{email}")
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
-        Optional<User> user = userService.getUserByEmail(email);
-        return user.map(ResponseEntity::ok)
+        return userService.getUserByEmail(email)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/username/{username}")
-    public ResponseEntity<User> getUserByUserName(@PathVariable String username) {
-        Optional<User> user = userService.getUserByUsername(username);
-        return user.map(ResponseEntity::ok)
+    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
+        return userService.getUserByUsername(username)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 }
-
-//    @GetMapping("/exists/email/{email}")
-//    public ResponseEntity<Boolean> existsByEmail(@PathVariable String email) {
-//        boolean exists = userService.existsByEmail(email);
-//        return ResponseEntity.ok(exists);
-//    }
-
-//    @GetMapping("/exists/username/{userName}")
-//    public ResponseEntity<Boolean> existsByUserName(@PathVariable String userName) {
-//        boolean exists = userService.existsByUserName(userName);
-//        return ResponseEntity.ok(exists);
-//    }

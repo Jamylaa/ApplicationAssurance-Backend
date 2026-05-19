@@ -97,7 +97,7 @@ export interface Garantie {
   nomGarantie: string;
   description: string;
   statut: Statut;
-  typeGarantie: TypeGarantie;
+  type: string;
   tauxRemboursement: number;
   typeMontant: TypeMontant;
   typePlafond: TypePlafond;
@@ -151,10 +151,6 @@ export interface PaginatedResponse<T> {
   first: boolean;
   last: boolean;
 }
-
-//  INTERFACES CHATBOT SIMPLIFIÉES 
-// Les interfaces chatbot sont maintenant définies dans chatbot.service.ts
-
 //  FILTRES 
 
 export interface ProduitFilter {
@@ -180,7 +176,7 @@ export interface PackFilter {
 }
 
 export interface GarantieFilter {
-  typeGarantie?: TypeGarantie;
+  type?: string;
   statut?: Statut;
   searchTerm?: string;
 }

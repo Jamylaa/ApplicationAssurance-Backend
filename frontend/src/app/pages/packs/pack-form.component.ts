@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { GestionProduitService, Pack } from '../../services/gestion-produit.service';
 import { TypeClient, NiveauCouverture, Statut, CouvertureGeographique } from '../../models/entities.model';
@@ -40,6 +40,8 @@ export class PackFormComponent implements OnInit {
   packForm: FormGroup;
   loading = false;
   produits: any[] = [];
+  isEdit = false;
+  packId?: string;
 
   typeClientOptions = [
     { label: 'Individuel', value: TypeClient.INDIVIDUEL },
@@ -73,6 +75,7 @@ export class PackFormComponent implements OnInit {
     private fb: FormBuilder,
     private packService: GestionProduitService,
     private produitService: GestionProduitService,
+    private route: ActivatedRoute,
     private router: Router,
     private toastService: ToastService,
     private breadcrumbService: BreadcrumbService
@@ -98,12 +101,47 @@ export class PackFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.packId = this.route.snapshot.paramMap.get('idPack') || undefined;
+    this.isEdit = !!this.packId;
+
     this.breadcrumbService.setBreadcrumb([
       { label: 'Packs', url: '/packs' },
-      { label: 'Nouveau pack', url: '/packs/add' }
+      { label: this.isEdit ? 'Modifier pack' : 'Nouveau pack', url: this.isEdit ? `/packs/edit/${this.packId}` : '/packs/add' }
     ]);
 
     this.loadProduits();
+
+    if (this.isEdit && this.packId) {
+      this.loadPack(this.packId);
+    }
+  }
+
+  private loadPack(idPack: string): void {
+    this.loading = true;
+    this.packService.getPackById(idPack).subscribe({
+      next: (pack) => {
+        this.packForm.patchValue({
+          nomPack: pack.nomPack,
+          description: pack.description,
+          produitId: pack.produitId,
+          ageMinimum: pack.ageMinimum ?? null,
+          ageMaximum: pack.ageMaximum ?? null,
+          typeClients: pack.typeClients ?? [],
+          ancienneteContratMois: pack.ancienneteContratMois ?? 0,
+          couvertureGeographique: pack.couvertureGeographique ?? null,
+          prixMensuel: pack.prixMensuel ?? 0,
+          dureeMinContrat: pack.dureeMinContrat ?? 1,
+          dureeMaxContrat: pack.dureeMaxContrat ?? 12,
+          niveauCouverture: pack.niveauCouverture ?? null,
+          statut: pack.statut ?? Statut.ACTIF
+        });
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        this.toastService.showError('Erreur', 'Impossible de charger le pack');
+      }
+    });
   }
 
   loadProduits(): void {
@@ -134,17 +172,23 @@ export class PackFormComponent implements OnInit {
       ...this.packForm.value,
       nomProduit: this.produits.find(p => p.value === this.packForm.value.produitId)?.label
     };
+    const request$ = this.isEdit && this.packId
+      ? this.packService.updatePack(this.packId, { ...packData, idPack: this.packId } as unknown as Pack)
+      : this.packService.createPack(packData);
 
-    this.packService.createPack(packData).subscribe({
+    request$.subscribe({
       next: () => {
         this.loading = false;
-        this.toastService.showSuccess('Pack créé', 'Le pack a été créé avec succès');
+        this.toastService.showSuccess(
+          this.isEdit ? 'Pack modifié' : 'Pack créé',
+          this.isEdit ? 'Le pack a été modifié avec succès' : 'Le pack a été créé avec succès'
+        );
         this.router.navigate(['/packs']);
       },
       error: (error) => {
         this.loading = false;
-        this.toastService.showError('Erreur', 'Impossible de créer le pack');
-        console.error('Error creating pack:', error);
+        this.toastService.showError('Erreur', this.isEdit ? 'Impossible de modifier le pack' : 'Impossible de créer le pack');
+        console.error('Error saving pack:', error);
       }
     });
   }
