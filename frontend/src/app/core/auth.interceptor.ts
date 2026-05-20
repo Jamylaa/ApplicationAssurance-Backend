@@ -1,26 +1,14 @@
-import {
-  HttpInterceptorFn
-} from '@angular/common/http';
+import { HttpInterceptorFn } from '@angular/common/http';
 
 import { inject } from '@angular/core';
 
-import {
-  KeycloakService
-} from 'keycloak-angular';
+import { KeycloakService} from 'keycloak-angular';
 
-import {
-  from
-} from 'rxjs';
+import { from} from 'rxjs';
 
-import {
-  switchMap
-} from 'rxjs/operators';
+import {switchMap}from 'rxjs/operators';
 
-
-export const authInterceptor: HttpInterceptorFn = (
-  req,
-  next
-) => {
+export const authInterceptor: HttpInterceptorFn = (  req,next) => {
 
   const keycloak = inject(KeycloakService);
 

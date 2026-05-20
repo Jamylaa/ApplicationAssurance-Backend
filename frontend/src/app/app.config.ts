@@ -1,21 +1,44 @@
-import { ApplicationConfig, inject } from '@angular/core';
-import {provideRouter,Router} from '@angular/router';
-import {provideHttpClient,withInterceptors,HttpInterceptorFn} from '@angular/common/http';
+import {
+  ApplicationConfig,
+  APP_INITIALIZER,
+  inject
+} from '@angular/core';
+
+import {
+  provideRouter,
+  Router
+} from '@angular/router';
+
+import {
+  provideHttpClient,
+  withInterceptors,
+  HttpInterceptorFn
+} from '@angular/common/http';
+
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { ConfirmationService,MessageService} from 'primeng/api';
+
+import {
+  ConfirmationService,
+  MessageService
+} from 'primeng/api';
 
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 
-import { routes } from './app.routes';
+import { KeycloakService } from 'keycloak-angular';
 
-import {  provideKeycloak} from 'keycloak-angular';
+import { routes } from './app.routes';
 
 import { authInterceptor } from './core/auth.interceptor';
 
+import { initializeKeycloak } from './keycloak.config';
+
 
 // ERROR INTERCEPTOR
-const errorInterceptor: HttpInterceptorFn = (req, next) => {
+const errorInterceptor: HttpInterceptorFn = (
+  req,
+  next
+) => {
 
   const router = inject(Router);
 
@@ -24,6 +47,7 @@ const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: any) => {
 
       if (error.status === 401) {
+
         router.navigate(['/']);
       }
 
@@ -52,18 +76,16 @@ export const appConfig: ApplicationConfig = {
     ConfirmationService,
     MessageService,
 
-    provideKeycloak({
+    KeycloakService,
 
-      config: {
-        url: 'http://localhost:9090',
-        realm: 'vermeg-realm',
-        clientId: 'frontend-client'
-      },
+    {
+      provide: APP_INITIALIZER,
 
-      initOptions: {
-        onLoad: 'login-required',
-        checkLoginIframe: false
-      }
-    })
+      useFactory: initializeKeycloak,
+
+      multi: true,
+
+      deps: [KeycloakService]
+    }
   ]
 };
