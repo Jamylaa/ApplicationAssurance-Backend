@@ -9,9 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
-//Service de validation pour le chatbot
- //Responsable de la validation des données extraites
-@Service
+
 public class ValidationService {
     private static final Logger logger = LoggerFactory.getLogger(ValidationService.class);
     // Patterns de validation
@@ -273,7 +271,8 @@ public class ValidationService {
             ChatbotAction.PRODUIT,
             ChatbotAction.PACK,
             ChatbotAction.CONFIGURATION_PACK,
-            ChatbotAction.AJOUT_GARANTIE_PACK
+            ChatbotAction.AJOUT_GARANTIE_PACK,
+            ChatbotAction.RECOMMENDATION
         ).contains(action);
     }
      //Valide un prompt

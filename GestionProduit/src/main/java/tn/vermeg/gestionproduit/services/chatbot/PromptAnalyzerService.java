@@ -44,7 +44,16 @@ public class PromptAnalyzerService {
         // CONFIGURATION
         Map.entry("configurer un pack", ChatbotAction.CONFIGURATION_PACK),
         Map.entry("configure a pack", ChatbotAction.CONFIGURATION_PACK),
-        Map.entry("configurer le pack", ChatbotAction.CONFIGURATION_PACK)
+        Map.entry("configurer le pack", ChatbotAction.CONFIGURATION_PACK),
+        // RECOMMENDATION
+        Map.entry("recommander", ChatbotAction.RECOMMENDATION),
+        Map.entry("recommande moi", ChatbotAction.RECOMMENDATION),
+        Map.entry("que me recommandez", ChatbotAction.RECOMMENDATION),
+        Map.entry("quel produit me", ChatbotAction.RECOMMENDATION),
+        Map.entry("quelle garantie me", ChatbotAction.RECOMMENDATION),
+        Map.entry("suggère", ChatbotAction.RECOMMENDATION),
+        Map.entry("j'ai besoin", ChatbotAction.RECOMMENDATION),
+        Map.entry("conseille moi", ChatbotAction.RECOMMENDATION)
     );
     private static final List<String> CREATION_KEYWORDS = Arrays.asList(
         "créer", "create", "ajouter", "add", "nouveau", "new", "génération", "générer"
@@ -55,14 +64,11 @@ public class PromptAnalyzerService {
     private static final List<String> AJOUT_KEYWORDS = Arrays.asList(
         "ajout", "ajouter", "add", "intégrer", "integration"
     );
-    // ========== ANALYSE D'ACTION - ULTRA ROBUSTE ==========
-//Algorithme de priorisation stricte à 3 niveaux
-     //GARANTIE: Priorité détection:
-     // 1. "créer un produit" → PRODUIT (100% confiance)
-     // 2. "créer" + (contient "produit" ET pas "garantie") → PRODUIT
-     // 3. "produit" (seul) → PRODUIT
-    //@param prompt Le prompt utilisateur à analyser
-     // @return ChatbotAction détectée ou null si ambigu
+    private static final List<String> RECOMMENDATION_KEYWORDS = Arrays.asList(
+        "recommander", "recommendation", "suggérer", "suggerer", "proposer",
+        "conseiller", "besoin", "adapté", "adapte", "quel produit",
+        "quelle garantie", "que me"
+    );
     public ChatbotAction analyzeAction(String prompt) {
         if (prompt == null || prompt.trim().isEmpty()) {
             logger.warn("❌ Prompt vide ou null");
@@ -73,13 +79,13 @@ public class PromptAnalyzerService {
         logger.info("🔍 ANALYSE ACTION - Prompt: {}", prompt);
         ChatbotAction explicitAction = detectExplicitPhrase(lowerPrompt);
         if (explicitAction != null) {
-            logger.info("✅ Action détectée NIVEAU 1 (Phrase Explicite): {} - Confiance: 100%", explicitAction);
+            logger.info("Action détectée NIVEAU 1 (Phrase Explicite): {} - Confiance: 100%", explicitAction);
             return explicitAction;
         }
         //COMBINAISONS ACTION + ENTITÉ (80% CONFIANCE)
         ChatbotAction combinedAction = detectCombinedAction(lowerPrompt);
         if (combinedAction != null) {
-            logger.info("✅ Action détectée NIVEAU 2 (Combina Explicite): {} - Confiance: 80%", combinedAction);
+            logger.info("Action détectée NIVEAU 2 (Combina Explicite): {} - Confiance: 80%", combinedAction);
             return combinedAction;
         }
         //ENTITÉ SEULE AVEC PRIORISATION (60% CONFIANCE)
@@ -112,6 +118,14 @@ public class PromptAnalyzerService {
         boolean hasProduitKeyword = containsAny(lowerPrompt, PRODUIT_KEYWORDS);
         boolean hasGarantieKeyword = containsAny(lowerPrompt, GARANTIE_KEYWORDS);
         boolean hasPackKeyword = containsAny(lowerPrompt, PACK_KEYWORDS);
+        boolean hasRecommendation = containsAny(lowerPrompt, RECOMMENDATION_KEYWORDS);
+
+        // RÈGLE 0: Recommandation (priorité haute)
+        if (hasRecommendation) {
+            logger.debug("   → Recommandation détectée");
+            return ChatbotAction.RECOMMENDATION;
+        }
+
         // RÈGLE 1: Ajout de garantie à pack
         if (hasAjout && hasGarantieKeyword && hasPackKeyword) {
             logger.debug("   → Combinaison détectée: ajout + garantie + pack");
@@ -532,16 +546,3 @@ public class PromptAnalyzerService {
         }
     }
 }
-/**
- * Service d'analyse UNIFIÉ et ROBUSTE pour la détection d'actions et l'extraction de données.
- * - Détection d'action ultra-robuste avec 3 niveaux de priorité
- * - Extraction de données via regex et patterns intelligents
- * - Fallback automatique en cas d'IA non disponible
- * - Logs détaillés pour débogage
- * - Gestion stricte des ambiguïtés
- *
- * PRIORITÉS DE DÉTECTION:
- * 1️⃣ Phrases explicites métier (100% confiance)
- * 2️⃣ Combinaisons action + entité distinctes (80% confiance)
- * 3️⃣ Détection par entité seule avec priorisation (60% confiance)
- */

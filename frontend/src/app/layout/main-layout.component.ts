@@ -1,25 +1,33 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
-import { RouterOutlet } from '@angular/router';
+import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
+
 import { SidebarComponent } from '../shared/components/sidebar.component';
 import { BreadcrumbComponent } from '../shared/components/breadcrumb.component';
 import { BreadcrumbService } from '../shared/services/breadcrumb.service';
 import { ThemeService } from '../core/theme.service';
+import { KeycloakService } from 'keycloak-angular';
 
 @Component({
   selector: 'app-main-layout',
   templateUrl: './main-layout.component.html',
   styleUrls: ['./main-layout.component.css'],
   standalone: true,
-  imports: [RouterOutlet, BreadcrumbComponent, SidebarComponent, CommonModule, FormsModule],
-  providers: []
+  imports: [
+    RouterOutlet,
+    BreadcrumbComponent,
+    SidebarComponent,
+    CommonModule,
+    FormsModule
+  ]
 })
 export class MainLayoutComponent implements OnInit, OnDestroy {
+
   currentUser: any = null;
+
   isSidebarCollapsed = false;
   isMobileMenuOpen = false;
   showUserDropdown = false;
@@ -32,61 +40,88 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private breadcrumbService: BreadcrumbService,
-    private themeService: ThemeService
-  ) {
-    this.loadUserData();
-  }
+    private themeService: ThemeService,
+    private keycloakService: KeycloakService
+  ) {}
 
-  ngOnInit(): void {
-    this.breadcrumbService.updateBreadcrumbFromUrl();
-    this.routerSub = this.router.events
-      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-      .subscribe(() => this.breadcrumbService.updateBreadcrumbFromUrl());
-    this.checkMobileView();
-    window.addEventListener('resize', this.resizeHandler);
-  }
+  async ngOnInit(): Promise<void> {
+
+  // Charger les informations utilisateur depuis Keycloak
+  this.currentUser = await this.keycloakService.loadUserProfile();
+
+  // Breadcrumbs
+  this.breadcrumbService.updateBreadcrumbFromUrl();
+
+  this.routerSub = this.router.events
+    .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+    .subscribe(() => {
+      this.breadcrumbService.updateBreadcrumbFromUrl();
+    });
+
+  // Responsive
+  this.checkMobileView();
+  window.addEventListener('resize', this.resizeHandler);
+}
 
   ngOnDestroy(): void {
     this.routerSub?.unsubscribe();
     window.removeEventListener('resize', this.resizeHandler);
   }
 
-  loadUserData(): void {
-    const userData = localStorage.getItem('currentUser');
-    if (userData) {
-      this.currentUser = JSON.parse(userData);
-    }
+  getUserName(): string {
+
+  if (!this.currentUser) {
+    return 'Utilisateur';
   }
 
-  getInitials(name: string): string {
-    if (!name) return 'U';
-    return name
+  return (
+    this.currentUser.username ||
+    this.currentUser.firstName ||
+    'Utilisateur'
+  );
+}
+
+  getInitials(name?: string): string {
+
+    const username = name || this.getUserName();
+
+    if (!username) {
+      return 'U';
+    }
+
+    return username
       .split(' ')
-      .map((s) => s[0])
+      .map((s: string) => s[0])
       .join('')
       .toUpperCase()
       .slice(0, 2);
   }
 
   getCurrentPageTitle(): string {
+
     const url = this.router.url;
+
     if (url.includes('/dashboard')) return 'Dashboard';
     if (url.includes('/users')) return 'Utilisateurs';
     if (url.includes('/produits')) return 'Produits';
     if (url.includes('/packs')) return 'Packs';
     if (url.includes('/garanties')) return 'Garanties';
     if (url.includes('/chatbot')) return 'Assistant IA';
+
     return 'Dashboard';
   }
 
   getCurrentPageIcon(): string {
+
     const url = this.router.url;
+
     if (url.includes('/dashboard')) return 'bi-grid-1x2-fill';
     if (url.includes('/users')) return 'bi-people-fill';
     if (url.includes('/produits')) return 'bi-box-seam-fill';
     if (url.includes('/packs')) return 'bi-collection-fill';
     if (url.includes('/garanties')) return 'bi-shield-fill-check';
     if (url.includes('/chatbot')) return 'bi-robot';
+
     return 'bi-grid-1x2-fill';
   }
 
@@ -107,6 +142,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   closeSearch(): void {
+
     setTimeout(() => {
       this.searchOpen = false;
       this.searchQuery = '';
@@ -122,13 +158,32 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   checkMobileView(): void {
+
     if (window.innerWidth < 768) {
       this.isSidebarCollapsed = true;
     }
   }
 
   logout(): void {
-    localStorage.clear();
-    this.router.navigate(['/auth/login']);
+    this.keycloakService.logout();
   }
 }
+
+// ngOnInit(): void {
+
+  //   // Charger les informations utilisateur depuis Keycloak
+  //   this.currentUser = this.keycloakService.getUser();
+
+  //   // Breadcrumbs
+  //   this.breadcrumbService.updateBreadcrumbFromUrl();
+
+  //   this.routerSub = this.router.events
+  //     .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+  //     .subscribe(() => {
+  //       this.breadcrumbService.updateBreadcrumbFromUrl();
+  //     });
+
+  //   // Responsive
+  //   this.checkMobileView();
+  //   window.addEventListener('resize', this.resizeHandler);
+  // }

@@ -81,4 +81,13 @@ export class GarantieDetailsComponent implements OnInit {
         return 'info';
     }
   }
+
+  formatDateTime(value?: string): string {
+    if (!value) return '—';
+    try {
+      return new Date(value).toLocaleString('fr-TN');
+    } catch (e) {
+      return value;
+    }
+  }
 }

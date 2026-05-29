@@ -14,21 +14,11 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Exception handler global pour la gestion centralisée des erreurs
- * Gère toutes les exceptions de l'application de manière cohérente
- * 
- * @author PFE Ingénieur - GestionProduit
- * @version 3.0 - Architecture Flexible
- */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    /**
-     * Gère les exceptions de validation (@Valid)
-     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(
             MethodArgumentNotValidException ex, WebRequest request) {
@@ -54,9 +44,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorResponse);
     }
 
-    /**
-     * Gère les exceptions d'arguments illégaux
-     */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(
             IllegalArgumentException ex, WebRequest request) {
@@ -74,9 +61,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorResponse);
     }
 
-    /**
-     * Gère les exceptions de type de garantie invalide
-     */
     @ExceptionHandler(TypeGarantieException.class)
     public ResponseEntity<ErrorResponse> handleTypeGarantieException(
             TypeGarantieException ex, WebRequest request) {
@@ -94,9 +78,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorResponse);
     }
 
-    /**
-     * Gère les exceptions de ressource non trouvée
-     */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
             ResourceNotFoundException ex, WebRequest request) {
@@ -114,9 +95,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
-    /**
-     * Gère les exceptions de conflit (doublons)
-     */
     @ExceptionHandler(ResourceConflictException.class)
     public ResponseEntity<ErrorResponse> handleResourceConflictException(
             ResourceConflictException ex, WebRequest request) {
@@ -134,9 +112,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
-    /**
-     * Gère les exceptions générales
-     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(
             Exception ex, WebRequest request) {
@@ -154,9 +129,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
-    /**
-     * dto pour les réponses d'erreur
-     */
     public static class ErrorResponse {
         private LocalDateTime timestamp;
         private int status;

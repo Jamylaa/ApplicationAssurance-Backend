@@ -1,13 +1,6 @@
 package tn.vermeg.gestionproduit.exceptions;
 
 import lombok.Getter;
-
-/**
- * Exception pour les ressources non trouvées
- * 
- * @author PFE Ingénieur - GestionProduit
- * @version 3.0 - Architecture Flexible
- */
 @Getter
 public class ResourceNotFoundException extends RuntimeException {
     private final String resourceType;

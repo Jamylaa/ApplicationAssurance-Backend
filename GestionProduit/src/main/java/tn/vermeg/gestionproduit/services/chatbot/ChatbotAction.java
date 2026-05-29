@@ -25,7 +25,10 @@ public enum ChatbotAction {
     // Actions de suppression
     SUPPRESSION_GARANTIE("Suppression d'une garantie"),
     SUPPRESSION_PRODUIT("Suppression d'un produit"),
-    SUPPRESSION_PACK("Suppression d'un pack");
+    SUPPRESSION_PACK("Suppression d'un pack"),
+
+    // Action de recommandation
+    RECOMMENDATION("Recommandation personnalisée");
     
     private final String description;
     ChatbotAction(String description) {
@@ -34,13 +37,7 @@ public enum ChatbotAction {
     public String getDescription() {
         return description;
     }
-    
-    /**
-     * Normalise une action textuelle en enum ChatbotAction
-     * Gère les variations de langage et les synonymes
-     * @param actionText L'action textuelle à normaliser
-     * @return L'action normalisée
-     */
+
     public static ChatbotAction normalize(String actionText) {
         if (actionText == null) {
             return null;
@@ -117,6 +114,16 @@ public enum ChatbotAction {
                 return CONSULTATION_PACK;
             }
         }
+        // Recommandation
+        if (normalized.contains("RECOMMAND") || normalized.contains("RECOMMEND") ||
+            normalized.contains("SUGGÉR") || normalized.contains("SUGGER") ||
+            normalized.contains("CONSEIL") || normalized.contains("PROPOSER") ||
+            normalized.contains("BESOIN") || normalized.contains("BESOINS") ||
+            normalized.contains("QUEL PRODUIT") || normalized.contains("QUELLE GARANTIE") ||
+            normalized.contains("QUE ME") || normalized.contains("ADAPTÉ") || normalized.contains("ADAPTE")) {
+            return RECOMMENDATION;
+        }
+
         // Actions spécifiques
         if (normalized.contains("CONFIGURATION") || normalized.contains("CONFIG")) {
             return CONFIGURATION_PACK;

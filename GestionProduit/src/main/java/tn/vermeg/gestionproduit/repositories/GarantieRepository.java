@@ -7,24 +7,11 @@ import tn.vermeg.gestionproduit.entities.Statut;
 
 import java.util.List;
 import java.util.Optional;
-
-/**
- * Repository MongoDB pour les garanties avec architecture flexible
- * Utilise String type au lieu d'enum TypeGarantie rigide
- */
 @Repository
 public interface GarantieRepository extends MongoRepository<Garantie, String> {
-
-    /**
-     * Recherche par type (String flexible)
-     * @param type Le type de garantie normalisé
-     * @return Liste des garanties correspondantes
-     */
     List<Garantie> findByType(String type);
     
-    /**
-     * Recherche par type avec insensibilité à la casse
-     */
+    //Recherche par type avec insensibilité à la casse
     List<Garantie> findByTypeIgnoreCase(String type);
 
     List<Garantie> findByStatut(Statut statut);
@@ -36,23 +23,15 @@ public interface GarantieRepository extends MongoRepository<Garantie, String> {
     List<Garantie> findByTauxRemboursementGreaterThanEqual(double tauxMin);
     List<Garantie> findByPlafondAnnuelGreaterThanEqual(double plafondMin);
     
-    /**
-     * Recherche des garanties actives par type
-     */
+    // Recherche des garanties actives par type
     List<Garantie> findByTypeAndStatut(String type, Statut statut);
     
-    /**
-     * Recherche textuelle sur le nom et le type
-     */
+    // Recherche textuelle sur le nom et le type
     List<Garantie> findByNomGarantieContainingIgnoreCaseOrTypeContainingIgnoreCase(String nom, String type);
     
-    /**
-     * Compte les garanties par type
-     */
+    // Compte les garanties par type
     long countByType(String type);
     
-    /**
-     * Vérifie l'existence par type
-     */
+    // Vérifie l'existence par type
     boolean existsByType(String type);
 }

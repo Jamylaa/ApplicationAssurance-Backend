@@ -16,7 +16,6 @@
         <module>GestionUser</module>
         <module>GestionProduit</module>
         <module>eureka</module>
-        <module>recommendation</module>
     </modules>
     
     <properties>

@@ -51,6 +51,10 @@ export interface ChatbotResponse {
       garanties: Array<{ garantie: Garantie; packGarantie: PackGarantie }>;
     };
     recommendations?: unknown[];
+    topPacks?: Array<{ packId: string; nomPack: string; score: number; reason: string }>;
+    topProduits?: Array<{ produitId: string; nomProduit: string; score: number; reason: string }>;
+    generatedPrompt?: string;
+    criteria?: Record<string, unknown>;
   };
   validation?: {
     valid: boolean;
@@ -165,6 +169,8 @@ export class ChatbotService {
         return ChatbotIntent.CONFIGURE_PACK;
       case 'AJOUT_GARANTIE_PACK':
         return ChatbotIntent.CONFIGURE_PACK;
+      case 'RECOMMENDATION':
+        return ChatbotIntent.RECOMMENDATION;
       default:
         return ChatbotIntent.UNKNOWN;
     }
@@ -223,6 +229,25 @@ export class ChatbotService {
     const innerAction = String(result['action'] || dto.action || '');
     const entity = result['entity'];
     const data: ChatbotResponse['data'] = {};
+
+    // Extract recommendations
+    if (innerAction === 'RECOMMENDATION') {
+      if (result['recommendations']) {
+        data.recommendations = result['recommendations'] as unknown[];
+      }
+      if (result['topPacks']) {
+        data.topPacks = result['topPacks'] as Array<{ packId: string; nomPack: string; score: number; reason: string }>;
+      }
+      if (result['topProduits']) {
+        data.topProduits = result['topProduits'] as Array<{ produitId: string; nomProduit: string; score: number; reason: string }>;
+      }
+      if (result['generatedPrompt']) {
+        data.generatedPrompt = String(result['generatedPrompt']);
+      }
+      if (result['criteria']) {
+        data.criteria = result['criteria'] as Record<string, unknown>;
+      }
+    }
     if (entity && typeof entity === 'object') {
       if (
         innerAction === 'CONFIGURE_PACK' ||

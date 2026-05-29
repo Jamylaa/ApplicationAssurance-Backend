@@ -1,10 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom, Subscription } from 'rxjs';
 
 import { GestionProduitService } from '../../services/gestion-produit.service';
 import { GestionUserService } from '../../services/gestion-user.service';
 import { ThemeService } from '../../core/theme.service';
+import { KeycloakService } from 'keycloak-angular';
 
 import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -12,8 +13,6 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
 import { CommonModule } from '@angular/common';
-
-import Keycloak from 'keycloak-js';
 
 @Component({
   selector: 'app-dashboard',
@@ -55,12 +54,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   pieChartOptions: any;
   polarOptions: any;
 
+  private readonly keycloakService = inject(KeycloakService);
+
   constructor(
     private readonly router: Router,
     private readonly userService: GestionUserService,
     private readonly produitService: GestionProduitService,
-    private readonly themeService: ThemeService,
-    private readonly keycloak: Keycloak
+    private readonly themeService: ThemeService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -81,14 +81,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   async loadUserData(): Promise<void> {
 
-    if (!this.keycloak.authenticated) {
-      await this.keycloak.login();
+    const kc = this.keycloakService.getKeycloakInstance();
+
+    if (!kc.authenticated) {
+      await this.keycloakService.login();
       return;
     }
 
-    const profile = await this.keycloak.loadUserProfile();
+    const profile = await kc.loadUserProfile();
 
-    const tokenParsed: any = this.keycloak.tokenParsed;
+    const tokenParsed: any = kc.tokenParsed;
 
     this.currentUser = {
       username: profile.username,
@@ -275,7 +277,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    this.keycloak.logout();
+    this.keycloakService.logout();
   }
 
   navigateToUsers(): void {

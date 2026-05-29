@@ -50,7 +50,7 @@
             </div>
             <div class="row">
               <div class="label">Prix mensuel</div>
-              <div class="value">{{ p.prixMensuel ?? '—' }} TND</div>
+              <div class="value">{{ p.prixMensuel || '—' }} TND</div>
             </div>
             <div class="row">
               <div class="label">Niveau couverture</div>
@@ -62,15 +62,27 @@
             </div>
             <div class="row">
               <div class="label">Âge</div>
-              <div class="value">{{ p.ageMinimum ?? '—' }} – {{ p.ageMaximum ?? '—' }}</div>
+              <div class="value">{{ p.ageMinimum || '—' }} – {{ p.ageMaximum || '—' }}</div>
             </div>
             <div class="row">
               <div class="label">Durée contrat</div>
-              <div class="value">{{ p.dureeMinContrat ?? '—' }} – {{ p.dureeMaxContrat ?? '—' }} mois</div>
+              <div class="value">{{ p.dureeMinContrat || '—' }} – {{ p.dureeMaxContrat || '—' }} mois</div>
+            </div>
+            <div class="row">
+              <div class="label">Ancienneté requise</div>
+              <div class="value">{{ p.ancienneteContratMois || '0' }} mois</div>
             </div>
             <div class="row">
               <div class="label">Type clients</div>
               <div class="value">{{ (p.typeClients || []).join(', ') || '—' }}</div>
+            </div>
+            <div class="row">
+              <div class="label">Création</div>
+              <div class="value">{{ formatDateTime(p.dateCreation) }}</div>
+            </div>
+            <div class="row">
+              <div class="label">Modification</div>
+              <div class="value">{{ formatDateTime(p.dateModification) }}</div>
             </div>
           </div>
         </ng-container>

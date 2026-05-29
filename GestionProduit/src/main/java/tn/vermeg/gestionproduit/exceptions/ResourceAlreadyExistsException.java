@@ -1,13 +1,6 @@
 package tn.vermeg.gestionproduit.exceptions;
 
 import lombok.Getter;
-
-/**
- * Exception pour les ressources déjà existantes
- * 
- * @author PFE Ingénieur - GestionProduit
- * @version 3.0 - Architecture Flexible
- */
 @Getter
 public class ResourceAlreadyExistsException extends RuntimeException {
     private final String resourceType;

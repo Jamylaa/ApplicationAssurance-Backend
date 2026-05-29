@@ -1,4 +1,4 @@
-package tn.vermeg.gestionuser.config;
+package tn.vermeg.gestionproduit.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +10,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.*;
 
-import tn.vermeg.gestionuser.security.KeycloakRoleConverter;
+import tn.vermeg.gestionproduit.security.KeycloakRoleConverter;
 
 import java.util.List;
 
@@ -24,15 +24,14 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-
                 .cors(Customizer.withDefaults())
-
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/users/**").authenticated()
+                        .requestMatchers("/api/produits/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/api/packs/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/api/garanties/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/api/chatbot/**").hasAnyRole("ADMIN", "USER")
                         .anyRequest().authenticated()
                 )
-
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
@@ -65,7 +64,7 @@ public class SecurityConfig {
                 List.of("http://localhost:4200"));
 
         configuration.setAllowedMethods(
-                List.of("GET", "POST", "PUT", "DELETE"));
+                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
         configuration.setAllowedHeaders(
                 List.of("*"));

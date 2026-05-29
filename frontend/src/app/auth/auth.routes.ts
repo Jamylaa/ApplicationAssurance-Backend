@@ -11,12 +11,12 @@ export const AUTH_ROUTES: Routes = [
       {
         path: 'Connexion',
         component: LoginComponent,
-        title: 'Se connecter - Plateforme d\'Assurance'
+        title: 'Se connecter-Plateforme d\'Assurance'
       },
       {
         path: 'Inscription',
         component: RegisterComponent,
-        title: 'S\'inscrire - Plateforme d\'Assurance'
+        title: 'S\'inscrire-Plateforme d\'Assurance'
       },
       {
         path: '',

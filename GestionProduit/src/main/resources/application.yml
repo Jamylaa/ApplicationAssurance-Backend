@@ -1,10 +1,8 @@
 spring:
   application:
     name: gestionProduit
-
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
-
   cloud:
     config:
       enabled: false
@@ -13,7 +11,10 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:9090/realms/vermeg-realm
+          # issuer-uri = ce que Keycloak met dans le token (vu du browser/client)
+         # issuer-uri: http://localhost:9090/realms/vermeg-realm
+          # jwk-set-uri = pour télécharger les clés depuis l'intérieur Docker
+          jwk-set-uri: http://keycloak:8080/realms/vermeg-realm/protocol/openid-connect/certs
 
 server:
   port: 9093
@@ -45,7 +46,6 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka}
-
   instance:
     prefer-ip-address: true
 
@@ -53,10 +53,6 @@ logging:
   level:
     org.springframework.security: DEBUG
     org.springframework: INFO
-    org.hibernate: INFO
-    com.zaxxer.hikari: INFO
-    org.springframework.web: INFO
-    org.springframework.web.servlet.mvc.method.annotation: INFO
 
 ---
 spring:
@@ -68,6 +64,12 @@ spring:
     mongodb:
       uri: ${MONGODB_URI:mongodb://admin:password@mongodb:27017/vermeg_db?authSource=admin}
       database: ${MONGODB_DATABASE:vermeg_db}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://keycloak:8080/realms/vermeg-realm/protocol/openid-connect/certs
 
 eureka:
   client:

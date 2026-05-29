@@ -77,7 +77,8 @@ export class UnifiedChatbotComponent implements OnInit, OnDestroy {
   readonly suggestionPrompts = [
     'Créer une garantie hospitalisation avec 90% de remboursement',
     'Créer un produit d\'assurance santé nommé Produit Santé Plus',
-    'Créer un pack Gold lié au produit Santé Premium'
+    'Créer un pack Gold lié au produit Santé Premium',
+    'Recommande moi un produit santé avec garantie dentaire'
   ];
 
   private chatbotSubscription?: Subscription;
@@ -213,6 +214,36 @@ Comment puis-je vous aider aujourd'hui ?`;
         if (recObj.price) formatted += `• Prix : ${recObj.price}€\n`;
         if (recObj.features) formatted += `• Fonctionnalités : ${recObj.features.join(', ')}\n`;
       });
+    }
+
+    if (data.topPacks) {
+      formatted += `Packs recommandés :\n`;
+      data.topPacks.forEach((pack, index) => {
+        formatted += `\n${index + 1}. ${pack.nomPack} (score: ${pack.score})\n`;
+        formatted += `• ID pack : ${pack.packId}\n`;
+        formatted += `• Raisons : ${pack.reason}\n`;
+      });
+    }
+
+    if (data.topProduits) {
+      formatted += `Produits recommandés :\n`;
+      data.topProduits.forEach((produit, index) => {
+        formatted += `\n${index + 1}. ${produit.nomProduit} (score: ${produit.score})\n`;
+        formatted += `• ID produit : ${produit.produitId}\n`;
+        formatted += `• Raisons : ${produit.reason}\n`;
+      });
+    }
+
+    if (data.criteria) {
+      formatted += `Critères utilisés :\n`;
+      Object.entries(data.criteria).forEach(([key, value]) => {
+        formatted += `• ${key} : ${JSON.stringify(value)}\n`;
+      });
+    }
+
+    if (data.generatedPrompt) {
+      formatted += `\nPrompt Gemini généré :\n`;
+      formatted += `${data.generatedPrompt}\n`;
     }
 
     return formatted;

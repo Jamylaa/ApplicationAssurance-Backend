@@ -201,6 +201,15 @@ public class AIExtractionService {
         return jsonStr;
     }
 
+    public Map<String, Object> extractRecommendationData(String prompt) {
+        try {
+            return callGoogleAIWithRetry(prompt + "\n\nAnalyse le besoin client et retourne un JSON avec: typeProduit (SANTE/AUTO/HABITATION/VIE/PREVOYANCE/EPARGNE), budgetMensuel, age, typeClient (FAMILLE/INDIVIDUEL/ENTREPRISE/SENIOR), niveauCouverture (BASIC/STANDARD/PREMIUM/GOLD), garantiesRecherchees (liste de strings). Utilise null si absent.");
+        } catch (Exception e) {
+            logger.error("❌ Erreur extraction recommandation IA: {}", e.getMessage());
+            return new HashMap<>();
+        }
+    }
+
     // ========== HELPERS ==========
 
     public String getStringValue(Map<String, Object> data, String key, String defaultValue) {
@@ -252,22 +261,3 @@ public class AIExtractionService {
         return googleApiKey != null && !googleApiKey.trim().isEmpty() && geminiEnabled && aiExtractionEnabled;
     }
 }
-
-/**
- * Service d'extraction IA pour le chatbot avec API Google Gemini.
- * CARACTÉRISTIQUES:
- * - Intégration Google Gemini avec fallback robuste
- * - Timeout configurable avec retry intelligent
- * - Gestion complète des erreurs API
- * - Option de fallback vers extraction par patterns
- * - Logs fournis pour débogage
- * - ⚠️ Jamais null - toujours un Map<> vide en fallback
- * CONFIG (application.yml):
- * gemini:
- *   api-key: ...
- *   model: gemini-2.0-flash (VALIDE!)
- *   url: https://generativelanguage.googleapis.com/v1beta/models
- *   timeout-seconds: 30
- *   max-retries: 3
- *   retry-delay-ms: 1000
- */

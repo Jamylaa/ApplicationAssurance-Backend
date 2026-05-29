@@ -79,7 +79,8 @@ public class ChatbotController {
                 "PRODUIT", "Création de produits", 
                 "PACK", "Création de packs",
                 "CONFIGURATION_PACK", "Configuration de packs",
-                "AJOUT_GARANTIE_PACK", "Ajout de garanties aux packs"
+                "AJOUT_GARANTIE_PACK", "Ajout de garanties aux packs",
+                "RECOMMENDATION", "Recommandation personnalisée"
             )
         );
 
@@ -125,6 +126,10 @@ public class ChatbotController {
                 "AJOUT_GARANTIE_PACK", Map.of(
                     "description", "Ajout d'une garantie à un pack",
                     "example", "Ajouter la garantie optique au pack Silver"
+                ),
+                "RECOMMENDATION", Map.of(
+                    "description", "Recommandation personnalisée de produits, packs et garanties",
+                    "example", "Recommande moi un produit santé avec garantie hospitalisation"
                 )
             ),
             "features", Map.of(

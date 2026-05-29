@@ -26,9 +26,7 @@ public class Produit {
     private Instant dateModification;
 
     // CONSTRUCTEURS
-
     public Produit() {}
-
     public Produit(String idProduit, String nomProduit, String description,
                    TypeProduit typeProduit, Statut statut,
                    Instant dateCreation, Instant dateModification) {
@@ -43,7 +41,6 @@ public class Produit {
     }
 
     // MÉTHODES MÉTIER
-
     public boolean estActif() {
         return statut == Statut.ACTIF;
     }
@@ -53,9 +50,7 @@ public class Produit {
                 && typeProduit != null
                 && statut != null;
     }
-
     // GETTERS & SETTERS
-
     public String getIdProduit() { return idProduit; }
     public void setIdProduit(String idProduit) { this.idProduit = idProduit; }
 

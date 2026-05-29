@@ -5,9 +5,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-
-import com.fasterxml.jackson.annotation.JsonAlias;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -24,15 +21,11 @@ public class Garantie {
 
     @NotNull(message = "Le statut est obligatoire")
     private Statut statut;
-    
-    /**
-     * Type de garantie flexible (String) - remplace l'enum rigide
-     * Accepte toutes les valeurs : "HOSPITALISATION", "DENTAIRE_PREMIUM", etc.
-     */
+
     @NotBlank(message = "Le type de garantie est obligatoire")
     @Size(min = 2, max = 50, message = "Le type doit contenir entre 2 et 50 caractères")
     @Field("type")
-    @JsonAlias({"typeGarantie", "type_garantie"})
+   // @JsonAlias({"typeGarantie", "type_garantie"})
     private String type;
 
     // PARAMÈTRES FINANCIERS
@@ -50,7 +43,6 @@ public class Garantie {
     private double coutMoyenParSinistre;
 
     // PARAMÈTRES CONTRACTUELS
-
     private int dureeMinContrat;
     private int dureeMaxContrat;
 
@@ -58,32 +50,24 @@ public class Garantie {
 
     // AUDIT
     private String creePar;
-
     @CreatedDate
     private Instant dateCreation;
-
     @LastModifiedDate
     private Instant dateModification;
-
     private Instant dateDesactivation;
 
     // MÉTHODES MÉTIER
-
     public boolean estValide() {
         return tauxRemboursement >= 0
                 && tauxRemboursement <= 1
                 && plafondAnnuel >= 0
                 && franchise >= 0;
     }
-
     public boolean estActive() {
         return statut == Statut.ACTIF && dateDesactivation == null;
     }
-
     // CONSTRUCTEURS
-
     public Garantie() {}
-
     public Garantie(String idGarantie, String nomGarantie, String description,
                     Statut statut, String type,
                     double tauxRemboursement, TypeMontant typeMontant,
@@ -121,10 +105,8 @@ public class Garantie {
     }
 
     // GETTERS & SETTERS
-
     public String getIdGarantie() { return idGarantie; }
     public void setIdGarantie(String idGarantie) { this.idGarantie = idGarantie; }
-
     public String getNomGarantie() { return nomGarantie; }
     public void setNomGarantie(String nomGarantie) { this.nomGarantie = nomGarantie; }
 
@@ -138,27 +120,16 @@ public class Garantie {
     public void setType(String type) { 
         this.type = normalizeType(type); 
     }
-    
-    /**
-     * Normalise le type de garantie pour assurer la cohérence
-     * @param type Le type à normaliser
-     * @return Le type normalisé (trim, uppercase si nécessaire)
-     */
+
     private String normalizeType(String type) {
         if (type == null) {
             return null;
         }
         return type.trim().toUpperCase();
     }
-    
-    /**
-     * Vérifie si le type de garantie est valide
-     * @return true si le type n'est pas null et n'est pas vide
-     */
     public boolean hasValidType() {
         return type != null && !type.trim().isEmpty();
     }
-
     public double getTauxRemboursement() { return tauxRemboursement; }
     public void setTauxRemboursement(double tauxRemboursement) { this.tauxRemboursement = tauxRemboursement; }
 

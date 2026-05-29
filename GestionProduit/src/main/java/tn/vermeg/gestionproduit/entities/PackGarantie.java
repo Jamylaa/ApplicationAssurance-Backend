@@ -36,11 +36,9 @@ public class PackGarantie {
     private double supplementPrix;
 
     // MÉTHODES MÉTIER
-
     public boolean estValide() {
         return plafond >= 0 && tauxRemboursement >= 0;
     }
-
     public double calculerRemboursement(double montant) {
         double base = Math.max(0, montant - franchise);
         double remboursement = base * tauxRemboursement;
@@ -48,9 +46,7 @@ public class PackGarantie {
     }
 
     // CONSTRUCTEURS
-
     public PackGarantie() {}
-
     public PackGarantie(String idPackGarantie, String packId, String garantieId,
                         String nomGarantie, double tauxRemboursement, double plafond,
                         double franchise, TypeMontant typeMontant,
@@ -76,23 +72,18 @@ public class PackGarantie {
     }
 
     // GETTERS & SETTERS
-
     public String getIdPackGarantie() {
         return idPackGarantie;
     }
-
     public void setIdPackGarantie(String idPackGarantie) {
         this.idPackGarantie = idPackGarantie;
     }
-
     public String getPackId() {
         return packId;
     }
-
     public void setPackId(String packId) {
         this.packId = packId;
     }
-
     public String getGarantieId() {
         return garantieId;
     }
@@ -104,11 +95,9 @@ public class PackGarantie {
     public String getNomGarantie() {
         return nomGarantie;
     }
-
     public void setNomGarantie(String nomGarantie) {
         this.nomGarantie = nomGarantie;
     }
-
     public double getTauxRemboursement() {
         return tauxRemboursement;
     }
@@ -172,27 +161,21 @@ public class PackGarantie {
     public void setDateActivation(Instant dateActivation) {
         this.dateActivation = dateActivation;
     }
-
     public Instant getDateDesactivation() {
         return dateDesactivation;
     }
-
     public void setDateDesactivation(Instant dateDesactivation) {
         this.dateDesactivation = dateDesactivation;
     }
-
     public boolean isOptionnelle() {
         return optionnelle;
     }
-
     public void setOptionnelle(boolean optionnelle) {
         this.optionnelle = optionnelle;
     }
-
     public double getSupplementPrix() {
         return supplementPrix;
     }
-
     public void setSupplementPrix(double supplementPrix) {
         this.supplementPrix = supplementPrix;
     }

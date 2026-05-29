@@ -1,9 +1,5 @@
 package tn.vermeg.gestionproduit.entities;
 
-/**
- * Énumération des types de garanties standards
- * Utilisée pour la compatibilité avec le code existant
- */
 public enum TypeGarantie {
     HOSPITALISATION,
     DENTAIRE,

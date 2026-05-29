@@ -15,10 +15,11 @@ import tn.vermeg.gestionproduit.repositories.ProduitRepository;
 import tn.vermeg.gestionproduit.services.GarantieService;
 import tn.vermeg.gestionproduit.services.ProduitService;
 import tn.vermeg.gestionproduit.services.PackUnifiedService;
+import tn.vermeg.gestionproduit.services.ScoringService;
 
 import java.util.*;
-
- // Coordonne tous les services chatbot et appelle les services métier existants
+import java.util.Set;
+import java.util.LinkedHashMap;
 @Service
 public class ChatbotOrchestratorService {
 
@@ -40,6 +41,7 @@ public class ChatbotOrchestratorService {
     private final ProduitRepository produitRepository;
     private final PackUnifiedRepository packUnifiedRepository;
     private final GarantieRepository garantieRepository;
+    private final ScoringService scoringService;
 
     public ChatbotOrchestratorService(
             PromptAnalyzerService promptAnalyzerService,
@@ -52,7 +54,8 @@ public class ChatbotOrchestratorService {
             PackUnifiedService packUnifiedService,
             ProduitRepository produitRepository,
             PackUnifiedRepository packUnifiedRepository,
-            GarantieRepository garantieRepository) {
+            GarantieRepository garantieRepository,
+            ScoringService scoringService) {
         this.promptAnalyzerService = promptAnalyzerService;
         this.promptSegmentationService = promptSegmentationService;
         this.aiExtractionService = aiExtractionService;
@@ -64,6 +67,7 @@ public class ChatbotOrchestratorService {
         this.produitRepository = produitRepository;
         this.packUnifiedRepository = packUnifiedRepository;
         this.garantieRepository = garantieRepository;
+        this.scoringService = scoringService;
     }
 
      //Point d'entrée principal pour le traitement des prompts
@@ -112,6 +116,7 @@ public class ChatbotOrchestratorService {
             case PACK -> executeCreatePack(prompt);
             case CONFIGURATION_PACK -> executeConfigurePack(prompt);
             case AJOUT_GARANTIE_PACK -> executeAddGarantieToPack(prompt);
+            case RECOMMENDATION -> executeRecommendation(prompt);
             default -> Map.of("success", false, "error", "Action non implémentée: " + action);
         };
     }
@@ -372,6 +377,214 @@ public class ChatbotOrchestratorService {
             logger.error("Erreur ajout garantie au pack: {}", e.getMessage(), e);
             return Map.of("success", false, "error", "Erreur ajout garantie au pack: " + e.getMessage());
         }
+    }
+
+    // Exécute une recommandation personnalisée basée sur les besoins utilisateur
+    @SuppressWarnings("unchecked")
+    private Object executeRecommendation(String prompt) {
+        try {
+            Map<String, Object> extractedData = Map.of();
+            if (aiExtractionService.isAIAvailable()) {
+                extractedData = aiExtractionService.extractRecommendationData(prompt);
+            }
+
+            String requestedProductType = aiExtractionService.getStringValue(extractedData, "typeProduit", "").toUpperCase(Locale.ROOT);
+            int age = aiExtractionService.getIntegerValue(extractedData, "age", 0);
+            double budget = aiExtractionService.getDoubleValue(extractedData, "budgetMensuel", 0);
+            String typeClient = aiExtractionService.getStringValue(extractedData, "typeClient", "");
+            String niveauCouverture = aiExtractionService.getStringValue(extractedData, "niveauCouverture", "");
+            String couvertureGeographique = aiExtractionService.getStringValue(extractedData, "couvertureGeographique", "");
+            List<String> garantiesRecherchees = extractStringList(extractedData, "garantiesRecherchees");
+            if (garantiesRecherchees.isEmpty()) {
+                garantiesRecherchees = extractStringList(extractedData, "garantiesSouhaitees");
+            }
+
+            if (age == 0) {
+                age = promptAnalyzerService.extractAgeMinimum(prompt);
+            }
+            if (budget <= 0) {
+                Double extractedBudget = promptAnalyzerService.extractPrixMensuel(prompt);
+                budget = extractedBudget != null ? extractedBudget : budget;
+            }
+            if (couvertureGeographique.isBlank()) {
+                couvertureGeographique = promptAnalyzerService.extractCouvertureGeographique(prompt);
+            }
+            if (typeClient.isBlank()) {
+                List<String> detectedTypes = promptAnalyzerService.extractTypeClientLabels(prompt);
+                typeClient = detectedTypes.isEmpty() ? "" : detectedTypes.get(0);
+            }
+            if (requestedProductType.isBlank()) {
+                requestedProductType = extractProductTypeFromPrompt(prompt);
+            }
+            if (niveauCouverture.isBlank()) {
+                niveauCouverture = promptAnalyzerService.extractNiveauCouverture(prompt);
+            }
+
+            ScoringService.ClientProfile profile = new ScoringService.ClientProfile(
+                typeClient,
+                age,
+                0,
+                budget,
+                garantiesRecherchees,
+                couvertureGeographique,
+                requestedProductType
+            );
+
+            List<ScoringService.RecommendationDTO> rankedPacks = scoringService.recommendPacks(profile);
+            List<ScoringService.RecommendationDTO> rankedProduits = scoringService.recommendProduits(profile);
+
+            List<Map<String, Object>> topPacks = new ArrayList<>();
+            for (int i = 0; i < Math.min(3, rankedPacks.size()); i++) {
+                ScoringService.RecommendationDTO packRec = rankedPacks.get(i);
+                topPacks.add(Map.of(
+                    "packId", packRec.packId(),
+                    "nomPack", packRec.nomPack(),
+                    "score", packRec.score(),
+                    "reason", packRec.reason()
+                ));
+            }
+
+            List<Map<String, Object>> topProduits = new ArrayList<>();
+            for (int i = 0; i < Math.min(2, rankedProduits.size()); i++) {
+                ScoringService.RecommendationDTO prodRec = rankedProduits.get(i);
+                topProduits.add(Map.of(
+                    "produitId", prodRec.packId(),
+                    "nomProduit", prodRec.nomPack(),
+                    "score", prodRec.score(),
+                    "reason", prodRec.reason()
+                ));
+            }
+
+            Map<String, Object> criteria = new LinkedHashMap<>();
+            criteria.put("age", age);
+            criteria.put("budgetMensuel", budget);
+            if (!requestedProductType.isBlank()) criteria.put("typeProduit", requestedProductType);
+            if (!typeClient.isBlank()) criteria.put("typeClient", typeClient);
+            if (!niveauCouverture.isBlank()) criteria.put("niveauCouverture", niveauCouverture);
+            if (!couvertureGeographique.isBlank()) criteria.put("couvertureGeographique", couvertureGeographique);
+            if (!garantiesRecherchees.isEmpty()) criteria.put("garantiesRecherchees", garantiesRecherchees);
+
+            String generatedPrompt = buildGeminiRecommendationPrompt(prompt, profile, topPacks, topProduits);
+
+            return Map.of(
+                "success", true,
+                "action", "RECOMMENDATION",
+                "topPacks", topPacks,
+                "topProduits", topProduits,
+                "criteria", criteria,
+                "generatedPrompt", generatedPrompt,
+                "message", (!topPacks.isEmpty() || !topProduits.isEmpty())
+                    ? "Recommandations calculées avec succès."
+                    : "Aucune recommandation disponible pour les critères fournis."
+            );
+
+        } catch (Exception e) {
+            logger.error("Erreur recommandation: {}", e.getMessage(), e);
+            return Map.of("success", false, "error", "Erreur recommandation: " + e.getMessage());
+        }
+    }
+
+    private List<String> extractStringList(Map<String, Object> data, String key) {
+        if (data == null || !data.containsKey(key)) {
+            return List.of();
+        }
+        Object rawValue = data.get(key);
+        if (rawValue instanceof List<?> list) {
+            List<String> values = new ArrayList<>();
+            for (Object item : list) {
+                if (item != null) {
+                    String value = item.toString().trim();
+                    if (!value.isEmpty()) {
+                        values.add(value);
+                    }
+                }
+            }
+            return values;
+        }
+        String text = rawValue.toString().trim();
+        if (text.isEmpty()) {
+            return List.of();
+        }
+        text = text.replaceAll("[\\[\\]\\\"']", "");
+        String[] parts = text.split("[,;\\n]");
+        List<String> values = new ArrayList<>();
+        for (String part : parts) {
+            String value = part.trim();
+            if (!value.isEmpty()) {
+                values.add(value);
+            }
+        }
+        return values;
+    }
+
+    private String extractProductTypeFromPrompt(String prompt) {
+        if (prompt == null) {
+            return "";
+        }
+        String lower = prompt.toLowerCase();
+        if (lower.contains("santé") || lower.contains("sante")) return "SANTE";
+        if (lower.contains("auto") || lower.contains("voiture")) return "AUTO";
+        if (lower.contains("habitation") || lower.contains("maison")) return "HABITATION";
+        if (lower.contains("vie") || lower.contains("décès")) return "VIE";
+        if (lower.contains("épargne") || lower.contains("epargne")) return "EPARGNE";
+        if (lower.contains("prévoyance") || lower.contains("prevoyance")) return "PREVOYANCE";
+        return "";
+    }
+
+    private String buildGeminiRecommendationPrompt(String originalPrompt,
+                                                   ScoringService.ClientProfile profile,
+                                                   List<Map<String, Object>> topPacks,
+                                                   List<Map<String, Object>> topProduits) {
+        StringBuilder promptBuilder = new StringBuilder();
+        promptBuilder.append("Vous êtes un assistant de recommandation d'assurance.");
+        promptBuilder.append("\n\nDemande client : ").append(originalPrompt).append("\n\n");
+        promptBuilder.append("Critères extraits :\n");
+        promptBuilder.append("- Age : ").append(profile.age()).append(" ans\n");
+        promptBuilder.append("- Budget mensuel maximal : ").append(profile.budget()).append("\n");
+        if (!profile.produitTypePreferee().isBlank()) {
+            promptBuilder.append("- Type de produit préféré : ").append(profile.produitTypePreferee()).append("\n");
+        }
+        if (!profile.couvertureGeographique().isBlank()) {
+            promptBuilder.append("- Couverture géographique : ").append(profile.couvertureGeographique()).append("\n");
+        }
+        if (!profile.garantiesVoulu().isEmpty()) {
+            promptBuilder.append("- Garanties recherchées : ").append(String.join(", ", profile.garantiesVoulu())).append("\n");
+        }
+        if (!profile.sexe().isBlank()) {
+            promptBuilder.append("- Type de client : ").append(profile.sexe()).append("\n");
+        }
+        promptBuilder.append("\nTop recommandations calculées :\n");
+        if (!topPacks.isEmpty()) {
+            promptBuilder.append("Packs :\n");
+            for (Map<String, Object> pack : topPacks) {
+                promptBuilder.append("  - ")
+                    .append(pack.get("nomPack"))
+                    .append(" (score ")
+                    .append(pack.get("score"))
+                    .append(") : ")
+                    .append(pack.get("reason"))
+                    .append("\n");
+            }
+        }
+        if (!topProduits.isEmpty()) {
+            promptBuilder.append("Produits :\n");
+            for (Map<String, Object> produit : topProduits) {
+                promptBuilder.append("  - ")
+                    .append(produit.get("nomProduit"))
+                    .append(" (score ")
+                    .append(produit.get("score"))
+                    .append(") : ")
+                    .append(produit.get("reason"))
+                    .append("\n");
+            }
+        }
+        promptBuilder.append("\nTâche :");
+        promptBuilder.append("\n1. Analysez les besoins du client.");
+        promptBuilder.append("\n2. Vérifiez la cohérence des recommandations.");
+        promptBuilder.append("\n3. Proposez une réponse structurée et facile à comprendre.");
+        promptBuilder.append("\n4. Incluez une explication des critères de sélection.");
+        promptBuilder.append("\nRetournez uniquement le texte de la recommandation, sans métadonnées internes.");
+        return promptBuilder.toString();
     }
 
     // Méthodes utilitaires de conversion et normalisation

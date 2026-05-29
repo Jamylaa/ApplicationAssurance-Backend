@@ -21,13 +21,13 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+ //   @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+ //   @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{idUser}")
     public ResponseEntity<User> getUserById(@PathVariable String idUser) {
 
@@ -37,7 +37,7 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+  //  @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
         try {
@@ -49,7 +49,7 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+  //  @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{idUser}")
     public ResponseEntity<User> updateUser(@PathVariable String idUser,
                                            @RequestBody User user) {
@@ -60,7 +60,7 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+  //  @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{idUser}")
     public ResponseEntity<Void> deleteUser(@PathVariable String idUser) {
         try {
@@ -71,7 +71,7 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("isAuthenticated()")
+  //  @PreAuthorize("isAuthenticated()")
     @GetMapping("/email/{email}")
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
         return userService.getUserByEmail(email)

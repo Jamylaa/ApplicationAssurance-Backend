@@ -50,7 +50,7 @@
             </div>
             <div class="row">
               <div class="label">Taux remboursement</div>
-              <div class="value">{{ ((g.tauxRemboursement ?? 0) * 100) | number:'1.0-0' }}%</div>
+              <div class="value">{{ ((g.tauxRemboursement || 0) * 100) | number:'1.0-0' }}%</div>
             </div>
             <div class="row">
               <div class="label">Type montant</div>
@@ -62,23 +62,47 @@
             </div>
             <div class="row">
               <div class="label">Plafond annuel</div>
-              <div class="value">{{ g.plafondAnnuel ?? '—' }}</div>
+              <div class="value">{{ g.plafondAnnuel || '—' }}</div>
             </div>
             <div class="row">
               <div class="label">Plafond mensuel</div>
-              <div class="value">{{ g.plafondMensuel ?? '—' }}</div>
+              <div class="value">{{ g.plafondMensuel || '—' }}</div>
             </div>
             <div class="row">
               <div class="label">Plafond par acte</div>
-              <div class="value">{{ g.plafondParActe ?? '—' }}</div>
+              <div class="value">{{ g.plafondParActe || '—' }}</div>
             </div>
             <div class="row">
               <div class="label">Franchise</div>
-              <div class="value">{{ g.franchise ?? '—' }}</div>
+              <div class="value">{{ g.franchise || '—' }}</div>
+            </div>
+            <div class="row">
+              <div class="label">Coût moyen par sinistre</div>
+              <div class="value">{{ g.coutMoyenParSinistre || '—' }}</div>
+            </div>
+            <div class="row">
+              <div class="label">Résiliable annuellement</div>
+              <div class="value">{{ g.resiliableAnnuellement ? 'Oui' : 'Non' }}</div>
             </div>
             <div class="row">
               <div class="label">Durée contrat</div>
-              <div class="value">{{ g.dureeMinContrat ?? '—' }} – {{ g.dureeMaxContrat ?? '—' }} mois</div>
+              <div class="value">{{ g.dureeMinContrat || '—' }} – {{ g.dureeMaxContrat || '—' }} mois</div>
+            </div>
+            <div class="row">
+              <div class="label">Création</div>
+              <div class="value">{{ formatDateTime(g.dateCreation) }}</div>
+            </div>
+            <div class="row">
+              <div class="label">Modification</div>
+              <div class="value">{{ formatDateTime(g.dateModification) }}</div>
+            </div>
+            <div class="row">
+              <div class="label">Désactivation</div>
+              <div class="value">{{ formatDateTime(g.dateDesactivation) }}</div>
+            </div>
+            <div class="row">
+              <div class="label">Créé par</div>
+              <div class="value">{{ g.creePar || '—' }}</div>
             </div>
           </div>
         </ng-container>

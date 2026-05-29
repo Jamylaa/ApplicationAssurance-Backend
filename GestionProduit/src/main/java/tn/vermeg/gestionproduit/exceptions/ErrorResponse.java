@@ -2,13 +2,6 @@ package tn.vermeg.gestionproduit.exceptions;
 
 import lombok.Data;
 import java.util.Map;
-
-/**
- * Structure de réponse pour les erreurs
- * 
- * @author PFE Ingénieur - GestionProduit
- * @version 3.0 - Architecture Flexible
- */
 @Data
 public class ErrorResponse {
     private String timestamp;

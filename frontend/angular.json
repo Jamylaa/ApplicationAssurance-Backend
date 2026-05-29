@@ -24,12 +24,12 @@
               "src/favicon.ico",
               "src/assets",
               {
-                "glob": "theme.css",
+                "glob": "**/*",
                 "input": "node_modules/primeng/resources/themes/lara-light-blue",
                 "output": "assets/primeng-themes/lara-light-blue"
               },
               {
-                "glob": "theme.css",
+                "glob": "**/*",
                 "input": "node_modules/primeng/resources/themes/lara-dark-blue",
                 "output": "assets/primeng-themes/lara-dark-blue"
               }

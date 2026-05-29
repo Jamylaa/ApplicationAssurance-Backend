@@ -57,6 +57,8 @@
           <th pSortableColumn="nomPack">Nom du pack <p-sortIcon field="nomPack"></p-sortIcon></th>
           <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
           <th pSortableColumn="nomProduit">Produit <p-sortIcon field="nomProduit"></p-sortIcon></th>
+          <th pSortableColumn="ageMinimum">Âge éligible <p-sortIcon field="ageMinimum"></p-sortIcon></th>
+          <th pSortableColumn="couvertureGeographique">Couverture <p-sortIcon field="couvertureGeographique"></p-sortIcon></th>
           <th pSortableColumn="prixMensuel">Prix mensuel <p-sortIcon field="prixMensuel"></p-sortIcon></th>
           <th pSortableColumn="niveauCouverture">Niveau <p-sortIcon field="niveauCouverture"></p-sortIcon></th>
           <th pSortableColumn="statut">Statut <p-sortIcon field="statut"></p-sortIcon></th>
@@ -80,8 +82,14 @@
             </div>
           </td>
           <td>
+            <div class="age-range">{{ pack.ageMinimum ?? '—' }} – {{ pack.ageMaximum ?? '—' }}</div>
+          </td>
+          <td>
+            <div class="coverage">{{ pack.couvertureGeographique || '—' }}</div>
+          </td>
+          <td>
             <div class="price-cell">
-              <span class="price-value">{{ pack.prixMensuel }}</span>
+              <span class="price-value">{{ pack.prixMensuel | number:'1.2-2' }}</span>
               <span class="price-currency">TND</span>
             </div>
           </td>
@@ -126,7 +134,7 @@
 
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="7">
+          <td colspan="9">
             <div class="empty-state">
               <div class="empty-icon"><i class="bi bi-collection"></i></div>
               <h3>Aucun pack trouvé</h3>

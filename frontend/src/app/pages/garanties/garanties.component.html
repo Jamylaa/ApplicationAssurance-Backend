@@ -57,6 +57,8 @@
           <th pSortableColumn="nomGarantie">Nom <p-sortIcon field="nomGarantie"></p-sortIcon></th>
           <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
           <th pSortableColumn="type">Type <p-sortIcon field="type"></p-sortIcon></th>
+          <th pSortableColumn="typeMontant">Type montant <p-sortIcon field="typeMontant"></p-sortIcon></th>
+          <th pSortableColumn="typePlafond">Type plafond <p-sortIcon field="typePlafond"></p-sortIcon></th>
           <th pSortableColumn="tauxRemboursement">Taux <p-sortIcon field="tauxRemboursement"></p-sortIcon></th>
           <th pSortableColumn="statut">Statut <p-sortIcon field="statut"></p-sortIcon></th>
           <th style="width:100px;text-align:center;">Actions</th>
@@ -74,6 +76,12 @@
           <td><span class="cell-text">{{ garantie.description || '—' }}</span></td>
           <td>
             <span class="type-badge">{{ garantie.type || 'N/A' }}</span>
+          </td>
+          <td>
+            <span class="type-badge">{{ garantie.typeMontant || 'N/A' }}</span>
+          </td>
+          <td>
+            <span class="type-badge">{{ garantie.typePlafond || 'N/A' }}</span>
           </td>
           <td>
             <div class="taux-cell">
@@ -115,7 +123,7 @@
 
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="6">
+          <td colspan="8">
             <div class="empty-state">
               <div class="empty-icon"><i class="bi bi-shield"></i></div>
               <h3>Aucune garantie trouvée</h3>
